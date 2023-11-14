@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: reverse-nexus-api
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+    command: gunicorn --bind 0.0.0.0:5000 app:app --log-level=debug
+    # ports:
+    #   - "5000:5000"
+    # environment:
+    #   MONGODB_HOST: mongodb
+    #   MONGODB_USERNAME: "apiuser"
+    #   MONGODB_PASSWORD: "apipassword"
+    env_file:
+      - ./.env.dev
+    volumes:
+      # - appdata:/var/www/
+      - ./api:/app
+    depends_on: 
+      - postgresql
+    networks:
+      - net
+
+  client:
+    container_name: reverse-nexus-client
+    build:
+      context: ./react-frontend
+      dockerfile: Dockerfile
+    tty: true
+    # ports: 
+    #   - "3000:3000"
+    volumes:
+      - ./react-frontend:/app
+      - /app/node_modules
+    networks:
+      - net
+
+
+  postgresql:
+    container_name: reverse-nexus-postgresql
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=hello_flask
+      - POSTGRES_PASSWORD=hello_flask
+      - POSTGRES_DB=hello_flask_dev
+    networks:
+      - net
+
+  nginx:
+    container_name: reverse-nexus-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    depends_on:
+      - api
+      - client
+      - postgresql
+    ports:
+      - "80:80"
+    networks:
+      - net
+
+networks:
+  net:
+
+volumes:
+  postgres_data:
