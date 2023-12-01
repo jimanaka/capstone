@@ -3,6 +3,9 @@ import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/navbar";
 import Landing from "./containers/Landing";
+import Home from "./containers/Home";
+import LabsHome from "./containers/LabsHome";
+import Sandbox from "./containers/Sandbox";
 
 function App() {
   return (
@@ -10,6 +13,9 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/labs" element={<LabsHome />} />
+        <Route path="/sandbox" element={<Sandbox />} />
       </Routes>
     </div>
   );
