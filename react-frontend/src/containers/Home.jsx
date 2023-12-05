@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
@@ -28,7 +29,7 @@ const spacerStyle = {
 
 const Home = () => {
   return (
-    <div style={containerStyle}>
+    <Box style={containerStyle}>
       {/* First square card */}
       <Paper style={cardStyle}>
         <Typography variant="h6">Reverse Nexus Labs</Typography>
@@ -58,7 +59,7 @@ const Home = () => {
           Go To Sandbox
         </Button>
       </Paper>
-    </div>
+    </Box>
   );
 };
 
