@@ -7,7 +7,7 @@ import NotFound from "./containers/NotFound";
 
 function App() {
   return (
-    <div className="bg-ctp-base">
+    <div>
       <Navbar />
       <Routes>
         <Route path="*" element={<NotFound />} />
