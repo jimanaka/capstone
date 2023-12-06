@@ -1,65 +1,42 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import Paper from "@mui/material/Paper";
-import Typography from "@mui/material/Typography";
-
-const cardStyle = {
-  width: "400px",
-  height: "300px",
-  padding: "32px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const containerStyle = {
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "flex-end",
-  height: "70vh",
-  paddingBottom: "16px", // Adding some bottom padding
-};
-
-const spacerStyle = {
-  width: "100px",
-};
 
 const Home = () => {
   return (
-    <Box style={containerStyle}>
-      {/* First square card */}
-      <Paper style={cardStyle}>
-        <Typography variant="h6">Reverse Nexus Labs</Typography>
-        <Button
-          component={Link}
-          to="/labs"
-          variant="contained"
-          color="primary"
-          href="/page1"
-        >
-          Go To Labs
-        </Button>
-      </Paper>
-
-      {/* White space */}
-      <div style={spacerStyle} />
-
-      {/* Second square card */}
-      <Paper style={cardStyle}>
-        <Typography variant="h6">Reverse Nexus Sandbox</Typography>
-        <Button
-          component={Link}
-          to="/sandbox"
-          variant="contained"
-          color="primary"
-        >
-          Go To Sandbox
-        </Button>
-      </Paper>
-    </Box>
+    <>
+      <div className="relative top-44 flex h-[30rem] items-center justify-center space-x-32">
+        {/* left card */}
+        <div className="bg-ctp-crust h-full w-[30rem] p-8 shadow-lg">
+          <h1 className="from-ctp-pink to-ctp-mauve flex justify-center bg-gradient-to-r bg-clip-text text-5xl font-bold text-transparent">
+            Courses
+          </h1>
+          <div className="h-[18rem]">
+            <p className="flex w-auto justify-center p-8">
+              Some text description of the available courses
+            </p>
+          </div>
+          <hr className="bg-ctp-surface1" />
+          <Link to={"/courses"} className="flex justify-center">
+            <button className="btn-primary mt-7 w-full">Go to Courses!</button>
+          </Link>
+        </div>
+        {/* right card */}
+        <div className="bg-ctp-crust h-full w-[30rem] p-8 shadow-lg">
+          <h1 className="from-ctp-pink to-ctp-mauve flex justify-center bg-gradient-to-r bg-clip-text text-5xl font-bold text-transparent">
+            Sandbox
+          </h1>
+          <div className="h-[18rem]">
+            <p className="flex w-auto justify-center p-8">
+              Some text description of the sandbox
+            </p>
+          </div>
+          <hr className="bg-ctp-surface1" />
+          <Link to={"/sandbox"} className="flex justify-center">
+            <button className="btn-primary mt-7 w-full">Go to Sandbox!</button>
+          </Link>
+        </div>
+      </div>
+    </>
   );
 };
 

@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .btn-primary {
+    @apply bg-ctp-surface1 text-ctp-text hover:bg-ctp-mauve hover:text-ctp-surface1 rounded px-4 py-2 font-bold;
+  }
+}
