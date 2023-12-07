@@ -1,7 +1,13 @@
 import React from "react";
 
+import CodeListing from "../components/CodeListing";
+
 const Sandbox = () => {
-  return <div>Sandbox</div>;
+  return (
+    <>
+      <CodeListing />
+    </>
+  );
 };
 
 export default Sandbox;
