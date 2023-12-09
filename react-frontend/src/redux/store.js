@@ -1,5 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
+import codeListingReducer from "./slice/codeListingSlice";
 
 export default configureStore({
-  reducer: {},
+  reducer: {
+    codeListing: codeListingReducer,
+  },
 });
