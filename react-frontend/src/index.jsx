@@ -11,10 +11,12 @@ import { Provider } from "react-redux";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <div className="bg-ctp-base">
       <Provider store={store}>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </Provider>
-    </BrowserRouter>
+    </div>
   </React.StrictMode>,
 );

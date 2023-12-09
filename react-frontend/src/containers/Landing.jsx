@@ -1,14 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Button from "@mui/material/Button";
 
 const Landing = () => {
   return (
-    <div>
-      <Button component={Link} to="/home">
-        Go here
-      </Button>
-    </div>
+    <>
+      <div className="flex justify-center">
+        <Link to={"/home"}>
+          <button className="btn-primary">go here</button>
+        </Link>
+      </div>
+    </>
   );
 };
 

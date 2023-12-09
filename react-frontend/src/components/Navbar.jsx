@@ -1,42 +1,30 @@
-/* eslint-disable prettier/prettier */
-import React from "react";
+import { React, Fragment } from "react";
 import { Link } from "react-router-dom";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
+import { Disclosure } from "@headlessui/react";
 
-const Navbar = () => {
+export default function Example() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography 
-            component={Link}
-            to="/"
-            variant="h6"
-            align="left"
-            sx={{ flexGrow: 1, textDecoration: "none", boxShadow: "none", color: "white"}}
-          >
-            Reverse Nexus
-          </Typography>
-          <Button color="inherit">Login</Button>
-        </Toolbar>
-      </AppBar>
-    </Box>
+    <Disclosure as="nav" className="bg-ctp-crust">
+      <>
+        <div className="mx-auto px-2 sm:px-6 lg:px-8">
+          <div className="relative flex h-16 items-center justify-between">
+            <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+              <Link to={"/"}>
+                <div className="flex shrink-0 items-center">
+                  <img
+                    className="h-8 w-auto"
+                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                    alt="Your Company"
+                  />
+                </div>
+              </Link>
+            </div>
+            <Link to={"/login"}>
+              <button className="btn-primary">Login</button>
+            </Link>
+          </div>
+        </div>
+      </>
+    </Disclosure>
   );
-};
-
-export default Navbar;
+}

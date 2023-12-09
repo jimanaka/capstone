@@ -1,11 +1,12 @@
 import React from "react";
-import Debugger from "../components/Debugger";
+
+import CodeListing from "../components/CodeListing";
 
 const Sandbox = () => {
   return (
-    <div>
-      <Debugger />
-    </div>
+    <>
+      <CodeListing />
+    </>
   );
 };
 

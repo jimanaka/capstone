@@ -3,20 +3,20 @@ import { Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Landing from "./containers/Landing";
-import Home from "./containers/Home";
-import LabsHome from "./containers/LabsHome";
-import Sandbox from "./containers/Sandbox";
 import NotFound from "./containers/NotFound";
+import Home from "./containers/Home";
+import Courses from "./containers/Courses";
+import Sandbox from "./containers/Sandbox";
 
 function App() {
   return (
-    <div className="App">
+    <div className="text-ctp-text min-h-screen">
       <Navbar />
       <Routes>
         <Route path="*" element={<NotFound />} />
         <Route path="/" element={<Landing />} />
         <Route path="/home" element={<Home />} />
-        <Route path="/labs" element={<LabsHome />} />
+        <Route path="/courses" element={<Courses />} />
         <Route path="/sandbox" element={<Sandbox />} />
       </Routes>
     </div>
