@@ -11,7 +11,7 @@ const SplitPane = (props) => {
 
   useEffect(() => {
     if (document.getElementById(leftId).clientWidth) {
-      dispatch(leftWidthReducer(document.getElementById("left").clientWidth));
+      dispatch(leftWidthReducer(document.getElementById(leftId).clientWidth));
     }
   }, []);
 

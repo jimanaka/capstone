@@ -1,6 +1,9 @@
 import React from "react";
 
-import { setFuncPaneWidth } from "../redux/slice/codeListingSlice";
+import {
+  setFuncPaneWidth,
+  setDisassPaneWidth,
+} from "../redux/slice/codeListingSlice";
 
 import CodeView from "./CodeView";
 import ResizeSpacer from "./ResizeSpacer";
@@ -14,11 +17,22 @@ const CodeListing = () => {
           direction="vertical"
           selector={(state) => state.codeListing.funcPaneWidth}
           leftWidthReducer={setFuncPaneWidth}
-          leftId="left"
+          leftId="funcPane"
         >
-          <CodeView id="left">function listing</CodeView>
+          <CodeView id="funcPane">function listing</CodeView>
           <ResizeSpacer />
-          <CodeView>Disassembly</CodeView>
+          <div>
+            <SplitPane
+              direction="vertical"
+              selector={(state) => state.codeListing.disassPaneWidth}
+              leftWidthReducer={setDisassPaneWidth}
+              leftId="disassPane"
+            >
+              <CodeView id="disassPane">disassembly Listing</CodeView>
+              <ResizeSpacer />
+              <CodeView>Decompilation Listing</CodeView>
+            </SplitPane>
+          </div>
         </SplitPane>
         <ResizeSpacer />
         <CodeView>some other stuff maybe?</CodeView>
