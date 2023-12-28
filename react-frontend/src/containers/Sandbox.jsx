@@ -3,6 +3,7 @@ import { Tab } from "@headlessui/react";
 
 import CodeListing from "../components/CodeListing";
 import Debugger from "../components/Debugger";
+import PayloadGenerator from "../components/PayloadGenerator";
 
 import { setCurrentTab } from "../redux/slice/sandboxSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,9 @@ const Sandbox = () => {
       break;
     case 1:
       component = <Debugger />;
+      break;
+    case 2:
+      component = <PayloadGenerator />;
       break;
     default:
       component = null;
