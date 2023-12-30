@@ -7,19 +7,13 @@ services:
       context: ./api
       dockerfile: Dockerfile
     command: gunicorn --bind 0.0.0.0:5000 app:app --log-level=debug
-    # ports:
-    #   - "5000:5000"
-    # environment:
-    #   MONGODB_HOST: mongodb
-    #   MONGODB_USERNAME: "apiuser"
-    #   MONGODB_PASSWORD: "apipassword"
     env_file:
-      - ./.env.dev
+      - dev.env
     volumes:
-      # - appdata:/var/www/
+      - appdata:/var/www/
       - ./api:/app
     depends_on: 
-      - postgresql
+      - mongodb 
     networks:
       - net
 
@@ -35,16 +29,18 @@ services:
     networks:
       - net
 
-
-  postgresql:
-    container_name: reverse-nexus-postgresql
-    image: postgres:13
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped
+    command: mongod --auth
+    env_file:
+      - dev.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_USER=hello_flask
-      - POSTGRES_PASSWORD=hello_flask
-      - POSTGRES_DB=hello_flask_dev
+      - ./mongo/data:/data/db
+      - ./mongo/mongo.conf:/etc/mongod.conf
+    ports:
+      - 27018:27017
     networks:
       - net
 
@@ -56,7 +52,7 @@ services:
     depends_on:
       - api
       - client
-      - postgresql
+      - mongodb
     ports:
       - "80:80"
     networks:
@@ -67,3 +63,5 @@ networks:
 
 volumes:
   postgres_data:
+  mongodbdata:
+  appdata:
