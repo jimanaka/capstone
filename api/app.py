@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
+from flask_cors import CORS, cross_origin
 import datetime
 import hashlib
 import urllib
@@ -10,13 +11,19 @@ import os
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
+app.config["CORS_HEADERS"] = "Content-Type"
 
 jwt = JWTManager(app)
 mongo = PyMongo(app)
+CORS(app)
 db = mongo.db
 
 users_collection = db.users
 templates_collection= db.templates
+
+def _corsify_actual_response(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 @app.route("/")
 def hello_world():
@@ -26,7 +33,7 @@ def hello_world():
 def hello_world2():
     return jsonify(hello="world2"), 201
 
-@app.route("/v1/users", methods=["POST"])
+@app.route("/auth/register", methods=["POST"])
 def register():
     new_user = request.get_json()
     new_user["password"] = hashlib.sha256(new_user["password"].encode("utf-8")).hexdigest()
@@ -42,9 +49,11 @@ def register():
 
     # create user
     users_collection.insert_one(new_user)
+
     return jsonify({"msg": "User created successfully"}), 201
 
-@app.route("/v1/login", methods=["POST"])
+@app.route("/auth/login", methods=["POST"])
+@cross_origin()
 def login():
     login_details = request.get_json()
     db_user = users_collection.find_one({"username": login_details["username"]})
@@ -57,9 +66,12 @@ def login():
         return jsonify({"msg": "Username or password is incorrect"}), 401
 
     access_token = create_access_token(identity=db_user["username"])
-    return jsonify(access_token=access_token), 200
 
-@app.route("/v1/create", methods=["POST"])
+    response = jsonify(access_token=access_token)
+    response = _corsify_actual_response(response)
+    return response, 200
+
+@app.route("/auth/create", methods=["POST"])
 @jwt_required()
 def create_template():
     current_user = get_jwt_identity()
