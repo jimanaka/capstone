@@ -7,13 +7,12 @@ const Login = () => {
   const { register, handleSubmit } = useForm();
 
   const dispatch = useDispatch();
-  const authToken = useSelector((state) => state.auth.authToken);
+  const user = useSelector((state) => state.auth.user);
   const authError = useSelector((state) => state.auth.error);
   const authloading = useSelector((state) => state.auth.loading);
 
   const handleLogin = (data) => {
     alert("submitted");
-    console.log(data);
     dispatch(loginUser(data));
   };
 
