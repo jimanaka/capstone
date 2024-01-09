@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { login } from "../service/authService";
+import { login, getCurrentUser } from "../service/authService";
 
 export const loginUser = createAsyncThunk(
   "auth/login",
@@ -16,10 +16,19 @@ export const loginUser = createAsyncThunk(
   },
 );
 
+export const verifyUser = createAsyncThunk("auth/verifyUser", async () => {
+  try {
+    const response = await getCurrentUser();
+    return response.data;
+  } catch (error) {
+    console.log("error checking logins status");
+  }
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: "",
+    user: null,
     error: null,
     loading: "idle", // idle | pending | succeeded | failed
   },
@@ -36,6 +45,19 @@ const authSlice = createSlice({
     builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
+      state.user = null;
+    });
+    builder.addCase(verifyUser.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(verifyUser.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      state.user = action.payload;
+    });
+    builder.addCase(verifyUser.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+      state.user = null;
     });
   },
 });

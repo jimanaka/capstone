@@ -1,6 +1,7 @@
+from email.generator import DecodedGenerator
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required, decode_token, get_jwt_header
 from flask_cors import CORS, cross_origin
 import datetime
 import hashlib
@@ -53,7 +54,6 @@ def register():
     return jsonify({"msg": "User created successfully"}), 201
 
 @app.route("/auth/login", methods=["POST"])
-@cross_origin()
 def login():
     login_details = request.get_json()
     db_user = users_collection.find_one({"username": login_details["username"]})
@@ -69,6 +69,16 @@ def login():
 
     response = jsonify(access_token=access_token)
     response = _corsify_actual_response(response)
+    return response, 200
+
+@app.route("/auth/verify-user")
+@jwt_required(optional=True)
+def verify_user():
+    current_user = get_jwt_identity()
+    if not current_user:
+        response = jsonify({"logged_in_as": "anonymous"})
+    else:
+        response = jsonify({"logged_in_as": current_user})
     return response, 200
 
 @app.route("/auth/create", methods=["POST"])

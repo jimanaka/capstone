@@ -20,3 +20,21 @@ export const login = async ({ username, password }) => {
     throw error;
   }
 };
+
+export const getCurrentUser = async () => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    let token = JSON.parse(localStorage.getItem("user"))["access_token"];
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token,
+      },
+    };
+    const response = await axios.get(API_URL + "verify-user", config);
+    return response;
+  } catch (error) {
+    console.log("error checking logins status");
+    throw error;
+  }
+};

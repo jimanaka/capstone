@@ -44,7 +44,7 @@ const Login = () => {
           </div>
           <div className="mx-auto w-full md:mx-0 md:w-full lg:w-9/12">
             <div className="flex w-full flex-col rounded-xl p-10">
-              <h2 className="mb-5 text-left text-2xl font-bold">Sigin</h2>
+              <h2 className="mb-5 text-left text-2xl font-bold">Signin</h2>
               <form
                 action=""
                 className="w-full"
@@ -96,7 +96,7 @@ const Login = () => {
                           ></path>
                         </svg>
                       </div>
-                      <div className="font-bold">Sigin</div>
+                      <div className="font-bold">Signin</div>
                     </div>
                   </button>
                   <div className="mt-5 flex justify-evenly">

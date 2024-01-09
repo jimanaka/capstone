@@ -1,8 +1,42 @@
-import { React, Fragment } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Disclosure } from "@headlessui/react";
 
-export default function Example() {
+import { useDispatch, useSelector } from "react-redux";
+
+import { verifyUser } from "../redux/slice/authSlice";
+
+import CircleSpinner from "./CircleSpinner";
+
+const Navbar = () => {
+  const user = useSelector((state) => state.auth.user);
+  const loading = useSelector((state) => state.auth.loading);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(verifyUser());
+  }, []);
+
+  let button = null;
+
+  if (loading === "pending") {
+    button = (
+      <button className="btn-primary w-20">
+        <CircleSpinner />
+      </button>
+    );
+  } else {
+    if (user) {
+      button = <button className="btn-primary">Profile</button>;
+    } else {
+      button = (
+        <Link to={"/login"}>
+          <button className="btn-primary">Login</button>
+        </Link>
+      );
+    }
+  }
+
   return (
     <Disclosure as="nav" className="bg-ctp-crust">
       <>
@@ -19,12 +53,12 @@ export default function Example() {
                 </div>
               </Link>
             </div>
-            <Link to={"/login"}>
-              <button className="btn-primary">Login</button>
-            </Link>
+            {button}
           </div>
         </div>
       </>
     </Disclosure>
   );
-}
+};
+
+export default Navbar;
