@@ -31,14 +31,21 @@ export const loginUser = createAsyncThunk(
   },
 );
 
-export const verifyUser = createAsyncThunk("auth/verifyUser", async () => {
-  try {
-    const response = await getCurrentUser();
-    return response.data;
-  } catch (error) {
-    console.log("error checking logins status");
-  }
-});
+export const verifyUser = createAsyncThunk(
+  "auth/verifyUser",
+  // eslint-disable-next-line no-unused-vars
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getCurrentUser();
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
 const authSlice = createSlice({
   name: "auth",
@@ -55,7 +62,6 @@ const authSlice = createSlice({
     builder.addCase(loginUser.fulfilled, (state, action) => {
       state.loading = "succeeded";
       state.user = action.payload;
-      localStorage.setItem("user", JSON.stringify(state.user));
     });
     builder.addCase(loginUser.rejected, (state, action) => {
       state.loading = "failed";
@@ -67,7 +73,7 @@ const authSlice = createSlice({
     });
     builder.addCase(verifyUser.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      state.user = action.payload;
+      state.user = action.payload.logged_in_as;
     });
     builder.addCase(verifyUser.rejected, (state, action) => {
       state.loading = "failed";

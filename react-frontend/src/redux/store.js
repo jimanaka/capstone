@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import codeListingReducer from "./slice/CodeListingSlice";
+import codeListingReducer from "./slice/codeListingSlice";
 import sandboxReducer from "./slice/sandboxSlice";
 import authReducer from "./slice/authSlice";
 

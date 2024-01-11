@@ -1,16 +1,24 @@
 import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../redux/slice/authSlice";
+import { unwrapResult } from "@reduxjs/toolkit";
 
 const Register = () => {
   const { register, handleSubmit } = useForm();
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleRegister = (data) => {
-    console.log(data);
-    dispatch(registerUser(data));
+  const handleRegister = async (data) => {
+    try {
+      const resultAction = await dispatch(registerUser(data));
+      unwrapResult(resultAction);
+      navigate("/register");
+    } catch (error) {
+      console.log("registration failed!!!");
+    }
   };
 
   return (
@@ -115,12 +123,12 @@ const Register = () => {
                     >
                       Recover password!
                     </a>
-                    <a
-                      href="#"
+                    <Link
+                      to={"/login"}
                       className="hover:text-ctp-text w-full text-center font-medium text-gray-500"
                     >
                       Signin!
-                    </a>
+                    </Link>
                   </div>
                 </div>
               </form>

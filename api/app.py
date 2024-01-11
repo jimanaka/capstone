@@ -1,17 +1,19 @@
 from email.generator import DecodedGenerator
+from os import access
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required, decode_token, get_jwt_header
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, create_refresh_token, set_access_cookies, set_refresh_cookies
 from flask_cors import CORS, cross_origin
 import datetime
 import hashlib
-import urllib
 import hashlib
-import os
 
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(days=1)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=30)
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_COOKIE_SECURE"] = False
 app.config["CORS_HEADERS"] = "Content-Type"
 
 jwt = JWTManager(app)
@@ -21,6 +23,7 @@ db = mongo.db
 
 users_collection = db.users
 templates_collection= db.templates
+token_blacklist = db.tokenBlacklist
 
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -38,19 +41,13 @@ def hello_world2():
 def register():
     new_user = request.get_json()
     new_user["password"] = hashlib.sha256(new_user["password"].encode("utf-8")).hexdigest()
-
-    print(new_user)
-
     # check if user exist
     doc = users_collection.find_one({"username": new_user["username"]})
-
     # if it exists, return error
     if (doc):
         return jsonify({"msg": "Username exists"}), 409
-
     # create user
     users_collection.insert_one(new_user)
-
     return jsonify({"msg": "User created successfully"}), 201
 
 @app.route("/auth/login", methods=["POST"])
@@ -58,27 +55,39 @@ def login():
     login_details = request.get_json()
     db_user = users_collection.find_one({"username": login_details["username"]})
     login_password = hashlib.sha256(login_details["password"].encode("utf-8")).hexdigest()
-
     if not db_user:
         return jsonify({"msg": "Username or password is incorrect"}), 401
-    
     if login_password != db_user["password"]:
         return jsonify({"msg": "Username or password is incorrect"}), 401
 
     access_token = create_access_token(identity=db_user["username"])
+    refresh_token = create_refresh_token(identity=db_user["username"])
 
-    response = jsonify(access_token=access_token)
+    response = jsonify({"msg": "Login successfull"})
     response = _corsify_actual_response(response)
+    set_access_cookies(response, access_token)
+    set_refresh_cookies(response, refresh_token)
     return response, 200
 
 @app.route("/auth/verify-user")
 @jwt_required(optional=True)
 def verify_user():
     current_user = get_jwt_identity()
+    print(current_user)
     if not current_user:
-        response = jsonify({"logged_in_as": "anonymous"})
+        response = jsonify({"logged_in_as": None})
     else:
         response = jsonify({"logged_in_as": current_user})
+    return response, 200
+
+@app.route("/auth/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+    response = jsonify({"msg": "access token refreshed"})
+    response = _corsify_actual_response(response)
+    set_access_cookies(response, access_token)
     return response, 200
 
 @app.route("/auth/create", methods=["POST"])

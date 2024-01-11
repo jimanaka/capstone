@@ -9,4 +9,8 @@
   .container {
     @apply px-6 py-4 h-full w-full max-w-[1024px] mx-auto;
   }
+
+  .icon-outlined {
+    @apply text-ctp-text hover:text-ctp-mauve mr-2 h-8 w-8
+  }
 }

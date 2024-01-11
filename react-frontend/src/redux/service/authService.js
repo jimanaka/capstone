@@ -1,6 +1,22 @@
 import axios from "axios";
-
+import cookies from "js-cookie";
 const API_URL = "http://localhost:80/api/auth/";
+
+const refreshToken = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_refresh_token"),
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(API_URL + "refresh", {}, config);
+    return response;
+  } catch (error) {
+    console.error("error: unable to refresh token");
+    throw error;
+  }
+};
 
 export const register = async ({ username, email, password }) => {
   try {
@@ -40,20 +56,29 @@ export const login = async ({ username, password }) => {
   }
 };
 
-export const getCurrentUser = async () => {
+export const getCurrentUser = async (retry = true) => {
   // eslint-disable-next-line no-useless-catch
   try {
-    let token = JSON.parse(localStorage.getItem("user"))["access_token"];
     const config = {
       headers: {
         "Content-Type": "application/json",
-        Authorization: "Bearer " + token,
       },
+      withCredentials: true,
     };
     const response = await axios.get(API_URL + "verify-user", config);
     return response;
   } catch (error) {
-    console.log("error checking logins status");
-    throw error;
+    if (retry === true) {
+      try {
+        await refreshToken();
+        getCurrentUser((retry = false));
+      } catch (error) {
+        console.error("error: failed to get current user after refresh");
+        throw error;
+      }
+    } else {
+      console.error("error: failed to get user");
+      throw error;
+    }
   }
 };

@@ -1,7 +1,8 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Disclosure } from "@headlessui/react";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -17,24 +18,57 @@ const Navbar = () => {
     dispatch(verifyUser());
   }, []);
 
-  let button = null;
+  const loggedInLinks = [
+    { link: "/profile", label: "Profile" },
+    { link: "/logout", label: "Logout" },
+  ];
+
+  const loggedOutLinks = [
+    { link: "/login", label: "Login" },
+    { link: "/register", label: "Register" },
+  ];
+
+  let accountMenu = null;
 
   if (loading === "pending") {
-    button = (
-      <button className="btn-primary w-20">
-        <CircleSpinner />
-      </button>
+    accountMenu = (
+      <div className="inline-lock relative text-left">
+        <CircleSpinner className="icon-outlined mr-2 h-2 w-8" />
+      </div>
     );
   } else {
-    if (user) {
-      button = <button className="btn-primary">Profile</button>;
-    } else {
-      button = (
-        <Link to={"/login"}>
-          <button className="btn-primary">Login</button>
-        </Link>
-      );
-    }
+    console.log(user);
+    var links = user ? loggedInLinks : loggedOutLinks;
+    accountMenu = (
+      <Menu as="div" className="icon-outlined">
+        <div>
+          <Menu.Button>
+            <UserCircleIcon className="text-ctp-text hover:text-ctp-mauve mr-2 h-8 w-8" />
+          </Menu.Button>
+        </div>
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="transform opacity-0 scale-95"
+          enterTo="transform opacity-100 scale-100"
+          leave="transition ease-in duration-75"
+          leaveFrom="transform opacity-100 scale-100"
+          leaveTo="transform opacity-0 scale-95"
+        >
+          <Menu.Items className="divide-ctp-surface1 bg-ctp-surface0 absolute right-0 mt-2 w-56 origin-top-right divide-y rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none">
+            {links.map((link) => (
+              <div className="p-1" key={link.link}>
+                <Menu.Item className="text-ctp-text hover:bg-ctp-mauve hover:text-ctp-base group flex w-full items-center rounded-md p-2 text-sm font-bold">
+                  <Link to={link.link}>
+                    <button>{link.label}</button>
+                  </Link>
+                </Menu.Item>
+              </div>
+            ))}
+          </Menu.Items>
+        </Transition>
+      </Menu>
+    );
   }
 
   return (
@@ -53,7 +87,7 @@ const Navbar = () => {
                 </div>
               </Link>
             </div>
-            {button}
+            {accountMenu}
           </div>
         </div>
       </>
