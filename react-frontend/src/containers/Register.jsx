@@ -1,18 +1,16 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../redux/slice/authSlice";
+import { useDispatch } from "react-redux";
+import { registerUser } from "../redux/slice/authSlice";
 
-const Login = () => {
+const Register = () => {
   const { register, handleSubmit } = useForm();
 
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const authError = useSelector((state) => state.auth.error);
-  const authloading = useSelector((state) => state.auth.loading);
 
-  const handleLogin = (data) => {
-    dispatch(loginUser(data));
+  const handleRegister = (data) => {
+    console.log(data);
+    dispatch(registerUser(data));
   };
 
   return (
@@ -43,11 +41,11 @@ const Login = () => {
           </div>
           <div className="mx-auto w-full md:mx-0 md:w-full lg:w-9/12">
             <div className="flex w-full flex-col rounded-xl p-10">
-              <h2 className="mb-5 text-left text-2xl font-bold">Signin</h2>
+              <h2 className="mb-5 text-left text-2xl font-bold">Signup</h2>
               <form
                 action=""
                 className="w-full"
-                onSubmit={handleSubmit(handleLogin)}
+                onSubmit={handleSubmit(handleRegister)}
               >
                 <div id="input" className="my-5 flex w-full flex-col">
                   <label htmlFor="username" className="mb-2">
@@ -59,6 +57,18 @@ const Login = () => {
                     placeholder="Please insert your username"
                     className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2"
                     {...register("username")}
+                  />
+                </div>
+                <div id="input" className="my-5 flex w-full flex-col">
+                  <label htmlFor="username" className="mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="text"
+                    id="email"
+                    placeholder="Please insert your email"
+                    className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2"
+                    {...register("email")}
                   />
                 </div>
                 <div id="input" className="my-5 flex w-full flex-col">
@@ -95,7 +105,7 @@ const Login = () => {
                           ></path>
                         </svg>
                       </div>
-                      <div className="font-bold">Signin</div>
+                      <div className="font-bold">Signup</div>
                     </div>
                   </button>
                   <div className="mt-5 flex justify-evenly">
@@ -109,7 +119,7 @@ const Login = () => {
                       href="#"
                       className="hover:text-ctp-text w-full text-center font-medium text-gray-500"
                     >
-                      Signup!
+                      Signin!
                     </a>
                   </div>
                 </div>
@@ -122,4 +132,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -2,6 +2,25 @@ import axios from "axios";
 
 const API_URL = "http://localhost:80/api/auth/";
 
+export const register = async ({ username, email, password }) => {
+  try {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const response = await axios.post(
+      API_URL + "register",
+      { username, email, password },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: unable to register");
+    throw error;
+  }
+};
+
 export const login = async ({ username, password }) => {
   try {
     const config = {

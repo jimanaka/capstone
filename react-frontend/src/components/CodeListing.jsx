@@ -3,7 +3,7 @@ import React from "react";
 import {
   setFuncPaneWidth,
   setDisassPaneWidth,
-} from "../redux/slice/codeListingSlice";
+} from "../redux/slice/CodeListingSlice";
 
 import CodeView from "./CodeView";
 import ResizeSpacer from "./ResizeSpacer";
