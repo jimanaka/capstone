@@ -1,6 +1,7 @@
 import axios from "axios";
 import cookies from "js-cookie";
 const API_URL = "http://localhost:80/api/auth/";
+const TOKEN_URL = "http://localhost:80/api/token/"
 
 const refreshToken = async () => {
   try {
@@ -10,7 +11,7 @@ const refreshToken = async () => {
       },
       withCredentials: true,
     };
-    const response = await axios.post(API_URL + "refresh", {}, config);
+    const response = await axios.post(TOKEN_URL + "refresh", {}, config);
     return response;
   } catch (error) {
     console.error("error: unable to refresh token");
@@ -80,5 +81,21 @@ export const getCurrentUser = async (retry = true) => {
       console.error("error: failed to get user");
       throw error;
     }
+  }
+};
+
+export const logout = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_refresh_token"),
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(TOKEN_URL + "logout", {}, config);
+    return response;
+  } catch (error) {
+    console.log("error: failed to logout");
+    throw error;
   }
 };

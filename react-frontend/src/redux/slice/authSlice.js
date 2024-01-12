@@ -1,5 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { register, login, getCurrentUser } from "../service/authService";
+import {
+  register,
+  login,
+  getCurrentUser,
+  logout,
+} from "../service/authService";
 
 export const registerUser = createAsyncThunk(
   "auth/register",
@@ -21,6 +26,22 @@ export const loginUser = createAsyncThunk(
   async ({ username, password }, { rejectWithValue }) => {
     try {
       const response = await login({ username, password });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const logoutUser = createAsyncThunk(
+  "token/logout",
+  // eslint-disable-next-line no-unused-vars
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await logout();
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -79,6 +100,17 @@ const authSlice = createSlice({
       state.loading = "failed";
       state.error = action.payload;
       state.user = null;
+    });
+    builder.addCase(logoutUser.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(logoutUser.fulfilled, (state) => {
+      state.loading = "succeeded";
+      state.user = null;
+    });
+    builder.addCase(logoutUser.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
     });
   },
 });

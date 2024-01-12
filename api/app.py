@@ -2,16 +2,18 @@ from email.generator import DecodedGenerator
 from os import access
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, create_refresh_token, set_access_cookies, set_refresh_cookies
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required, create_refresh_token, set_access_cookies, set_refresh_cookies, get_jwt, unset_access_cookies, unset_refresh_cookies, get_jti
 from flask_cors import CORS, cross_origin
-import datetime
+from datetime import datetime, timezone, timedelta
 import hashlib
 import hashlib
 
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=1)
-app.config["JWT_REFRESH_TOKEN_EXPIRES"] = datetime.timedelta(days=30)
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=1)
+app.config['JWT_ACCESS_COOKIE_PATH'] = "/api/auth/"
+app.config['JWT_REFRESH_COOKIE_PATH'] = "/api/token/"
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
 app.config["CORS_HEADERS"] = "Content-Type"
@@ -24,6 +26,7 @@ db = mongo.db
 users_collection = db.users
 templates_collection= db.templates
 token_blacklist = db.tokenBlacklist
+token_blacklist.create_index("expirationDate", expireAfterSeconds=0)
 
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -80,14 +83,32 @@ def verify_user():
         response = jsonify({"logged_in_as": current_user})
     return response, 200
 
-@app.route("/auth/refresh", methods=["POST"])
+@app.route("/token/refresh", methods=["POST"])
 @jwt_required(refresh=True)
 def refresh():
     current_user = get_jwt_identity()
+    current_jti = get_jwt()["jti"]
+    response_token = token_blacklist.find_one({ "token": current_jti })
+    if response_token is not None:
+        response = jsonify({"error": "invalid JWT token"})
+        response = _corsify_actual_response(response)
+        return response, 401
     access_token = create_access_token(identity=current_user)
     response = jsonify({"msg": "access token refreshed"})
     response = _corsify_actual_response(response)
     set_access_cookies(response, access_token)
+    return response, 200
+
+@app.route("/token/logout", methods=["POST"])
+@jwt_required(refresh=True)
+def logout():
+    current_user = get_jwt()
+    exp = datetime.fromtimestamp(current_user["exp"], tz=timezone.utc)
+    token_blacklist.insert_one({"token": current_user["jti"], "expirationDate": exp})
+    response = jsonify({"msg": "logout successfull"})
+    unset_access_cookies(response)
+    unset_refresh_cookies(response)
+    response = _corsify_actual_response(response)
     return response, 200
 
 @app.route("/auth/create", methods=["POST"])

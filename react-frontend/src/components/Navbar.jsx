@@ -6,7 +6,7 @@ import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { verifyUser } from "../redux/slice/authSlice";
+import { verifyUser, logoutUser } from "../redux/slice/authSlice";
 
 import CircleSpinner from "./CircleSpinner";
 
@@ -18,17 +18,22 @@ const Navbar = () => {
     dispatch(verifyUser());
   }, []);
 
-  const loggedInLinks = [
-    { link: "/profile", label: "Profile" },
-    { link: "/logout", label: "Logout" },
-  ];
+  const handleLogout = () => {
+    console.log("logging out");
+    dispatch(logoutUser());
+  };
 
+  const loggedInLinks = [
+    { link: "/profile", label: "Profile", action: null },
+    { link: "/", label: "Logout", action: handleLogout },
+  ];
   const loggedOutLinks = [
-    { link: "/login", label: "Login" },
-    { link: "/register", label: "Register" },
+    { link: "/login", label: "Login", action: null },
+    { link: "/register", label: "Register", action: null },
   ];
 
   let accountMenu = null;
+  var links = null;
 
   if (loading === "pending") {
     accountMenu = (
@@ -38,7 +43,7 @@ const Navbar = () => {
     );
   } else {
     console.log(user);
-    var links = user ? loggedInLinks : loggedOutLinks;
+    links = user ? loggedInLinks : loggedOutLinks;
     accountMenu = (
       <Menu as="div" className="icon-outlined">
         <div>
@@ -58,7 +63,10 @@ const Navbar = () => {
           <Menu.Items className="divide-ctp-surface1 bg-ctp-surface0 absolute right-0 mt-2 w-56 origin-top-right divide-y rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none">
             {links.map((link) => (
               <div className="p-1" key={link.link}>
-                <Menu.Item className="text-ctp-text hover:bg-ctp-mauve hover:text-ctp-base group flex w-full items-center rounded-md p-2 text-sm font-bold">
+                <Menu.Item
+                  onClick={link.action}
+                  className="text-ctp-text hover:bg-ctp-mauve hover:text-ctp-base group flex w-full items-center rounded-md p-2 text-sm font-bold"
+                >
                   <Link to={link.link}>
                     <button>{link.label}</button>
                   </Link>
