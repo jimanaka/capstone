@@ -16,7 +16,6 @@ const SplitPane = (props) => {
   }, []);
 
   const onMouseDown = (e) => {
-    console.log(dragging, leftWidth, mouseDownXPos);
     setMouseDownXPos(e.clientX);
     setDragging(true);
   };
