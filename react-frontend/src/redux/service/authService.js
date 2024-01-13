@@ -1,7 +1,7 @@
 import axios from "axios";
 import cookies from "js-cookie";
 const API_URL = "http://localhost:80/api/auth/";
-const TOKEN_URL = "http://localhost:80/api/token/"
+const TOKEN_URL = "http://localhost:80/api/token/";
 
 const refreshToken = async () => {
   try {
