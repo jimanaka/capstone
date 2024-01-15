@@ -53,10 +53,28 @@ services:
       - api
       - client
       - mongodb
+      - revenv
     ports:
       - "80:80"
     networks:
       - net
+
+  revenv:
+    container_name: reverse-nexus-revenv
+    command: gunicorn --bind 0.0.0.0:5000 app:app --log-level=debug
+    build:
+      context: ./revenv
+      dockerfile: Dockerfile
+    env_file:
+      - revenv.dev.env
+    volumes:
+      - revenv-appdata:/var/www/
+      - ./revenv:/app
+    depends_on: 
+      - mongodb 
+    networks:
+      - net
+      
 
 networks:
   net:
@@ -65,3 +83,4 @@ volumes:
   postgres_data:
   mongodbdata:
   appdata:
+  revenv-appdata:
