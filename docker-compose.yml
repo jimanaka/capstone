@@ -69,6 +69,7 @@ services:
       - revenv.dev.env
     volumes:
       - revenv-appdata:/var/www/
+      - ./revenv/example-bins:/data/example-bins
       - ./revenv:/app
     depends_on: 
       - mongodb 
@@ -80,7 +81,6 @@ networks:
   net:
 
 volumes:
-  postgres_data:
   mongodbdata:
   appdata:
   revenv-appdata:
