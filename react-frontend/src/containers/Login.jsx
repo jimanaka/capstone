@@ -1,15 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/slice/authSlice";
 
 const Login = () => {
   const { register, handleSubmit } = useForm();
 
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
-  const authError = useSelector((state) => state.auth.error);
-  const authloading = useSelector((state) => state.auth.loading);
 
   const handleLogin = (data) => {
     dispatch(loginUser(data));

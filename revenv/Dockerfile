@@ -14,6 +14,7 @@ ENV PYTHONUNBUFFERED 1
 # Install requirements using pip
 ADD requirements.txt .
 RUN python -m pip install -r requirements.txt
+RUN apt update -y && apt install gdb -y
 
 # Set working directory and addour Flask API files
 WORKDIR /app
