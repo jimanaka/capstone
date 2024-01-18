@@ -1,0 +1,2 @@
+USERS_COLLECTION = "users"
+TOKEN_BLACKLIST_COLLECTION = "tokenBlacklist"
