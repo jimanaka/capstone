@@ -3,13 +3,19 @@ from typing import Dict, List, Optional
 from pygdbmi.IoManager import IoManager
 from src.utils.pty import Pty
 
+
 class GdbSession:
-  def __init__(self, pygdbmi_IOManger: IoManager, gdb_pty: Pty, program_pty: Pty, pid: int):
-    self.pygdbmi_IOManager = pygdbmi_IOManger
-    self.gdb_pty = gdb_pty
-    self.program_pty = program_pty
-    self.pid = pid
+    def __init__(self, pygdbmi_IOManger: IoManager, gdb_pty: Pty, program_pty: Pty, pid: int):
+        self.pygdbmi_IOManager = pygdbmi_IOManger
+        self.gdb_pty = gdb_pty
+        self.program_pty = program_pty
+        self.pid = pid
+
 
 class GdbSessionManager:
-  def __init__(self):
-    self.connections: Dict[GdbSession, List[str]] = {}
+    def __init__(self):
+        self.connections: Dict[GdbSession, List[str]] = {}
+
+    def create_session(self, cmd: str, id: str) -> GdbSession:
+        gdb_pty = Pty()
+        program_pty = Pty()

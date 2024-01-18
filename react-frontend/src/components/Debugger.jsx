@@ -1,7 +1,9 @@
 import React from "react";
 import CodeView from "./CodeView";
+import io from "socket.io-client";
 
 const Debugger = () => {
+  const socket = io("http://localhost:")
   return (
     <div className="m-5 flex h-[35rem] justify-center space-x-4">
       <CodeView>Assembly</CodeView>
