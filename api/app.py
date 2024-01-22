@@ -31,11 +31,6 @@ token_blacklist = db.tokenBlacklist
 token_blacklist.create_index("expirationDate", expireAfterSeconds=0)
 
 
-def _corsify_actual_response(response):
-    response.headers.add("Access-Control-Allow-Origin", "*")
-    return response
-
-
 @app.route("/test")
 def hello_world():
     return jsonify(status="api is up!"), 200

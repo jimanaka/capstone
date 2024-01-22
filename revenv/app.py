@@ -1,4 +1,7 @@
+import logging
+import socket
 from flask import Flask, jsonify, request, session
+from flask_cors import CORS
 from flask_socketio import SocketIO
 from src.utils.request_util import corsify_response
 from src.utils.gdb_session import GdbSession, GdbSessionManager
@@ -8,17 +11,26 @@ from src.utils.pty import Pty
 
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
-socketio = SocketIO(manage_session=False)
+CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
 session_manager = GdbSessionManager()
+logging.basicConfig(level=logging.INFO)
 
 
-@app.route("/")
-def hello_world():
-    return jsonify(hello="world")
+# @app.route("/")
+# def hello_world():
+#     return jsonify(hello="world")
+
+@socketio.on("test_event")
+def test_event(data):
+    print("connected")
+    print(data)
 
 
-@socketio.on("connect", namespace="/gdb_session")
+@socketio.on("connect")
 def connect():
-    cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
-    sid = request.sid
-    gdb_session = session_manager.create_session(cmds, sid)
+    logging.info("connected")
+    print("this is a test")
+    # cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
+    # sid = request.sid
+    # gdb_session = session_manager.create_session(cmds, sid)
