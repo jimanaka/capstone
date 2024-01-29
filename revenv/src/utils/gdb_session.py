@@ -17,5 +17,13 @@ class GdbSessionManager:
         self.connections: Dict[GdbSession, List[str]] = {}
 
     def create_session(self, cmd: str, id: str) -> GdbSession:
-        gdb_pty = Pty()
+        logging.info(f"creating pty with cmd: {cmd} from session: {id}")
+        gui_pty = Pty()
         program_pty = Pty()
+        gui_cmds = [
+            f"new-ui mi {gui_pty.ttyname}",
+            f"set inferior-tty {program_pty.ttyname}",
+            "set pagination off",
+        ]
+        startup_cmds = " ".join([f"-iex='{c}'" for c in gui_cmds])
+        gdb_pty = Pty(cmd=f"gdb {gui_cmds}")

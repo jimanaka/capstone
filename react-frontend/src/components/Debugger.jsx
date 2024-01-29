@@ -12,6 +12,10 @@ const Debugger = () => {
         io(REVENV_URL, {
           path: "/revenv/socket.io",
           autoConnect: false,
+          withCredentials: true,
+          query: {
+            cmd: "test cmd",
+          },
         }),
       );
     }

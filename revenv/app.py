@@ -12,9 +12,12 @@ from src.utils.pty import Pty
 app = Flask(__name__)
 app.config.from_object("src.config.Config")
 CORS(app, resources={r"/*": {"origins": "*"}})
-socketio = SocketIO(app, cors_allowed_origins="*", logger=True)
+socketio = SocketIO(app, manage_session=False,
+                    cors_allowed_origins="*", logger=True)
 session_manager = GdbSessionManager()
 logging.basicConfig(level=logging.INFO)
+app.config["GDB_EXECUTABLE"] = "gdb"
+app.config["GDB_INTERPRETER"] = "mi"
 
 
 # @app.route("/")
@@ -30,7 +33,7 @@ def test_event(data):
 @socketio.on("connect")
 def connect():
     logging.info("connected")
-    print("this is a test")
-    # cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
-    # sid = request.sid
-    # gdb_session = session_manager.create_session(cmds, sid)
+    cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
+    sid = request.sid
+    print(f'cmds: {cmds}\nsid: {sid}')
+    gdb_session = session_manager.create_session(cmds, sid)
