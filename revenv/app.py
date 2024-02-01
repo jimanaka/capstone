@@ -2,7 +2,7 @@ import logging
 import socket
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 from src.utils.request_util import corsify_response
 from src.utils.gdb_session import GdbSession, GdbSessionManager
 from src.utils.pty import Pty
@@ -37,3 +37,21 @@ def connect():
     sid = request.sid
     print(f'cmds: {cmds}\nsid: {sid}')
     gdb_session = session_manager.create_session(cmds, sid)
+
+    emit("gdb_session_connected", {
+        "ok": True,
+        "pid": gdb_session.pid,
+        "msg": f"gdb session {gdb_session.pid} created",
+    })
+
+
+@socketio.on("terminate_pid")
+def terminate_pid(data):
+    sid = request.sid
+    session_manager.terminate_session_by_pid(data['pid'])
+    logging.info(f"disconnecting sid: {sid} from pid: {data['pid']}")
+
+
+@socketio.on("disconnect")
+def disconnect():
+    logging.info("disconnecting socket")

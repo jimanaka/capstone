@@ -1,4 +1,5 @@
 import React from "react";
+import { useEffect } from "react";
 import { Tab } from "@headlessui/react";
 
 import CodeListing from "../components/CodeListing";
@@ -6,11 +7,27 @@ import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
 
 import { setCurrentTab } from "../redux/slice/sandboxSlice";
+import { initSocket, disconnect } from "../redux/slice/sessionSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Sandbox = () => {
   const dispatch = useDispatch();
   const currentTab = useSelector((state) => state.sandbox.currentTab);
+  const isConnected = useSelector((state) => state.session.isConnected);
+  const gdbPID = useSelector((state) => state.session.gdbPID);
+
+  useEffect(() => {
+    if (!isConnected) {
+      dispatch(initSocket());
+    }
+
+    return () => {
+      if (isConnected) {
+        console.log("disconnecting socket");
+        dispatch(disconnect(gdbPID));
+      }
+    };
+  }, [isConnected]);
 
   const handleTabChange = (index) => {
     dispatch(setCurrentTab(index));
