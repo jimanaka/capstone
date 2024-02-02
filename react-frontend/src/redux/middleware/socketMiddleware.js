@@ -31,7 +31,6 @@ const socketMiddleware = (store) => {
         });
         // handle disconnect
         socket.on("disconnect", () => {
-          console.log("handling disconnect");
           store.dispatch(connectionLost());
           store.dispatch(setGdbPID(null));
         });
@@ -40,16 +39,11 @@ const socketMiddleware = (store) => {
 
     if (disconnect.match(action)) {
       if (socketConnection) {
-        console.log("disconnecting socket");
-        console.log("terminating gdb session");
         let socket = socketConnection.socket;
-        socket.emit("terminate_pid", {
-          pid: action.payload,
-        });
         socket.off("connect");
         socket.off("error");
         socket.disconnect();
-
+        socket.off("disconnect");
         socketConnection = null;
       }
     }

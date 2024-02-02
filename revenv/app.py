@@ -55,3 +55,12 @@ def terminate_pid(data):
 @socketio.on("disconnect")
 def disconnect():
     logging.info("disconnecting socket")
+    sid = request.sid
+    terminated_session = session_manager.terminate_session_by_sid(sid)
+    if terminated_session:
+        logging.info(
+            f"removed session pid: {terminated_session.pid} for session: {sid}")
+    # orphan_session = session_manager.get_session_by_sid(sid)
+    # if orphan_session:
+    #     logging.info(f"removing orphan session {orphan_session.pid}")
+    #     orphan_session.terminate()

@@ -1,6 +1,7 @@
 import logging
 import os
 import signal
+from pprint import pprint
 from tracemalloc import start
 from typing import Dict, List, Optional
 from pygdbmi.IoManager import IoManager
@@ -66,7 +67,27 @@ class GdbSessionManager:
                 return session
         return None
 
-    def terminate_session_by_pid(self, pid: int) -> None:
-        logging.info(f"attempting to terminate pid: {pid}")
+    def get_session_by_sid(self, sid: str) -> Optional[GdbSession]:
+        for session, id in self.connections.items():
+            if sid == id:
+                return session
+        return None
+
+    def remove_session(self, session: GdbSession) -> Optional[GdbSession]:
+        ret = self.connections.pop(session, None)
+        if ret:
+            return session
+        return ret
+
+    def terminate_session_by_pid(self, pid: int) -> Optional[GdbSession]:
         session = self.get_session_by_pid(pid)
         session.terminate()
+        ret = self.remove_session(session)
+        return ret
+
+    def terminate_session_by_sid(self, sid: str) -> Optional[GdbSession]:
+        session = self.get_session_by_sid(sid)
+        session.terminate()
+        ret = self.remove_session(session)
+        pprint(self.connections)
+        return ret
