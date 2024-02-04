@@ -5,6 +5,7 @@ import {
   connectionEstablished,
   connectionLost,
   setGdbPID,
+  sendCommand,
 } from "../slice/sessionSlice";
 
 const socketMiddleware = (store) => {
@@ -46,6 +47,16 @@ const socketMiddleware = (store) => {
         socket.off("disconnect");
         socketConnection = null;
       }
+    }
+
+    if (sendCommand.match(action)) {
+      if (!socketConnection) {
+        return;
+      }
+      let socket = socketConnection.socket;
+      socket.emit("send_command", {
+        cmds: action.payload,
+      });
     }
 
     next(action);

@@ -1,6 +1,7 @@
 import logging
 import os
 import signal
+import io
 from pprint import pprint
 from tracemalloc import start
 from typing import Dict, List, Optional
@@ -9,8 +10,8 @@ from src.utils.pty import Pty
 
 
 class GdbSession:
-    def __init__(self, pygdbmi_IOManger: IoManager, gdb_pty: Pty, program_pty: Pty, gui_pty: Pty, pid: int):
-        self.pygdbmi_IOManager = pygdbmi_IOManger
+    def __init__(self, pygdbmi_IOManager: IoManager, gdb_pty: Pty, program_pty: Pty, gui_pty: Pty, pid: int):
+        self.pygdbmi_IOManager = pygdbmi_IOManager
         self.gdb_pty = gdb_pty
         self.program_pty = program_pty
         self.gui_pty = gui_pty
@@ -39,6 +40,7 @@ class GdbSession:
 class GdbSessionManager:
     def __init__(self):
         self.connections: Dict[GdbSession, List[str]] = {}
+        self.output_reader = None
 
     def create_session(self, gdb_cmd: str, id: str) -> GdbSession:
         logging.info(f"creating pty with cmd: {gdb_cmd} from session: {id}")
@@ -50,14 +52,15 @@ class GdbSessionManager:
             "set pagination off",
         ]
         startup_cmds = " ".join([f"-iex='{c}'" for c in gui_cmds])
+        logging.info(f"creating session with : {gdb_cmd} {startup_cmds}")
         gdb_pty = Pty(
-            cmd=f"{gdb_cmd} /app/example-bins/hello_world.out {startup_cmds}")
+            cmd=f"{gdb_cmd} {startup_cmds}")
         io_manager = IoManager(
-            os.fdopen(gui_pty.stdin, "wb", 0),
-            os.fdopen(gui_pty.stdout, "rb", 0),
+            io.open(gui_pty.stdin, "wb", 0),
+            io.open(gui_pty.stdout, "rb", 0),
             None)
         gdb_session = GdbSession(
-            io_manager, gdb_pty=gdb_pty, program_pty=program_pty, gui_pty=gui_pty, pid=gdb_pty.pid)
+            pygdbmi_IOManager=io_manager, gdb_pty=gdb_pty, program_pty=program_pty, gui_pty=gui_pty, pid=gdb_pty.pid)
         self.connections[gdb_session] = id
         return gdb_session
 

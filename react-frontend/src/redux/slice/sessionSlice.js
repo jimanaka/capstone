@@ -13,6 +13,9 @@ const sessionSlice = createSlice({
     disconnect: () => {
       return;
     },
+    sendCommand: () => {
+      return;
+    },
     connectionEstablished: (state) => {
       state.isConnected = true;
     },
@@ -31,5 +34,6 @@ export const {
   connectionEstablished,
   connectionLost,
   setGdbPID,
+  sendCommand,
 } = sessionSlice.actions;
 export default sessionSlice.reducer;
