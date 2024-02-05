@@ -1,11 +1,8 @@
-import eventlet
-eventlet.monkey_patch()
 import logging
 from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from src.utils.gdb_session import GdbSessionManager
-from threading import Thread
 from pprint import pprint
 
 # with code from: https://github.com/cs01/gdbgui/
@@ -75,31 +72,20 @@ def disconnect():
 
 def gdb_output_reader():
     logging.info("threading!")
-    count = 0
     while True:
         socketio.sleep(1)
-        print(count)
-        count += 1
         sessions = session_manager.connections.copy()
-        logging.info("sessions for thread:")
-        pprint(sessions)
         for gdb_session, id in sessions.items():
             try:
-                try:
-                    if gdb_session.pygdbmi_IOManager is not None:
-                        logging.info(f"loop id: {id}")
-                        logging.info(
-                            f"trying to get gdb response: {gdb_session}")
-                        response = gdb_session.pygdbmi_IOManager.get_gdb_response(
-                            timeout_sec=0, raise_error_on_timeout=False)
-                    else:
-                        logging.info("IO was none on read")
-                except Exception as e:
-                    response = None
-                    logging.error(f"GDB session was killed before read {e}")
+                if gdb_session.pygdbmi_IOManager is not None:
+                    response = gdb_session.pygdbmi_IOManager.get_gdb_response(
+                        timeout_sec=0, raise_error_on_timeout=False)
+                else:
+                    logging.info("IO was none on read")
                 if response:
                     pprint(response)
                 else:
                     pass
             except Exception as e:
+                logging.error(f"GDB session was killed before read {e}")
                 logging.info(f"thingy {e}")
