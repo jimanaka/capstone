@@ -22,17 +22,20 @@ class GdbSession:
             logging.error("failed to terminate gdb session, no pid")
 
         try:
-            logging.info(f"attempting to close fd {self.gui_pty.master_fd}")
-            os.close(self.gui_pty.master_fd)
-            logging.info(f"attempting to close fd {self.gui_pty.slave_fd}")
-            os.close(self.gui_pty.slave_fd)
-            logging.info(
-                f"attempting to close fd {self.program_pty.master_fd}")
-            os.close(self.program_pty.master_fd)
-            logging.info(f"attempting to close fd {self.program_pty.slave_fd}")
-            os.close(self.program_pty.slave_fd)
+            # logging.info(f"attempting to close fd {self.gui_pty.master_fd}")
+            # os.close(self.gui_pty.master_fd)
+            # logging.info(f"attempting to close fd {self.gui_pty.slave_fd}")
+            # os.close(self.gui_pty.slave_fd)
+            # logging.info(
+            #     f"attempting to close fd {self.program_pty.master_fd}")
+            # os.close(self.program_pty.master_fd)
+            # logging.info(f"attempting to close fd {self.program_pty.slave_fd}")
+            # os.close(self.program_pty.slave_fd)
+            # logging.info(f"attempting to kill pid: {self.pid}")
             os.kill(self.pid, signal.SIGKILL)
-            info = os.waitpid(self.pid, os.WSTOPPED)
+            logging.info(f"pid {self.pid} killed, waiting for process to finish...")
+            os.waitpid(self.pid, os.WSTOPPED)
+            logging.info(f"pid {self.pid} successfully killed")
         except Exception as e:
             logging.error(f"failed to kill gdb session {self.pid} {e}")
 

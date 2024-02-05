@@ -1,12 +1,5 @@
 import eventlet
-eventlet.monkey_patch(
-    # os=True,
-    # select=True,
-    # socket=True,
-    # thread=False,
-    # time=True,
-)
-from os import read
+eventlet.monkey_patch()
 import logging
 from flask import Flask, request
 from flask_cors import CORS
@@ -42,10 +35,9 @@ def connect():
     gdb_session = session_manager.create_session(cmds, sid)
     if session_manager.output_reader is None:
         logging.info("staring gdb reader thread")
-        session_manager.output_reader = Thread(
+        session_manager.output_reader = socketio.start_background_task(
             target=gdb_output_reader,
         )
-        session_manager.output_reader.start()
         logging.info(f"{session_manager.output_reader}")
     emit("gdb_session_connected", {
         "ok": True,
@@ -85,22 +77,29 @@ def gdb_output_reader():
     logging.info("threading!")
     count = 0
     while True:
-        socketio.sleep(2)
+        socketio.sleep(1)
         print(count)
         count += 1
-        sessions = session_manager.connections
+        sessions = session_manager.connections.copy()
+        logging.info("sessions for thread:")
+        pprint(sessions)
         for gdb_session, id in sessions.items():
             try:
-                logging.info(f"loop id: {id}")
-                logging.info(
-                    f"trying to get gdb response: {gdb_session}")
-                response = gdb_session.pygdbmi_IOManager.get_gdb_response(
-                    timeout_sec=0, raise_error_on_timeout=False)
-                # response = read(gdb_session.gdb_pty.stdout, 150)
+                try:
+                    if gdb_session.pygdbmi_IOManager is not None:
+                        logging.info(f"loop id: {id}")
+                        logging.info(
+                            f"trying to get gdb response: {gdb_session}")
+                        response = gdb_session.pygdbmi_IOManager.get_gdb_response(
+                            timeout_sec=0, raise_error_on_timeout=False)
+                    else:
+                        logging.info("IO was none on read")
+                except Exception as e:
+                    response = None
+                    logging.error(f"GDB session was killed before read {e}")
                 if response:
                     pprint(response)
                 else:
-                    logging.info("thread passing")
                     pass
             except Exception as e:
                 logging.info(f"thingy {e}")
