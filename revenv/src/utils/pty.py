@@ -3,6 +3,7 @@ from pty import openpty, fork
 import logging
 import os
 from typing import Optional
+from select import select
 
 
 class Pty():
@@ -33,5 +34,15 @@ class Pty():
         os.write(self.stdin, encoded_data)
 
     def read(self) -> Optional[str]:
-        encoded_data = os.read(self.stdout, self.MAX_OUTPUT)
-        print("Recieved:", encoded_data.decode())
+        if self.stdout is None:
+            return "done"
+        timeout_sec = 0
+        (data, _, _) = select([self.stdout], [], [], timeout_sec)
+        if data:
+            try:
+                response = os.read(self.stdout, self.MAX_OUTPUT).decode()
+                if response:
+                    return response
+            except (OSError, UnicodeDecodeError):
+                return None
+        return None

@@ -35,6 +35,15 @@ const socketMiddleware = (store) => {
           store.dispatch(connectionLost());
           store.dispatch(setGdbPID(null));
         });
+        socket.on("gdb_gui_response", (data) => {
+          data.msg.map((msg) => {
+            console.log(msg)
+            // if (msg.type === "output") console.log(msg.payload)
+          })
+        })
+        socket.on("program_pty_response", (data) => {
+          console.log(data)
+        })
       }
     }
 
@@ -43,6 +52,7 @@ const socketMiddleware = (store) => {
         let socket = socketConnection.socket;
         socket.off("connect");
         socket.off("error");
+        socket.off("gdb_gui_response")
         socket.disconnect();
         socket.off("disconnect");
         socketConnection = null;

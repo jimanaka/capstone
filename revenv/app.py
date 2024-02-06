@@ -73,7 +73,7 @@ def disconnect():
 def gdb_output_reader():
     logging.info("threading!")
     while True:
-        socketio.sleep(1)
+        socketio.sleep(.5)
         sessions = session_manager.connections.copy()
         for gdb_session, id in sessions.items():
             try:
@@ -83,7 +83,32 @@ def gdb_output_reader():
                 else:
                     logging.info("IO was none on read")
                 if response:
-                    pprint(response)
+                    socketio.emit("gdb_gui_response", {
+                        "ok": True,
+                        "msg": response
+                    }, to=id)
+                # read program stdout of program
+                try:
+                    program_response = gdb_session.program_pty.read()
+                    if program_response:
+                        socketio.emit("program_pty_response", {
+                            "ok": True,
+                            "msg": program_response
+                        }, to=id)
+                except Exception as e:
+                    logging.error(
+                        f"Failed to read program pty on gdb response: {e}")
+                # read stdout of the gdb process
+                try:
+                    gdb_response = gdb_session.gdb_pty.read()
+                    if gdb_response:
+                        socketio.emit("gdb_pty_response", {
+                            "ok": True,
+                            "msg": gdb_response
+                        }, to=id)
+                except Exception as e:
+                    logging.error(
+                        f"Failed to read gdb pty on gdb response: {e}")
                 else:
                     pass
             except Exception as e:

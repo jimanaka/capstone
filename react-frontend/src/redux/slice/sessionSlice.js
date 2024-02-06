@@ -5,6 +5,7 @@ const sessionSlice = createSlice({
   initialState: {
     isConnected: false,
     gdbPID: null,
+    gdbState: null,
   },
   reducers: {
     initSocket: () => {
@@ -24,7 +25,7 @@ const sessionSlice = createSlice({
     },
     setGdbPID: (state, action) => {
       state.gdbPID = action.payload;
-    }
+    },
   },
 });
 

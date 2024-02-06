@@ -61,6 +61,10 @@ services:
 
   revenv:
     container_name: reverse-nexus-revenv
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_PTRACE
     command: gunicorn --bind 0.0.0.0:5000 --worker-class eventlet -w 1 app:app --log-level=debug
     build:
       context: ./revenv
