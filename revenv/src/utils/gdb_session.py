@@ -3,7 +3,6 @@ import os
 import signal
 import io
 from pprint import pprint
-from tracemalloc import start
 from typing import Dict, List, Optional
 from pygdbmi.IoManager import IoManager
 from src.utils.pty import Pty

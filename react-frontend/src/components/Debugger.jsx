@@ -6,8 +6,8 @@ import { useDispatch } from "react-redux";
 const Debugger = () => {
   const dispatch = useDispatch();
   const handleButtonPress1 = () => {
-    console.log("sendin command: -file-exec-and-symbols");
     dispatch(sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"));
+    dispatch(sendCommand(""))
   };
   const handleButtonPress2 = () => {
     console.log("sending command: -break-insert main");
@@ -23,7 +23,7 @@ const Debugger = () => {
       </div>
       <CodeView>Debugger, breakpoints, etc.</CodeView>
       <button onClick={handleButtonPress1} className="btn-primary">
-        open file 
+        start
       </button>
       <button onClick={handleButtonPress2} className="btn-primary">
         break main
