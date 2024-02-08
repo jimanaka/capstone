@@ -6,6 +6,8 @@ const sessionSlice = createSlice({
     isConnected: false,
     gdbPID: null,
     gdbState: null,
+    gdbStoppedReason: null,
+    programOutput: null,
   },
   reducers: {
     initSocket: () => {
@@ -26,6 +28,15 @@ const sessionSlice = createSlice({
     setGdbPID: (state, action) => {
       state.gdbPID = action.payload;
     },
+    setProgramOutput: (state, action) => {
+      state.programOutput = action.payload;
+    },
+    setGdbState: (state, action) => {
+      state.gdbState = action.payload;
+    },
+    setGdbStoppedReason: (state, action) => {
+      state.gdbStoppedReason = action.payload;
+    },
   },
 });
 
@@ -36,5 +47,8 @@ export const {
   connectionLost,
   setGdbPID,
   sendCommand,
+  setProgramOutput,
+  setGdbState,
+  setGdbStoppedReason,
 } = sessionSlice.actions;
 export default sessionSlice.reducer;

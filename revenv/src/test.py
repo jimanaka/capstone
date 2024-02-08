@@ -149,9 +149,9 @@ response = iomanager.write("-exec-run")
 pprint(response)
 print("--------------------")
 
-# r2 = gdb_session.gdb_pty.read()
-# if r2:
-#     pprint(r2)
+r2 = gdb_session.gdb_pty.read()
+if r2:
+    pprint(r2)
 
 r3 = gdb_session.program_pty.read()
 if r3:

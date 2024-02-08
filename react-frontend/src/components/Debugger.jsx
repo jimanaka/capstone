@@ -1,10 +1,11 @@
 import React from "react";
 import CodeView from "./CodeView";
-import { sendCommand } from "../redux/slice/sessionSlice";
+import { sendCommand, setProgramOutput } from "../redux/slice/sessionSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Debugger = () => {
   const dispatch = useDispatch();
+  const programOutput = useSelector((state) => state.session.programOutput);
   // const gdbState = useSelector((state) => state.session.gdbState)
 
   const handleButtonPress1 = () => {
@@ -26,27 +27,34 @@ const Debugger = () => {
 
   return (
     <>
-      <div className="flex">
-        <button onClick={handleButtonPress1} className="btn-primary">
-          start
-        </button>
-        <button onClick={handleButtonPress2} className="btn-primary">
-          break main
-        </button>
-        <button onClick={handleButtonPress3} className="btn-primary">
-          run
-        </button>
-        <button onClick={handleButtonPress4} className="btn-primary">
-          next 
-        </button>
-      </div>
-      <div className="m-5 flex h-[35rem] justify-center space-x-4">
+      <div className="p-4 flex h-[50rem] justify-center space-x-4 flex-grow">
         <CodeView>Assembly</CodeView>
-        <div className="flex flex-col space-y-4">
+        <div className="w-full flex flex-col space-y-4">
           <CodeView>Registers</CodeView>
           <CodeView>Stack</CodeView>
         </div>
-        <CodeView>Debugger, breakpoints, etc.</CodeView>
+        <div className="w-full flex flex-col space-y-4">
+          <CodeView className="h-1/3">Breakpoints</CodeView>
+          <CodeView>
+            GDB control
+            <div className="flex mt-4 mr-8 ml-8">
+              <button onClick={handleButtonPress1} className="btn-primary">
+                start
+              </button>
+              <button onClick={handleButtonPress2} className="btn-primary">
+                break main
+              </button>
+              <button onClick={handleButtonPress3} className="btn-primary">
+                run
+              </button>
+              <button onClick={handleButtonPress4} className="btn-primary">
+                next 
+              </button>
+            </div>
+            <hr className="mt-4 mb-4"/>
+            Gdb output
+          </CodeView>
+        </div>
       </div>
     </>
   );

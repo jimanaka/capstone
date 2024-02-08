@@ -3,7 +3,6 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from src.utils.gdb_session import GdbSessionManager
-from pprint import pprint
 
 # with code from: https://github.com/cs01/gdbgui/
 

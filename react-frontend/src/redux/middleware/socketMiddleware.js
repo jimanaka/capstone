@@ -6,7 +6,10 @@ import {
   connectionLost,
   setGdbPID,
   sendCommand,
+  setGdbState,
+  setGdbStoppedReason,
 } from "../slice/sessionSlice";
+import { handleGdbGuiResponse } from "../../scripts/gdbResponse";
 
 const socketMiddleware = (store) => {
   let socketConnection = null;
@@ -37,10 +40,9 @@ const socketMiddleware = (store) => {
         });
         socket.on("gdb_gui_response", (data) => {
           data.msg.map((msg) => {
-            console.log(msg)
-            // if (msg.type === "output") console.log(msg.payload)
-          })
-        })
+            handleGdbGuiResponse(store, socket, msg);
+          });
+        });
         socket.on("program_pty_response", (data) => {
           console.log(data)
         })

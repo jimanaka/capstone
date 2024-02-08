@@ -52,6 +52,7 @@ class GdbSessionManager:
             f"new-ui mi {gui_pty.ttyname}",
             f"set inferior-tty {program_pty.ttyname}",
             "set pagination off",
+            "set disassembly-flavor intel"
         ]
         startup_cmds = " ".join([f"-iex='{c}'" for c in gui_cmds])
         logging.info(f"creating session with : {gdb_cmd} {startup_cmds}")
