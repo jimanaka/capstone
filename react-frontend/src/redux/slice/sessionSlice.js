@@ -8,6 +8,8 @@ const sessionSlice = createSlice({
     gdbState: null,
     gdbStoppedReason: null,
     programOutput: null,
+    disassemblyOutput: null,
+    gdbFrame: null,
   },
   reducers: {
     initSocket: () => {
@@ -37,6 +39,12 @@ const sessionSlice = createSlice({
     setGdbStoppedReason: (state, action) => {
       state.gdbStoppedReason = action.payload;
     },
+    setDisassemblyOutput: (state, action) => {
+      state.disassemblyOutput = action.payload;
+    },
+    setGdbFrame: (state, action) => {
+      state.gdbFrame = action.payload;
+    },
   },
 });
 
@@ -50,5 +58,7 @@ export const {
   setProgramOutput,
   setGdbState,
   setGdbStoppedReason,
+  setDisassemblyOutput,
+  setGdbFrame,
 } = sessionSlice.actions;
 export default sessionSlice.reducer;

@@ -1,4 +1,10 @@
-import { setGdbState, setGdbStoppedReason, sendCommand } from "../redux/slice/sessionSlice";
+import {
+  setGdbState,
+  setGdbStoppedReason,
+  sendCommand,
+  setDisassemblyOutput,
+  setGdbFrame,
+} from "../redux/slice/sessionSlice";
 
 export const handleGdbGuiResponse = (store, socket, msg) => {
   if (msg.type === "notify") {
@@ -9,20 +15,18 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
       case "stopped":
         store.dispatch(setGdbState(msg.message));
         store.dispatch(setGdbStoppedReason(msg.payload.reason));
-        if (msg.payload.reason === "breakpoint-hit") {
-          store.dispatch(sendCommand('-data-disassemble -a "$pc" -- 0'))
-        }
+        store.dispatch(setGdbFrame(msg.payload.frame));
+        store.dispatch(sendCommand(`-data-disassemble -a ${msg.payload.frame.func}`))
+        // if (msg.payload.reason === "breakpoint-hit") {
+        //   // store.dispatch(sendCommand('-data-disassemble -a "$pc" -- 0'));
+        // }
         break;
     }
-  } 
-
-  else if (msg.type === "result") {
-    console.log(msg);
+  } else if (msg.type === "result") {
     if (msg.payload.hasOwnProperty("asm_insns")) {
-      console.log(msg.payload.asm_insns);
-    }
-    else if (msg.payload.hasOwnProperty("bkpt")) {
+      store.dispatch(setDisassemblyOutput(msg.payload.asm_insns))
+    } else if (msg.payload.hasOwnProperty("bkpt")) {
       console.log(msg.payload.bkpt);
     }
   }
-}
+};
