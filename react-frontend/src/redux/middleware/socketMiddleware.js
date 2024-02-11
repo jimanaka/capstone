@@ -6,6 +6,11 @@ import {
   connectionLost,
   setGdbPID,
   sendCommand,
+  setDisassemblyOutput,
+  setGdbBreakpoints,
+  setGdbRegisterNames,
+  setGdbRegisterValues,
+  setGdbChangedRegisters,
 } from "../slice/sessionSlice";
 import { handleGdbGuiResponse } from "../../scripts/gdbResponse";
 
@@ -35,6 +40,11 @@ const socketMiddleware = (store) => {
         socket.on("disconnect", () => {
           store.dispatch(connectionLost());
           store.dispatch(setGdbPID(null));
+          store.dispatch(setDisassemblyOutput(null));
+          store.dispatch(setGdbBreakpoints([]));
+          store.dispatch(setGdbRegisterNames([]));
+          store.dispatch(setGdbRegisterValues([]));
+          store.dispatch(setGdbChangedRegisters([]));
         });
         socket.on("gdb_gui_response", (data) => {
           console.log(data);
@@ -65,6 +75,7 @@ const socketMiddleware = (store) => {
         return;
       }
       let socket = socketConnection.socket;
+      console.log(`sending command ${action.payload}`)
       socket.emit("send_command", {
         cmds: action.payload,
       });

@@ -10,6 +10,10 @@ const sessionSlice = createSlice({
     programOutput: null,
     disassemblyOutput: null,
     gdbFrame: null,
+    gdbBreakpoints: [],
+    gdbRegisterNames: [],
+    gdbRegisterValues: [],
+    gdbChangedRegisters: [],
   },
   reducers: {
     initSocket: () => {
@@ -45,6 +49,21 @@ const sessionSlice = createSlice({
     setGdbFrame: (state, action) => {
       state.gdbFrame = action.payload;
     },
+    addGdbBreakpoint: (state, action) => {
+      state.gdbBreakpoints.push(action.payload);
+    },
+    setGdbBreakpoints: (state, action) => {
+      state.gdbBreakpoints = action.payload;
+    },
+    setGdbRegisterNames: (state, action) => {
+      state.gdbRegisterNames = action.payload;
+    },
+    setGdbRegisterValues: (state, action) => {
+      state.gdbRegisterValues = action.payload;
+    },
+    setGdbChangedRegisters: (state, action) => {
+      state.gdbChangedRegisters = action.payload;
+    },
   },
 });
 
@@ -60,5 +79,10 @@ export const {
   setGdbStoppedReason,
   setDisassemblyOutput,
   setGdbFrame,
+  addGdbBreakpoint,
+  setGdbBreakpoints,
+  setGdbRegisterNames,
+  setGdbRegisterValues,
+  setGdbChangedRegisters,
 } = sessionSlice.actions;
 export default sessionSlice.reducer;
