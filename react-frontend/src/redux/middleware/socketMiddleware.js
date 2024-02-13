@@ -11,6 +11,8 @@ import {
   setGdbRegisterNames,
   setGdbRegisterValues,
   setGdbChangedRegisters,
+  setGdbStack,
+  setGdbFrame,
 } from "../slice/sessionSlice";
 import { handleGdbGuiResponse } from "../../scripts/gdbResponse";
 
@@ -45,6 +47,8 @@ const socketMiddleware = (store) => {
           store.dispatch(setGdbRegisterNames([]));
           store.dispatch(setGdbRegisterValues([]));
           store.dispatch(setGdbChangedRegisters([]));
+          store.dispatch(setGdbStack([]));
+          store.dispatch(setGdbFrame(null));
         });
         socket.on("gdb_gui_response", (data) => {
           console.log(data);

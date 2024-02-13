@@ -14,6 +14,7 @@ const sessionSlice = createSlice({
     gdbRegisterNames: [],
     gdbRegisterValues: [],
     gdbChangedRegisters: [],
+    gdbStack: [],
   },
   reducers: {
     initSocket: () => {
@@ -64,6 +65,9 @@ const sessionSlice = createSlice({
     setGdbChangedRegisters: (state, action) => {
       state.gdbChangedRegisters = action.payload;
     },
+    setGdbStack: (state, action) => {
+      state.gdbStack = action.payload;
+    }
   },
 });
 
@@ -84,5 +88,6 @@ export const {
   setGdbRegisterNames,
   setGdbRegisterValues,
   setGdbChangedRegisters,
+  setGdbStack,
 } = sessionSlice.actions;
 export default sessionSlice.reducer;
