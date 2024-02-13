@@ -36,13 +36,13 @@ const Sandbox = () => {
   let component = null;
   switch (currentTab) {
     case 0:
-      component = <CodeListing classname="w-full"/>;
+      component = <CodeListing classname="w-full" />;
       break;
     case 1:
-      component = <Debugger classname="w-full"/>;
+      component = <Debugger classname="w-full" />;
       break;
     case 2:
-      component = <PayloadGenerator classname="w-full"/>;
+      component = <PayloadGenerator classname="w-full" />;
       break;
     default:
       component = null;

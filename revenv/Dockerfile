@@ -13,8 +13,11 @@ ENV PYTHONUNBUFFERED 1
 
 # Install requirements using pip
 ADD requirements.txt .
+RUN apt update -y && apt install gdb vim git -y
 RUN python -m pip install -r requirements.txt
-RUN apt update -y && apt install gdb vim -y
+RUN git clone https://github.com/radareorg/radare2
+RUN radare2/sys/install.sh
+RUN r2pm -Ucig r2ghidra
 
 # Set working directory and addour Flask API files
 WORKDIR /app

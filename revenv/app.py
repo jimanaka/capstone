@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from src.utils.gdb_session import GdbSessionManager
@@ -15,6 +15,14 @@ session_manager = GdbSessionManager()
 logging.basicConfig(level=logging.INFO)
 app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
+
+# Todo: migrate all socket functions to a separate file
+# Todo: work on radare2 api
+
+
+@app.route("/test")
+def hello_world():
+    return jsonify(status="api is up!"), 200
 
 
 @socketio.on("test_event")

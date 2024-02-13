@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, get_jwt
 from flask_cors import CORS
 from datetime import timedelta

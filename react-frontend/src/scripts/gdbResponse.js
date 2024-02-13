@@ -52,7 +52,10 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
               : msg.payload["changed-registers"],
           ),
         );
-      } else if (msg.payload.hasOwnProperty("nr-bytes") && msg.payload.hasOwnProperty("memory")) {
+      } else if (
+        msg.payload.hasOwnProperty("nr-bytes") &&
+        msg.payload.hasOwnProperty("memory")
+      ) {
         store.dispatch(setGdbStack(msg.payload.memory));
       }
       break;
