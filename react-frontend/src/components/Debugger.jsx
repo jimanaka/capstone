@@ -2,7 +2,7 @@ import React from "react";
 import CodeView from "./CodeView";
 import Code from "./Code";
 import { useForm } from "react-hook-form";
-import { sendCommand, setProgramOutput } from "../redux/slice/sessionSlice";
+import { sendCommand, setOutput } from "../redux/slice/sessionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { PlayCircleIcon, DocumentPlusIcon, ChevronRightIcon, ChevronDoubleRightIcon, PlusCircleIcon} from "@heroicons/react/24/outline";
 
@@ -16,11 +16,11 @@ const Debugger = () => {
   const registerValues = useSelector((state) => state.session.gdbRegisterValues);
   const changedRegisters = useSelector((state) => state.session.gdbChangedRegisters);
   const stack = useSelector((state) => state.session.gdbStack);
+  const output = useSelector((state) => state.session.output);
 
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {
     dispatch(sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"));
-    //dispatch(sendCommand(""))
   };
   const handleBreakpointAdd = (data) => {
     dispatch(sendCommand(`-break-insert ${data.newBreakpoint}`));
@@ -28,6 +28,7 @@ const Debugger = () => {
   };
   const handleRunPress = () => {
     dispatch(sendCommand("-exec-run"));
+    dispatch(setOutput([]));
   };
   const handleNextPress = () => {
     dispatch(sendCommand("-exec-next"));
@@ -109,9 +110,7 @@ const Debugger = () => {
         </div>
         <div className="flex flex-col space-y-4 w-4/5">
           <div className="flex flex-col w-full h-1/3">
-            <div className="flex">
-              <h1 className="text-center w-full">Breakpoints</h1>
-            </div>
+            <h1 className="text-center w-full">Breakpoints</h1>
             <CodeView className="flex overflow-auto mt-2 w-full">
               <ul className="w-full text-left">
                 {
@@ -142,9 +141,22 @@ const Debugger = () => {
               </ul>
             </CodeView>
           </div>
-          <CodeView>
-            Program output
-          </CodeView>
+          <div className="w-full flex flex-col h-full">
+            <h1 className="w-full text-center">Output</h1>
+            <CodeView className="flex overflow-auto mt-2 w-full">
+              <ul className="w-full text-left">
+                {
+                  output.length > 0 ? output.map((line, index) => {
+                    return (
+                      <li key={`output${index+1}`}>
+                        <div className="my-2">#{index+1} {line}</div>
+                      </li>
+                    )
+                  }) : null
+                }
+              </ul>
+            </CodeView>
+          </div>
         </div>
       </div>
     </div>

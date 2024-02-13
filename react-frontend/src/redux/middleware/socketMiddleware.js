@@ -13,6 +13,8 @@ import {
   setGdbChangedRegisters,
   setGdbStack,
   setGdbFrame,
+  setOutput,
+  addOutput,
 } from "../slice/sessionSlice";
 import { handleGdbGuiResponse } from "../../scripts/gdbResponse";
 
@@ -47,6 +49,7 @@ const socketMiddleware = (store) => {
           store.dispatch(setGdbChangedRegisters([]));
           store.dispatch(setGdbStack([]));
           store.dispatch(setGdbFrame(null));
+          store.dispatch(setOutput([]));
         });
         socket.on("gdb_gui_response", (data) => {
           data.msg.map((msg) => {
@@ -54,7 +57,9 @@ const socketMiddleware = (store) => {
           });
         });
         socket.on("program_pty_response", (data) => {
-          console.log(data)
+          if (data.ok) {
+            store.dispatch(addOutput(data.msg));
+          }
         })
       }
     }
