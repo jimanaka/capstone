@@ -6,7 +6,17 @@ import {
   connectionLost,
   setGdbPID,
   sendCommand,
+  setDisassemblyOutput,
+  setGdbBreakpoints,
+  setGdbRegisterNames,
+  setGdbRegisterValues,
+  setGdbChangedRegisters,
+  setGdbStack,
+  setGdbFrame,
+  setOutput,
+  addOutput,
 } from "../slice/sessionSlice";
+import { handleGdbGuiResponse } from "../../scripts/gdbResponse";
 
 const socketMiddleware = (store) => {
   let socketConnection = null;
@@ -14,13 +24,11 @@ const socketMiddleware = (store) => {
   return (next) => (action) => {
     if (initSocket.match(action)) {
       if (!socketConnection) {
-        console.log("starting socket factory");
         socketConnection = SocketFactory.create();
         let socket = socketConnection.socket;
         socket.connect();
         // handle connect
         socket.on("connect", () => {
-          console.log("socket connected");
           store.dispatch(connectionEstablished());
         });
         // handle errors
@@ -34,7 +42,25 @@ const socketMiddleware = (store) => {
         socket.on("disconnect", () => {
           store.dispatch(connectionLost());
           store.dispatch(setGdbPID(null));
+          store.dispatch(setDisassemblyOutput(null));
+          store.dispatch(setGdbBreakpoints([]));
+          store.dispatch(setGdbRegisterNames([]));
+          store.dispatch(setGdbRegisterValues([]));
+          store.dispatch(setGdbChangedRegisters([]));
+          store.dispatch(setGdbStack([]));
+          store.dispatch(setGdbFrame(null));
+          store.dispatch(setOutput([]));
         });
+        socket.on("gdb_gui_response", (data) => {
+          data.msg.map((msg) => {
+            handleGdbGuiResponse(store, socket, msg);
+          });
+        });
+        socket.on("program_pty_response", (data) => {
+          if (data.ok) {
+            store.dispatch(addOutput(data.msg));
+          }
+        })
       }
     }
 
@@ -43,6 +69,7 @@ const socketMiddleware = (store) => {
         let socket = socketConnection.socket;
         socket.off("connect");
         socket.off("error");
+        socket.off("gdb_gui_response")
         socket.disconnect();
         socket.off("disconnect");
         socketConnection = null;
@@ -54,6 +81,7 @@ const socketMiddleware = (store) => {
         return;
       }
       let socket = socketConnection.socket;
+      console.log(`sending command ${action.payload}`)
       socket.emit("send_command", {
         cmds: action.payload,
       });
