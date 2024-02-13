@@ -67,7 +67,7 @@ const sessionSlice = createSlice({
     },
     setGdbStack: (state, action) => {
       state.gdbStack = action.payload;
-    }
+    },
   },
 });
 

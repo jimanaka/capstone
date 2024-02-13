@@ -22,13 +22,11 @@ const socketMiddleware = (store) => {
   return (next) => (action) => {
     if (initSocket.match(action)) {
       if (!socketConnection) {
-        console.log("starting socket factory");
         socketConnection = SocketFactory.create();
         let socket = socketConnection.socket;
         socket.connect();
         // handle connect
         socket.on("connect", () => {
-          console.log("socket connected");
           store.dispatch(connectionEstablished());
         });
         // handle errors
@@ -51,7 +49,6 @@ const socketMiddleware = (store) => {
           store.dispatch(setGdbFrame(null));
         });
         socket.on("gdb_gui_response", (data) => {
-          console.log(data);
           data.msg.map((msg) => {
             handleGdbGuiResponse(store, socket, msg);
           });
