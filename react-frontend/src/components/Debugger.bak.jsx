@@ -51,10 +51,6 @@ const Debugger = () => {
   const handleContinuePress = () => {
     dispatch(sendCommand("-exec-continue"));
   };
-  const handleUserCmdSend = (data) => {
-    dispatch(sendCommand(data.gdbCommand));
-    document.getElementById("gdbCommand").value ="";
-  }
 
   return (
     <div className="flex flex-col">
@@ -165,24 +161,22 @@ const Debugger = () => {
             </CodeView>
           </div>
         </div>
-        <div className="flex flex-col space-y-4 w-4/5">
+        <div className="flex flex-col w-4/5">
           <div className="flex flex-col w-full h-1/3">
             <h1 className="text-center w-full">Breakpoints</h1>
             <CodeView className="flex flex-col overflow-auto mt-2 w-full justify-between h-full">
               <div className="w-full overflow-y-scroll mb-2">
-                <ul role="list" className="w-full text-left">
+                <ul className="w-full text-left">
                   {breakpoints.length > 0
                     ? breakpoints.map((breakpoint) => {
                         return (
                           <li
-                            className="my-2"
                             key={`breakpoint ${breakpoint.number}`}
+                            className="mt-2 mb-2"
                           >
-                            <div>
-                              #{breakpoint.number} {breakpoint.addr} in{" "}
-                              {breakpoint.func} at {breakpoint.file}:
-                              {breakpoint.line}
-                            </div>
+                            #{breakpoint.number} {breakpoint.addr} in{" "}
+                            {breakpoint.func} at {breakpoint.file}:
+                            {breakpoint.line}
                           </li>
                         );
                       })
@@ -211,7 +205,7 @@ const Debugger = () => {
               </form>
             </CodeView>
           </div>
-          <div className="grow w-full flex flex-col">
+          <div className="w-full flex flex-col h-full">
             <h1 className="w-full text-center">Output</h1>
             <CodeView className="flex flex-col overflow-auto mt-2 w-full h-full">
               <ul className="w-full text-left h-full">
@@ -229,7 +223,7 @@ const Debugger = () => {
               </ul>
               <form
                 className="flex w-full"
-                onSubmit={handleSubmit(handleUserCmdSend)}
+                // onSubmit={}
               >
                 <input
                   type="text"

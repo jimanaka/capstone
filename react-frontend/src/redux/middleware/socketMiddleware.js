@@ -52,6 +52,7 @@ const socketMiddleware = (store) => {
           store.dispatch(setOutput([]));
         });
         socket.on("gdb_gui_response", (data) => {
+          console.log(data);
           data.msg.map((msg) => {
             handleGdbGuiResponse(store, socket, msg);
           });

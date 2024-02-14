@@ -9,6 +9,7 @@ import {
   setGdbRegisterNames,
   setGdbChangedRegisters,
   setGdbStack,
+  addOutput,
 } from "../redux/slice/sessionSlice";
 
 export const handleGdbGuiResponse = (store, socket, msg) => {
@@ -33,6 +34,8 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
             ),
           );
         }
+      } else if (msg.message === "breakpoint-created" && msg.payload.hasOwnProperty("bkpt")) {
+        store.dispatch(addGdbBreakpoint(msg.payload.bkpt));
       }
       break;
     case "result":
@@ -58,6 +61,9 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
       ) {
         store.dispatch(setGdbStack(msg.payload.memory));
       }
+      break;
+    case "console":
+      store.dispatch(addOutput(msg.payload));
       break;
   }
 };
