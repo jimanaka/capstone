@@ -166,7 +166,7 @@ const Debugger = () => {
           </div>
         </div>
         <div className="flex flex-col space-y-4 w-4/5">
-          <div className="flex flex-col w-full h-1/3">
+          <div className="flex flex-col w-full h-[16rem]">
             <h1 className="text-center w-full">Breakpoints</h1>
             <CodeView className="flex flex-col overflow-auto mt-2 w-full justify-between h-full">
               <div className="w-full overflow-y-scroll mb-2">
@@ -211,22 +211,22 @@ const Debugger = () => {
               </form>
             </CodeView>
           </div>
-          <div className="grow w-full flex flex-col">
-            <h1 className="w-full text-center">Output</h1>
-            <CodeView className="flex flex-col overflow-auto mt-2 w-full h-full">
-              <ul className="w-full text-left h-full">
-                {output.length > 0
-                  ? output.map((line, index) => {
-                      return (
-                        <li key={`output${index + 1}`}>
-                          <div className="my-2">
+          <div className="grow flex flex-col w-full max-h-[32rem]">
+            <h1 className="text-center w-full">Output</h1>
+            <CodeView className="flex flex-col overflow-auto mt-2 w-full justify-between h-full">
+              <div className="w-full overflow-y-scroll mb-2">
+                <ul role="list" className="w-full text-left">
+                  {output.length > 0
+                    ? output.map((line, index) => {
+                        return (
+                          <li key={`output${index + 1}`} className="my-2">
                             #{index + 1} {line}
-                          </div>
-                        </li>
-                      );
-                    })
-                  : null}
-              </ul>
+                          </li>
+                        );
+                      })
+                    : null}
+                </ul>
+              </div>
               <form
                 className="flex w-full"
                 onSubmit={handleSubmit(handleUserCmdSend)}
