@@ -1,41 +1,23 @@
 import React from "react";
 
-import {
-  setFuncPaneWidth,
-  setDisassPaneWidth,
-} from "../redux/slice/codeListingSlice";
-
 import CodeView from "./CodeView";
-import ResizeSpacer from "./ResizeSpacer";
-import SplitPane from "./SplitPane";
 
 const CodeListing = () => {
   return (
-    <div className="p-8">
-      <div className="flex flex-col justify-center space-y-3">
-        <SplitPane
-          direction="vertical"
-          selector={(state) => state.codeListing.funcPaneWidth}
-          leftWidthReducer={setFuncPaneWidth}
-          leftId="funcPane"
-        >
-          <CodeView id="funcPane">function listing</CodeView>
-          <ResizeSpacer />
-          <div>
-            <SplitPane
-              direction="vertical"
-              selector={(state) => state.codeListing.disassPaneWidth}
-              leftWidthReducer={setDisassPaneWidth}
-              leftId="disassPane"
-            >
-              <CodeView id="disassPane">disassembly Listing</CodeView>
-              <ResizeSpacer />
-              <CodeView>Decompilation Listing</CodeView>
-            </SplitPane>
-          </div>
-        </SplitPane>
-        <ResizeSpacer />
-        <CodeView>some other stuff maybe?</CodeView>
+    <div className="pl-4 pr-4 pb-4 w-full h-[50rem]">
+      <div className="flex mt-2 h-full w-full justify-ceter space-x-4">
+        <div className="flex flex-col w-2/5 h-full">
+          <h1 className="w-full text-center">Functions</h1>
+          <CodeView className="h-full w-full mt-2" />
+        </div>
+        <div className="flex flex-col w-full h-full">
+          <h1 className="w-full text-center">Assembly</h1>
+          <CodeView className="h-full w-full mt-2" />
+        </div>
+        <div className="flex flex-col w-full h-full">
+          <h1 className="w-full text-center">Decompiled C</h1>
+          <CodeView className="h-full w-full mt-2" />
+        </div>
       </div>
     </div>
   );

@@ -2,15 +2,10 @@ import React from "react";
 import CodeView from "./CodeView";
 import Code from "./Code";
 import { useForm } from "react-hook-form";
-import { sendCommand, setOutput } from "../redux/slice/sessionSlice";
+import { sendCommand } from "../redux/slice/sessionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  PlayCircleIcon,
-  DocumentPlusIcon,
-  ChevronRightIcon,
-  ChevronDoubleRightIcon,
   PlusCircleIcon,
-  StopIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/outline";
 
@@ -32,25 +27,9 @@ const Debugger = () => {
   const stack = useSelector((state) => state.session.gdbStack);
   const output = useSelector((state) => state.session.output);
 
-  //Todo: create global constants for gdbmi commands
-  const handleFileLoadPress = () => {
-    dispatch(
-      sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
-    );
-  };
   const handleBreakpointAdd = (data) => {
     dispatch(sendCommand(`-break-insert ${data.newBreakpoint}`));
     document.getElementById("newBreakpoint").value = "";
-  };
-  const handleRunPress = () => {
-    dispatch(sendCommand("-exec-run"));
-    dispatch(setOutput([]));
-  };
-  const handleNextPress = () => {
-    dispatch(sendCommand("-exec-next"));
-  };
-  const handleContinuePress = () => {
-    dispatch(sendCommand("-exec-continue"));
   };
   const handleUserCmdSend = (data) => {
     dispatch(sendCommand(data.gdbCommand));
@@ -59,39 +38,7 @@ const Debugger = () => {
 
   return (
     <div className="flex flex-col">
-      <div className="flex mt-2 mr-6 ml-6">
-        <button
-          onClick={handleFileLoadPress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
-        >
-          <DocumentPlusIcon className="h-6 w-6" />
-        </button>
-        <button
-          onClick={handleRunPress}
-          className="rounded-full text-ctp-green active:text-green-300 active:bg-ctp-crust mr-2"
-        >
-          <PlayCircleIcon className="h-6 w-6" />
-        </button>
-        <button
-          onClick={handleRunPress}
-          className="rounded-full text-ctp-red active:text-red-300 active:bg-ctp-crust mr-2"
-        >
-          <StopIcon className="h-6 w-6" />
-        </button>
-        <button
-          onClick={handleNextPress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
-        >
-          <ChevronRightIcon className="h-6 w-6" />
-        </button>
-        <button
-          onClick={handleContinuePress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
-        >
-          <ChevronDoubleRightIcon className="h-6 w-6" />
-        </button>
-      </div>
-      <div className="pl-4 pr-4 pb-4 flex w-full h-[50rem] justify-center space-x-4 flex-grow">
+      <div className="pl-4 pr-4 pb-4 flex w-full h-[50rem] justify-center space-x-4">
         <div className="flex flex-col w-full max-w-2xl">
           <h1 className="w-full text-center">Assembly</h1>
           <CodeView className="flex overflow-auto w-full mt-2">
