@@ -11,6 +11,7 @@ import {
   ChevronDoubleRightIcon,
   PlusCircleIcon,
   StopIcon,
+  ArrowRightCircleIcon,
 } from "@heroicons/react/24/outline";
 
 const Debugger = () => {
@@ -244,7 +245,7 @@ const Debugger = () => {
                   type="submit"
                   className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
                 >
-                  <PlusCircleIcon className="h-7 w-7" />
+                  <ArrowRightCircleIcon className="h-7 w-7" />
                 </button>
               </form>
             </CodeView>
