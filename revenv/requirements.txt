@@ -2,6 +2,7 @@ eventlet==0.34.3
 flask==3.0.0
 flask-socketio==5.3.6
 flask-cors==4.0.0
+flask_jwt_extended==4.6.0
 gunicorn==21.2.0
 psycopg2-binary==2.9.7
 pygdbmi==0.11.0.0

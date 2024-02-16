@@ -2,6 +2,7 @@ import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
+from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
 from src.utils.gdb_session import GdbSessionManager
 
 # with code from: https://github.com/cs01/gdbgui/
@@ -15,14 +16,30 @@ session_manager = GdbSessionManager()
 logging.basicConfig(level=logging.INFO)
 app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_COOKIE_SECURE"] = False
 
+jwt = JWTManager(app)
 # Todo: migrate all socket functions to a separate file
 # Todo: work on radare2 api
+
+
+@jwt_required()
+def test_jwt():
+    pass
 
 
 @app.route("/test")
 def hello_world():
     return jsonify(status="api is up!"), 200
+
+
+@app.route("/test-identity", methods=["GET"])
+@jwt_required()
+def test_identity():
+    current_user = get_jwt_identity()
+    logging.info(f"current identity {current_user}")
+    return jsonify(identity=f"{current_user}"), 200
 
 
 @socketio.on("test_event")
@@ -34,6 +51,14 @@ def test_event(data):
 @socketio.on("connect")
 def connect():
     logging.info("connected")
+    try:
+        test_jwt()
+    except Exception:
+        emit("error", {
+            "ok": False,
+            "msg": "Unauthorized session access",
+        })
+        return
     cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
     sid = request.sid
     gdb_session = session_manager.create_session(cmds, sid)
@@ -62,6 +87,8 @@ def handle_command(data):
     sid = request.sid
     session = session_manager.get_session_by_sid(sid)
     iomanager = session.pygdbmi_IOManager
+    if iomanager is None:
+        emit
     cmds = data["cmds"]
     logging.info(f"sending cmd: {cmds}")
     iomanager.write(cmds, timeout_sec=0,
