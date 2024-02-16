@@ -87,6 +87,8 @@ class GdbSessionManager:
 
     def terminate_session_by_pid(self, pid: int) -> Optional[GdbSession]:
         session = self.get_session_by_pid(pid)
+        if session is None:
+            return None
         session.terminate()
         ret = self.remove_session(session)
         return ret
