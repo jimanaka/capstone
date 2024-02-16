@@ -2,8 +2,9 @@ import logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
-from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required
-from src.utils.gdb_session import GdbSessionManager
+from flask_jwt_extended import JWTManager, jwt_required
+from src.utils.gdb_utils.gdb_session import GdbSessionManager
+import src.utils.radare2_util as rd2
 
 # with code from: https://github.com/cs01/gdbgui/
 
@@ -20,12 +21,11 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
 
 jwt = JWTManager(app)
-# Todo: migrate all socket functions to a separate file
 # Todo: work on radare2 api
 
 
 @jwt_required()
-def test_jwt():
+def __test_jwt():
     pass
 
 
@@ -34,25 +34,19 @@ def hello_world():
     return jsonify(status="api is up!"), 200
 
 
-@app.route("/test-identity", methods=["GET"])
+@app.route("/disassemble-binary", methods=["POST"])
 @jwt_required()
-def test_identity():
-    current_user = get_jwt_identity()
-    logging.info(f"current identity {current_user}")
-    return jsonify(identity=f"{current_user}"), 200
-
-
-@socketio.on("test_event")
-def test_event(data):
-    print("connected")
-    print(data)
+def disassemble_binary():
+    request_details = request.get_json()
+    response = rd2.test_func(request_details)
+    return response
 
 
 @socketio.on("connect")
 def connect():
     logging.info("connected")
     try:
-        test_jwt()
+        __test_jwt()
     except Exception:
         emit("error", {
             "ok": False,

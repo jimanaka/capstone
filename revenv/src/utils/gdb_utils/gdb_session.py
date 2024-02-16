@@ -5,7 +5,7 @@ import io
 from pprint import pprint
 from typing import Dict, List, Optional
 from pygdbmi.IoManager import IoManager
-from src.utils.pty import Pty
+from src.utils.gdb_utils.pty import Pty
 
 
 class GdbSession:
