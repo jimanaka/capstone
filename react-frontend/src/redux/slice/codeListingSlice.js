@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { disassembleBinaryService } from "../service/codeListingService";
+import { getFileInfoService } from "../service/codeListingService";
 
-export const disassembleBinary = createAsyncThunk(
+export const getFileInfo = createAsyncThunk(
   "revenv/disassemble-binary",
   async({ filename }, { rejectWithValue }) => {
     try {
-      const response = await disassembleBinaryService({ filename });
+      const response = await getFileInfoService({ filename });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -23,6 +23,14 @@ const codeListingSlice = createSlice({
     disassPaneWidth: 0,
     loading: "idle", // idle | pending | succeeded | failed
     error: null,
+    fileInfo: [],
+    exports: [],
+    imports: [],
+    sections: [],
+    classes: [],
+    entry: [],
+    symbols: [],
+    strings: [],
   },
   reducers: {
     setFuncPaneWidth: (state, action) => {
@@ -33,14 +41,22 @@ const codeListingSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(disassembleBinary.pending, (state) => {
+    builder.addCase(getFileInfo.pending, (state) => {
       state.loading = "pending";
     }),
-    builder.addCase(disassembleBinary.fulfilled, (state, action) => {
+    builder.addCase(getFileInfo.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      console.log(action.payload)
+      let data = JSON.parse(action.payload.payload)
+      state.fileInfo = data.i;
+      state.exports = data.iE;
+      state.imports = data.ii;
+      state.sections = data.iS;
+      state.classes = data.ic;
+      state.entry = data.ie;
+      state.symbols = data.is;
+      state.strings = data.iz;
     });
-    builder.addCase(disassembleBinary.rejected, (state, action) => {
+    builder.addCase(getFileInfo.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });

@@ -19,7 +19,6 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    console.log("logging out");
     dispatch(logoutUser());
   };
 
@@ -42,7 +41,6 @@ const Navbar = () => {
       </div>
     );
   } else {
-    console.log(user);
     links = user ? loggedInLinks : loggedOutLinks;
     accountMenu = (
       <Menu as="div" className="icon-outlined">

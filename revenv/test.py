@@ -1,12 +1,4 @@
-from pygdbmi.gdbcontroller import GdbController
-from pprint import pprint
-import re
+import r2pipe
 
-gdbmi = GdbController()
-print(gdbmi.command)
-response = gdbmi.write("-file-exec-and-symbols /app/example-bins/hello_world.out")
-pprint(response)
-print("-------------------")
-response = gdbmi.write("-exec-run")
-pprint(response)
-
+r = r2pipe.open("./example-bins/hello_world.out")
+print(r.cmd("pd $s"))

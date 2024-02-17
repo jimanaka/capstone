@@ -30,7 +30,6 @@ const Sandbox = () => {
 
     return () => {
       if (isConnected) {
-        console.log("disconnecting socket");
         dispatch(disconnect(gdbPID));
       }
     };
