@@ -1,7 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import CodeView from "./CodeView";
 import DropDown from "./DropDown";
-import { getFileInfo } from "../redux/slice/codeListingSlice";
+import Code from "./Code";
+import {
+  getFileInfo,
+  disassembleBinary,
+} from "../redux/slice/codeListingSlice";
 import { useSelector, useDispatch } from "react-redux";
 
 const CodeListing = () => {
@@ -14,9 +18,13 @@ const CodeListing = () => {
   // const entry = useSelector((state) => state.codeListing.entry);
   const symbols = useSelector((state) => state.codeListing.symbols);
   const strings = useSelector((state) => state.codeListing.strings);
+  const assembly = useSelector((state) => state.codeListing.assembly);
 
   const handleDisassemble = () => {
     dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
+    dispatch(
+      disassembleBinary({ filename: "/app/example-bins/hello_world.out" }),
+    );
   };
 
   return (
@@ -26,18 +34,65 @@ const CodeListing = () => {
         <div className="flex flex-col w-80 h-full shrink-0">
           <h1 className="w-full text-center">MetaData</h1>
           <div className="h-full w-full overflow-y-scroll">
-            <DropDown className="mt-2 w-full" label="File Info" items={fileInfo} type="fileInfo"/>
-            <DropDown className="mt-2 w-full" label="Sections" items={sections} type="sections"/>
-            <DropDown className="mt-2 w-full" label="Exports" items={exports} type="exports"/>
-            <DropDown className="mt-2 w-full" label="Imports" items={imports} type="imports"/>
-            <DropDown className="mt-2 w-full" label="Classes" items={classes} type="classes"/>
-            <DropDown className="mt-2 w-full" label="Symbols" items={symbols} type="symbols"/>
-            <DropDown className="mt-2 w-full" label="Strings" items={strings} type="strings"/>
+            <DropDown
+              className="mt-2 w-full"
+              label="File Info"
+              items={fileInfo}
+              type="fileInfo"
+            />
+            <DropDown
+              className="mt-2 w-full"
+              label="Sections"
+              items={sections}
+              type="sections"
+            />
+            <DropDown
+              className="mt-2 w-full"
+              label="Exports"
+              items={exports}
+              type="exports"
+            />
+            <DropDown
+              className="mt-2 w-full"
+              label="Imports"
+              items={imports}
+              type="imports"
+            />
+            <DropDown
+              className="mt-2 w-full"
+              label="Classes"
+              items={classes}
+              type="classes"
+            />
+            <DropDown
+              className="mt-2 w-full"
+              label="Symbols"
+              items={symbols}
+              type="symbols"
+            />
+            <DropDown
+              className="mt-2 w-full"
+              label="Strings"
+              items={strings}
+              type="strings"
+            />
           </div>
         </div>
-        <div className="flex flex-col w-full h-full">
+        <div className="flex flex-col w-[40rem] h-full shrink-0">
           <h1 className="w-full text-center">Assembly</h1>
-          <CodeView className="h-full w-full mt-2" />
+          <CodeView className="h-full w-full mt-2 overflow-y-scroll text-left font-mono whitespace-pre">
+            <ul className="overflow-auto">
+              {
+                assembly ? assembly.map((line) => {
+                  return(
+                    <li key={`assembly:0x${line.offset.toString(16)}`}>
+                      <Code language="x86asm">{line.text}</Code>
+                    </li>
+                  )
+                }) : null
+              }
+            </ul>
+          </CodeView>
         </div>
         <div className="flex flex-col w-full h-full">
           <h1 className="w-full text-center">Decompiled C</h1>

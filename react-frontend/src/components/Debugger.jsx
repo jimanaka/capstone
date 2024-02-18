@@ -39,29 +39,31 @@ const Debugger = () => {
   return (
     <div className="flex flex-col">
       <div className="pl-4 pr-4 pb-4 flex w-full h-[50rem] justify-center space-x-4">
-        <div className="flex flex-col w-full max-w-2xl">
+        <div className="flex flex-col w-[30rem] shrink-0">
           <h1 className="w-full text-center">Assembly</h1>
-          <CodeView className="flex overflow-auto w-full mt-2">
-            <ul>
-              {disassemblyOutput && frame
-                ? disassemblyOutput.map((line) => {
-                    let highlight = line.address === frame.addr ? true : false;
-                    return (
-                      <li key={line.address}>
-                        <Code
-                          language="x86asm"
-                          highlight={highlight}
-                          line={line.address}
-                          funcName={line["func-name"]}
-                          offset={line.offset}
-                        >
-                          {line.inst}
-                        </Code>
-                      </li>
-                    );
-                  })
-                : null}
-            </ul>
+          <CodeView className="overflow-y-scroll w-full mt-2 h-full">
+            <div className="overflow-auto h-full w-full">
+              <ul>
+                {disassemblyOutput && frame
+                  ? disassemblyOutput.map((line) => {
+                      let highlight = line.address === frame.addr ? true : false;
+                      return (
+                        <li key={line.address}>
+                          <Code
+                            language="x86asm"
+                            highlight={highlight}
+                            line={line.address}
+                            funcName={line["func-name"]}
+                            offset={line.offset}
+                          >
+                            {line.inst}
+                          </Code>
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
           </CodeView>
         </div>
         <div className="flex flex-col space-y-4 w-4/5 h-full">

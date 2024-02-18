@@ -17,7 +17,7 @@ RUN apt update -y && apt install gdb vim git -y
 RUN python -m pip install -r requirements.txt
 RUN git clone https://github.com/radareorg/radare2
 RUN radare2/sys/install.sh
-RUN r2pm -Ucig r2ghidra
+RUN r2pm -U && r2pm -ci r2ghidra
 
 # Set working directory and addour Flask API files
 WORKDIR /app

@@ -1,9 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getFileInfoService } from "../service/codeListingService";
+import {
+  getFileInfoService,
+  disassembleBinaryService,
+} from "../service/codeListingService";
 
 export const getFileInfo = createAsyncThunk(
-  "revenv/disassemble-binary",
-  async({ filename }, { rejectWithValue }) => {
+  "revenv/get-file-info",
+  async ({ filename }, { rejectWithValue }) => {
     try {
       const response = await getFileInfoService({ filename });
       return response.data;
@@ -13,7 +16,22 @@ export const getFileInfo = createAsyncThunk(
       }
       return rejectWithValue(error.message);
     }
-  }
+  },
+);
+
+export const disassembleBinary = createAsyncThunk(
+  "revenv/disassemble-binary",
+  async ({ filename }, { rejectWithValue }) => {
+    try {
+      const response = await disassembleBinaryService({ filename });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
 );
 
 const codeListingSlice = createSlice({
@@ -31,6 +49,7 @@ const codeListingSlice = createSlice({
     entry: [],
     symbols: [],
     strings: [],
+    assembly: [],
   },
   reducers: {
     setFuncPaneWidth: (state, action) => {
@@ -43,10 +62,10 @@ const codeListingSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(getFileInfo.pending, (state) => {
       state.loading = "pending";
-    }),
+    });
     builder.addCase(getFileInfo.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      let data = JSON.parse(action.payload.payload)
+      let data = JSON.parse(action.payload.payload);
       state.fileInfo = data.i;
       state.exports = data.iE;
       state.imports = data.ii;
@@ -60,7 +79,19 @@ const codeListingSlice = createSlice({
       state.loading = "failed";
       state.error = action.payload;
     });
-  }
+    builder.addCase(disassembleBinary.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(disassembleBinary.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      let data  = JSON.parse(action.payload.payload);
+      state.assembly = data;
+    });
+    builder.addCase(disassembleBinary.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+  },
 });
 
 export const { setFuncPaneWidth, setDisassPaneWidth } =

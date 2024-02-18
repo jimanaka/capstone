@@ -38,7 +38,15 @@ def hello_world():
 @jwt_required()
 def get_file_info():
     request_details = request.get_json()
-    response = rd2.test_func(request_details)
+    response = rd2.get_file_info(request_details)
+    return response
+
+
+@app.route("/disassemble-binary", methods=["POST"])
+@jwt_required()
+def disassemble_binary():
+    request_details = request.get_json()
+    response = rd2.disassemble_binary(request_details)
     return response
 
 
