@@ -23,7 +23,7 @@ const codeListingSlice = createSlice({
     disassPaneWidth: 0,
     loading: "idle", // idle | pending | succeeded | failed
     error: null,
-    fileInfo: [],
+    fileInfo: null,
     exports: [],
     imports: [],
     sections: [],
