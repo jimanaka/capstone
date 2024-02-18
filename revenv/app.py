@@ -50,6 +50,14 @@ def disassemble_binary():
     return response
 
 
+@app.route("/decompile-function", methods=["POST"])
+@jwt_required()
+def decompile_function():
+    request_details = request.get_json()
+    response = rd2.decompile_function(request_details)
+    return response
+
+
 @socketio.on("connect")
 def connect():
     logging.info("connected")

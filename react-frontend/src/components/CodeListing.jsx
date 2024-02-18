@@ -5,6 +5,7 @@ import Code from "./Code";
 import {
   getFileInfo,
   disassembleBinary,
+  decompileFunction,
 } from "../redux/slice/codeListingSlice";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -19,11 +20,18 @@ const CodeListing = () => {
   const symbols = useSelector((state) => state.codeListing.symbols);
   const strings = useSelector((state) => state.codeListing.strings);
   const assembly = useSelector((state) => state.codeListing.assembly);
+  const decompiledCode = useSelector((state) => state.codeListing.decompiledCode);
 
   const handleDisassemble = () => {
     dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
     dispatch(
       disassembleBinary({ filename: "/app/example-bins/hello_world.out" }),
+    );
+    dispatch(
+      decompileFunction({
+        filename: "/app/example-bins/hello_world.out",
+        address: "main",
+      }),
     );
   };
 
@@ -78,25 +86,41 @@ const CodeListing = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col w-[40rem] h-full shrink-0">
+        <div className="flex flex-col w-[45rem] h-full shrink-0">
           <h1 className="w-full text-center">Assembly</h1>
           <CodeView className="h-full w-full mt-2 overflow-y-scroll text-left font-mono whitespace-pre">
-            <ul className="overflow-auto">
-              {
-                assembly ? assembly.map((line) => {
-                  return(
-                    <li key={`assembly:0x${line.offset.toString(16)}`}>
-                      <Code language="x86asm">{line.text}</Code>
-                    </li>
-                  )
-                }) : null
-              }
-            </ul>
+            <div className="h-full w-full overflow-auto">
+              <ul>
+                {assembly
+                  ? assembly.map((line, index) => {
+                      return (
+                        <li key={`assembly:0x${line.offset.toString(16)}:${index}`}>
+                          <Code language="x86asm">{line.text}</Code>
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
           </CodeView>
         </div>
-        <div className="flex flex-col w-full h-full">
-          <h1 className="w-full text-center">Decompiled C</h1>
-          <CodeView className="h-full w-full mt-2" />
+        <div className="flex flex-col w-[45rem] h-full shrink-0">
+          <h1 className="w-full text-center">Decompiled C Code</h1>
+          <CodeView className="h-full w-full mt-2 overflow-y-scroll text-left font-mono whitespace-pre">
+            <div className="h-full w-full overflow-auto">
+              <ul>
+                {decompiledCode
+                  ? decompiledCode.map((line, index) => {
+                      return (
+                        <li key={`decompiledCode:${index}`}>
+                          <Code language="c">{line}</Code>
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
+          </CodeView>
         </div>
       </div>
     </div>

@@ -43,3 +43,24 @@ export const disassembleBinaryService = async ({ filename }) => {
     throw error;
   }
 };
+
+export const decompileFunctionService = async ({ filename, address }) => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "decompile-function",
+      { filename, address },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error(`error: unable to decompile function for file ${filename} at ${address}`);
+    throw error;
+  }
+};

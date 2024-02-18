@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getFileInfoService,
   disassembleBinaryService,
+  decompileFunctionService,
 } from "../service/codeListingService";
 
 export const getFileInfo = createAsyncThunk(
@@ -34,6 +35,21 @@ export const disassembleBinary = createAsyncThunk(
   },
 );
 
+export const decompileFunction = createAsyncThunk(
+  "revenv/decompile-function",
+  async ({ filename, address }, { rejectWithValue }) => {
+    try {
+      const response = await decompileFunctionService({ filename, address });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
 const codeListingSlice = createSlice({
   name: "codeListing",
   initialState: {
@@ -50,6 +66,7 @@ const codeListingSlice = createSlice({
     symbols: [],
     strings: [],
     assembly: [],
+    decompiledCode: [],
   },
   reducers: {
     setFuncPaneWidth: (state, action) => {
@@ -88,6 +105,17 @@ const codeListingSlice = createSlice({
       state.assembly = data;
     });
     builder.addCase(disassembleBinary.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+    builder.addCase(decompileFunction.pending, (state) => {
+      state.loading = "pending"
+    });
+    builder.addCase(decompileFunction.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      state.decompiledCode = action.payload.payload;
+    });
+    builder.addCase(decompileFunction.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });
