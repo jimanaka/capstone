@@ -1,8 +1,10 @@
 import logging
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
-from src.utils.gdb_session import GdbSessionManager
+from flask_jwt_extended import JWTManager, jwt_required
+from src.utils.gdb_utils.gdb_session import GdbSessionManager
+import src.utils.radare2_util as rd2
 
 # with code from: https://github.com/cs01/gdbgui/
 
@@ -15,17 +17,64 @@ session_manager = GdbSessionManager()
 logging.basicConfig(level=logging.INFO)
 app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_COOKIE_SECURE"] = False
+
+jwt = JWTManager(app)
+# Todo: work on radare2 api
 
 
-@socketio.on("test_event")
-def test_event(data):
-    print("connected")
-    print(data)
+@jwt_required()
+def __test_jwt():
+    pass
+
+
+@app.route("/test")
+def hello_world():
+    return jsonify(status="api is up!"), 200
+
+
+@app.route("/get-file-info", methods=["POST"])
+@jwt_required()
+def get_file_info():
+    request_details = request.get_json()
+    response = rd2.get_file_info(request_details)
+    return response
+
+
+@app.route("/disassemble-binary", methods=["POST"])
+@jwt_required()
+def disassemble_binary():
+    request_details = request.get_json()
+    filename = request_details["filename"]
+    direction = request_details["direction"]
+    target = request_details["target"]
+    mode = request_details["mode"]
+    response = rd2.disassemble_binary(filename, direction, target, mode)
+    return response
+
+
+@app.route("/decompile-function", methods=["POST"])
+@jwt_required()
+def decompile_function():
+    request_details = request.get_json()
+    filename = request_details["filename"]
+    address = request_details["address"]
+    response = rd2.decompile_function(filename, address)
+    return response
 
 
 @socketio.on("connect")
 def connect():
     logging.info("connected")
+    try:
+        __test_jwt()
+    except Exception:
+        emit("error", {
+            "ok": False,
+            "msg": "Unauthorized session access",
+        })
+        return
     cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
     sid = request.sid
     gdb_session = session_manager.create_session(cmds, sid)
@@ -54,6 +103,8 @@ def handle_command(data):
     sid = request.sid
     session = session_manager.get_session_by_sid(sid)
     iomanager = session.pygdbmi_IOManager
+    if iomanager is None:
+        emit
     cmds = data["cmds"]
     logging.info(f"sending cmd: {cmds}")
     iomanager.write(cmds, timeout_sec=0,

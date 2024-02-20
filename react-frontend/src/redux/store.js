@@ -13,5 +13,8 @@ export default configureStore({
     session: sessionReducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat([sessionMiddleware]),
+    getDefaultMiddleware({
+      immutableCheck: { warnAfter: 128 },
+      serializableCheck: { warnAfter: 128 },
+    }).concat([sessionMiddleware]),
 });

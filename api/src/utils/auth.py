@@ -32,7 +32,7 @@ def register_user(user: Dict, db_ctx: MongoContext) -> Tuple[Dict, int]:
         users_col.insert_one(user)
         logging.info(f'successfully registered user: {user["username"]}')
         return jsonify({"msg": "User registered successfully"}), HTTP.CREATED.value
-    except Exception as e:
+    except Exception:
         logging.error(f'failed to insert user: {user["username"]} to database')
         return jsonify({"msg": "failed to register user. Please try again"})
 

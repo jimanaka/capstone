@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, get_jwt
 from flask_cors import CORS
 from datetime import timedelta
@@ -14,11 +13,12 @@ app = Flask(__name__)
 app.config.from_object("src.config.Config")
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=1)
-# app.config['JWT_ACCESS_COOKIE_PATH'] = "/api/auth/"
 app.config["JWT_REFRESH_COOKIE_PATH"] = "/api/token/"
-app.config["JWT_REFRESH_CSRF_COOKIE_PATH"] = "/api/token/"
+# setting a path for the refresh CSRF token prevents the browser from sending it for refresh and logout functions
+# app.config["JWT_REFRESH_CSRF_COOKIE_PATH"] = "/api/token/"
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_COOKIE_SAMESITE"] = "Lax"
 app.config["CORS_HEADERS"] = "Content-Type"
 
 jwt = JWTManager(app)

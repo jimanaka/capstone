@@ -60,7 +60,7 @@ const socketMiddleware = (store) => {
           if (data.ok) {
             store.dispatch(addOutput(data.msg));
           }
-        })
+        });
       }
     }
 
@@ -69,7 +69,7 @@ const socketMiddleware = (store) => {
         let socket = socketConnection.socket;
         socket.off("connect");
         socket.off("error");
-        socket.off("gdb_gui_response")
+        socket.off("gdb_gui_response");
         socket.disconnect();
         socket.off("disconnect");
         socketConnection = null;
@@ -81,7 +81,6 @@ const socketMiddleware = (store) => {
         return;
       }
       let socket = socketConnection.socket;
-      console.log(`sending command ${action.payload}`)
       socket.emit("send_command", {
         cmds: action.payload,
       });

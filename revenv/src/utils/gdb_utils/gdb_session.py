@@ -5,40 +5,7 @@ import io
 from pprint import pprint
 from typing import Dict, List, Optional
 from pygdbmi.IoManager import IoManager
-import shlex
-from pty import openpty, fork
-
-
-class Pty():
-    def __init__(self, cmd: Optional[str] = None):
-        self.MAX_OUTPUT = 1024
-        if cmd:
-            (pid, fd) = fork()
-            if pid == 0:
-                # child proc -> execute cmd
-                args = shlex.split(cmd)
-                os.execvp(args[0], args)
-            else:
-                # else parent process -> setup IO
-                self.stdin = fd
-                self.stdout = fd
-                self.pid = pid
-        else:
-            (master_fd, slave_fd) = openpty()
-            self.master_fd = master_fd
-            self.slave_fd = slave_fd
-            self.stdin = master_fd
-            self.stdout = master_fd
-            self.ttyname = os.ttyname(slave_fd)
-            logging.info("creating pty")
-
-    def write(self, data: str) -> None:
-        encoded_data = data.encode()
-        os.write(self.stdin, encoded_data)
-
-    def read(self) -> Optional[str]:
-        encoded_data = os.read(self.stdout, self.MAX_OUTPUT)
-        print("Recieved:", encoded_data.decode())
+from src.utils.gdb_utils.pty import Pty
 
 
 class GdbSession:
@@ -65,8 +32,7 @@ class GdbSession:
             # os.close(self.program_pty.slave_fd)
             # logging.info(f"attempting to kill pid: {self.pid}")
             os.kill(self.pid, signal.SIGKILL)
-            logging.info(
-                f"pid {self.pid} killed, waiting for process to finish...")
+            logging.info(f"pid {self.pid} killed, waiting for process to finish...")
             os.waitpid(self.pid, os.WSTOPPED)
             logging.info(f"pid {self.pid} successfully killed")
         except Exception as e:
@@ -86,6 +52,7 @@ class GdbSessionManager:
             f"new-ui mi {gui_pty.ttyname}",
             f"set inferior-tty {program_pty.ttyname}",
             "set pagination off",
+            "set disassembly-flavor intel"
         ]
         startup_cmds = " ".join([f"-iex='{c}'" for c in gui_cmds])
         logging.info(f"creating session with : {gdb_cmd} {startup_cmds}")
@@ -120,6 +87,8 @@ class GdbSessionManager:
 
     def terminate_session_by_pid(self, pid: int) -> Optional[GdbSession]:
         session = self.get_session_by_pid(pid)
+        if session is None:
+            return None
         session.terminate()
         ret = self.remove_session(session)
         return ret
@@ -130,29 +99,3 @@ class GdbSessionManager:
         ret = self.remove_session(session)
         pprint(self.connections)
         return ret
-
-
-session_manager = GdbSessionManager()
-gdb_session = session_manager.create_session("gdb", "1234")
-iomanager = gdb_session.pygdbmi_IOManager
-# iomanager.write("-file-exec-and-symbols /app/example-bins/hello_world.out",
-#                 timeout_sec=0, raise_error_on_timeout=False, read_response=False)
-# iomanager.write("-exec-run", timeout_sec=0,
-#                 raise_error_on_timeout=False, read_response=False)
-# response = iomanager.get_gdb_response(
-#     timeout_sec=0, raise_error_on_timeout=False)
-# pprint(response)
-response = iomanager.write("-file-exec-and-symbols /app/example-bins/hello_world.out")
-pprint(response)
-print("--------------------")
-response = iomanager.write("-exec-run")
-pprint(response)
-print("--------------------")
-
-r2 = gdb_session.gdb_pty.read()
-if r2:
-    pprint(r2)
-
-r3 = gdb_session.program_pty.read()
-if r3:
-    pprint(r3)

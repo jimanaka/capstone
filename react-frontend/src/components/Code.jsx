@@ -3,7 +3,7 @@ import React from "react";
 import "@catppuccin/highlightjs/css/catppuccin-macchiato.css"
 import hljs from "highlight.js";
 
-const Code = ({ children, language, line, funcName, offset, highlight }) => {
+const Code = ({ children, language, line, funcName, offset, bytes, highlight }) => {
   const html = hljs.highlight(children, { language }).value;
   return (
     <pre className={`${highlight ? "bg-ctp-overlay0" : null} px-1 flex`}>
@@ -13,7 +13,10 @@ const Code = ({ children, language, line, funcName, offset, highlight }) => {
         null
       }
       <div>{line}</div>
-      <code className="pl-4 text-left block overflow-x-auto text-slate-100" dangerouslySetInnerHTML={{__html: html}} />
+      {
+        bytes ? <div> {bytes}</div> : null
+      }
+      <code className="pl-4 text-left block text-slate-100 w-full" dangerouslySetInnerHTML={{__html: html}} />
     </pre>
   )
 }
