@@ -24,7 +24,12 @@ export const disassembleBinary = createAsyncThunk(
   "revenv/disassemble-binary",
   async ({ filename, direction, target, mode }, { rejectWithValue }) => {
     try {
-      const response = await disassembleBinaryService({ filename, direction, target, mode });
+      const response = await disassembleBinaryService({
+        filename,
+        direction,
+        target,
+        mode,
+      });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -68,7 +73,6 @@ const codeListingSlice = createSlice({
     strings: [],
     assembly: [],
     topAddress: null,
-    oldTopAddress: null,
     bottomAddress: null,
     decompiledCode: [],
   },
@@ -78,6 +82,45 @@ const codeListingSlice = createSlice({
     },
     setDisassPaneWidth: (state, action) => {
       state.disassPaneWidth = action.payload;
+    },
+    setFileInfo: (state, action) => {
+      state.fileInfo = action.payload;
+    },
+    setFunctions: (state, action) => {
+      state.functions = action.payload;
+    },
+    setExports: (state, action) => {
+      state.exports = action.payload;
+    },
+    setImports: (state, action) => {
+      state.imports = action.payload;
+    },
+    setSections: (state, action) => {
+      state.sections = action.payload;
+    },
+    setClasses: (state, action) => {
+      state.classes = action.payload;
+    },
+    setEntry: (state, action) => {
+      state.entry = action.payload;
+    },
+    setSymbols: (state, action) => {
+      state.symbols = action.payload;
+    },
+    setStrings: (state, action) => {
+      state.strings = action.payload;
+    },
+    setAssembly: (state, action) => {
+      state.assembly = action.payload;
+    },
+    setTopAddress: (state, action) => {
+      state.topAddress = action.payload;
+    },
+    setBotAddress: (state, action) => {
+      state.bottomAddress = action.payload;
+    },
+    setDecompiledCode: (state, action) => {
+      state.decompiledCode = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -117,7 +160,6 @@ const codeListingSlice = createSlice({
       } else {
         state.assembly = state.assembly.concat(data);
       }
-      state.oldTopAddress = state.topAddress;
       state.topAddress = `0x${data[0].offset.toString(16)}`;
       state.bottomAddress = `0x${data[data.length - 1].offset.toString(16)}`;
     });
@@ -139,7 +181,22 @@ const codeListingSlice = createSlice({
   },
 });
 
-export const { setFuncPaneWidth, setDisassPaneWidth } =
-  codeListingSlice.actions;
+export const {
+  setFuncPaneWidth,
+  setDisassPaneWidth,
+  setFileInfo,
+  setFunctions,
+  setExports,
+  setImports,
+  setSections,
+  setClasses,
+  setEntry,
+  setSymbols,
+  setStrings,
+  setAssembly,
+  setTopAddress,
+  setBotAddress,
+  setDecompiledCode,
+} = codeListingSlice.actions;
 
 export default codeListingSlice.reducer;
