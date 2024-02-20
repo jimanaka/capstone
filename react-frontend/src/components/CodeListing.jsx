@@ -42,7 +42,6 @@ const CodeListing = () => {
       event.currentTarget.scrollHeight -
         (event.currentTarget.scrollTop + event.currentTarget.clientHeight),
     );
-    console.log(highlight);
   };
 
   useEffect(() => {
@@ -95,6 +94,7 @@ const CodeListing = () => {
   const handleMetadataClick = (e, address) => {
     setHighlight(address);
     setNoAssemblyScroll(true);
+    setOldAssemblyHeight(0);
     dispatch(
       disassembleBinary({
         filename: "/app/example-bins/hello_world.out",
