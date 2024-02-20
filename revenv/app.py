@@ -46,7 +46,11 @@ def get_file_info():
 @jwt_required()
 def disassemble_binary():
     request_details = request.get_json()
-    response = rd2.disassemble_binary(request_details)
+    filename = request_details["filename"]
+    direction = request_details["direction"]
+    target = request_details["target"]
+    mode = request_details["mode"]
+    response = rd2.disassemble_binary(filename, direction, target, mode)
     return response
 
 
@@ -54,7 +58,9 @@ def disassemble_binary():
 @jwt_required()
 def decompile_function():
     request_details = request.get_json()
-    response = rd2.decompile_function(request_details)
+    filename = request_details["filename"]
+    address = request_details["address"]
+    response = rd2.decompile_function(filename, address)
     return response
 
 

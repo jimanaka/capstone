@@ -22,9 +22,9 @@ export const getFileInfo = createAsyncThunk(
 
 export const disassembleBinary = createAsyncThunk(
   "revenv/disassemble-binary",
-  async ({ filename }, { rejectWithValue }) => {
+  async ({ filename, direction, target, mode }, { rejectWithValue }) => {
     try {
-      const response = await disassembleBinaryService({ filename });
+      const response = await disassembleBinaryService({ filename, direction, target, mode });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -58,6 +58,7 @@ const codeListingSlice = createSlice({
     loading: "idle", // idle | pending | succeeded | failed
     error: null,
     fileInfo: null,
+    functions: [],
     exports: [],
     imports: [],
     sections: [],
@@ -66,6 +67,9 @@ const codeListingSlice = createSlice({
     symbols: [],
     strings: [],
     assembly: [],
+    topAddress: null,
+    oldTopAddress: null,
+    bottomAddress: null,
     decompiledCode: [],
   },
   reducers: {
@@ -82,7 +86,8 @@ const codeListingSlice = createSlice({
     });
     builder.addCase(getFileInfo.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      let data = JSON.parse(action.payload.payload);
+      // let data = JSON.parse(action.payload.payload);
+      let data = action.payload.payload;
       state.fileInfo = data.i;
       state.exports = data.iE;
       state.imports = data.ii;
@@ -91,6 +96,7 @@ const codeListingSlice = createSlice({
       state.entry = data.ie;
       state.symbols = data.is;
       state.strings = data.iz;
+      state.functions = data.afl;
     });
     builder.addCase(getFileInfo.rejected, (state, action) => {
       state.loading = "failed";
@@ -101,15 +107,26 @@ const codeListingSlice = createSlice({
     });
     builder.addCase(disassembleBinary.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      let data  = JSON.parse(action.payload.payload);
-      state.assembly = data;
+      if (action.payload.mode === "refresh") {
+        state.assembly = [];
+      }
+      // let data = JSON.parse(action.payload.payload);
+      let data = action.payload.payload;
+      if (action.payload.direction === "up") {
+        state.assembly = data.concat(state.assembly);
+      } else {
+        state.assembly = state.assembly.concat(data);
+      }
+      state.oldTopAddress = state.topAddress;
+      state.topAddress = `0x${data[0].offset.toString(16)}`;
+      state.bottomAddress = `0x${data[data.length - 1].offset.toString(16)}`;
     });
     builder.addCase(disassembleBinary.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });
     builder.addCase(decompileFunction.pending, (state) => {
-      state.loading = "pending"
+      state.loading = "pending";
     });
     builder.addCase(decompileFunction.fulfilled, (state, action) => {
       state.loading = "succeeded";

@@ -18,6 +18,7 @@ app.config["JWT_REFRESH_COOKIE_PATH"] = "/api/token/"
 # app.config["JWT_REFRESH_CSRF_COOKIE_PATH"] = "/api/token/"
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_COOKIE_SAMESITE"] = "Lax"
 app.config["CORS_HEADERS"] = "Content-Type"
 
 jwt = JWTManager(app)

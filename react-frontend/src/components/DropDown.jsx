@@ -2,7 +2,7 @@ import React from "react";
 import { Disclosure } from "@headlessui/react";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
-const DropDown = ({ label, items, type }) => {
+const DropDown = ({ label, items, type, handleClick }) => {
   const VariableTypeList = () => {
     switch (type) {
       case "fileInfo":
@@ -26,17 +26,76 @@ const DropDown = ({ label, items, type }) => {
           <ul>
             {items.length > 0
               ? items.map((item) => {
-                  return <li key={`${type}:${item.string}`}>{item.string}</li>;
+                  return (
+                    <li
+                      key={`${type}:${item.string}`}
+                      onClick={(e) =>
+                        handleClick(e, `0x${item.vaddr.toString(16)}`)
+                      }
+                    >
+                      {item.string}
+                    </li>
+                  );
                 })
               : null}
           </ul>
-        )
+        );
+      case "functions":
+        return (
+          <ul>
+            {items.length > 0
+              ? items.map((item) => {
+                  return (
+                    <li
+                      key={`${type}:${item.name}`}
+                      onClick={(e) =>
+                        handleClick(e, `0x${item.offset.toString(16)}`)
+                      }
+                    >
+                      {item.name}
+                    </li>
+                  );
+                })
+              : null}
+          </ul>
+        );
+      case "imports":
+        return (
+          <ul>
+            {items.length > 0
+              ? items.map((item) => {
+                  return (
+                    <li
+                      key={`${type}:${item.name}`}
+                      onClick={
+                        "plt" in item
+                          ? (e) =>
+                              handleClick(e, `0x${item.plt.toString(16)}`)
+                          : null
+                      }
+                    >
+                      {item.name}
+                    </li>
+                  );
+                })
+              : null}
+          </ul>
+        );
       default:
         return (
           <ul>
             {items.length > 0
               ? items.map((item) => {
-                  return <li key={`${type}:${item.name}`}>{item.name}</li>;
+                  return (
+                    <li
+                      key={`${type}:${item.name}`}
+                      onClick={(e) =>
+                        handleClick(e, `0x${item.vaddr.toString(16)}`)
+                      }
+                    >
+                      {item.name}
+                    </li>
+                  );
                 })
               : null}
           </ul>

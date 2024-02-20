@@ -15,6 +15,7 @@ import PayloadGenerator from "../components/PayloadGenerator";
 
 import { setCurrentTab, } from "../redux/slice/sandboxSlice";
 import { initSocket, disconnect, sendCommand, setOutput } from "../redux/slice/sessionSlice";
+import { disassembleBinary, getFileInfo } from "../redux/slice/codeListingSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Sandbox = () => {
@@ -37,9 +38,17 @@ const Sandbox = () => {
 
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {
-    if (currentTab !== 1) dispatch(setCurrentTab(1));
     dispatch(
       sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
+    );
+    dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
+    dispatch(
+      disassembleBinary({
+        filename: "/app/example-bins/hello_world.out",
+        direction: null,
+        target: null,
+        mode: "concat",
+      }),
     );
   };
   const handleRunPress = () => {

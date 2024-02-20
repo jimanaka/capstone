@@ -23,7 +23,7 @@ export const getFileInfoService = async ({ filename }) => {
   }
 };
 
-export const disassembleBinaryService = async ({ filename }) => {
+export const disassembleBinaryService = async ({ filename, direction, target, mode }) => {
   try {
     const config = {
       headers: {
@@ -34,7 +34,7 @@ export const disassembleBinaryService = async ({ filename }) => {
     };
     const response = await axios.post(
       API_URL + "disassemble-binary",
-      { filename },
+      { filename, direction, target, mode },
       config,
     );
     return response;
