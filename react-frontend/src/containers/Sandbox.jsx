@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Tab } from "@headlessui/react";
 import {
   PlayCircleIcon,
@@ -12,6 +12,8 @@ import {
 import CodeListing from "../components/CodeListing";
 import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
+import Modal from "../components/Modal"
+import FileDropper from "../components/FileDropper";
 
 import { setCurrentTab, } from "../redux/slice/sandboxSlice";
 import { initSocket, disconnect, sendCommand, setOutput } from "../redux/slice/sessionSlice";
@@ -23,6 +25,7 @@ const Sandbox = () => {
   const currentTab = useSelector((state) => state.sandbox.currentTab);
   const isConnected = useSelector((state) => state.session.isConnected);
   const gdbPID = useSelector((state) => state.session.gdbPID);
+  const [fileDropperOpen, setFileDropperOpen] = useState(false)
 
   useEffect(() => {
     if (!isConnected) {
@@ -38,18 +41,20 @@ const Sandbox = () => {
 
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {
-    dispatch(
-      sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
-    );
-    dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
-    dispatch(
-      disassembleBinary({
-        filename: "/app/example-bins/hello_world.out",
-        direction: null,
-        target: null,
-        mode: "concat",
-      }),
-    );
+    setFileDropperOpen(true);
+    console.log("setting file dropper open")
+    // dispatch(
+    //   sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
+    // );
+    // dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
+    // dispatch(
+    //   disassembleBinary({
+    //     filename: "/app/example-bins/hello_world.out",
+    //     direction: null,
+    //     target: null,
+    //     mode: "concat",
+    //   }),
+    // );
   };
   const handleRunPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
@@ -83,9 +88,16 @@ const Sandbox = () => {
       component = null;
   }
 
+  const handleFileDropperSubmit = (data) => {
+    console.log("submitting data... ", data);
+  };
+
   return (
     <>
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
+        <Modal title="Upload binary" isOpen={fileDropperOpen} closeModal={() => setFileDropperOpen(false)}>
+          <FileDropper/>
+        </Modal>
         <Tab.Group onChange={(index) => handleTabChange(index)}>
           <Tab.List className="flex justify-center">
             <Tab className="flex-1">Listing</Tab>
