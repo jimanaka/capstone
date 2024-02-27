@@ -31,7 +31,8 @@ const CodeListing = () => {
   const [scrollTop, setScrollTop] = useState(null);
   const [scrollBot, setScrollBot] = useState(null);
   const [oldAssemblyHeight, setOldAssemblyHeight] = useState(0);
-  const [firstLoad, setFirstLoad] = useState(true);
+  const [highlight, setHighlight] = useState("");
+  const [noAssemblyScroll, setNoAssemblyScroll] = useState(true);
   const assemblyContainerRef = useRef(null);
   const assemblyListRef = useRef(null);
 
@@ -41,7 +42,6 @@ const CodeListing = () => {
       event.currentTarget.scrollHeight -
         (event.currentTarget.scrollTop + event.currentTarget.clientHeight),
     );
-    console.log(oldAssemblyHeight, assemblyListRef.current.clientHeight);
   };
 
   useEffect(() => {
@@ -53,17 +53,21 @@ const CodeListing = () => {
   }, []);
 
   useEffect(() => {
-    if (oldAssemblyHeight === 0) return;
+    if (oldAssemblyHeight === 0 || scrollTop !== 0) return;
     if (oldAssemblyHeight !== assemblyListRef.current.clientHeight) {
       assemblyContainerRef.current.scrollTo({
         top: assemblyListRef.current.clientHeight - oldAssemblyHeight,
         behavior: "instant",
       });
     }
-  }, [assembly]);
+  }, [assembly, scrollTop]);
 
   useEffect(() => {
     if (scrollTop === null || scrollBot === null) return;
+    if (noAssemblyScroll) {
+      setNoAssemblyScroll(false);
+      return
+    }
     if (scrollTop === 0) {
       setOldAssemblyHeight(assemblyListRef.current.clientHeight);
       dispatch(
@@ -87,7 +91,10 @@ const CodeListing = () => {
     }
   }, [scrollTop, scrollBot]);
 
-  const handleClick = (e, address) => {
+  const handleMetadataClick = (e, address) => {
+    setHighlight(address);
+    setNoAssemblyScroll(true);
+    setOldAssemblyHeight(0);
     dispatch(
       disassembleBinary({
         filename: "/app/example-bins/hello_world.out",
@@ -108,6 +115,16 @@ const CodeListing = () => {
     });
   };
 
+  const handleAssemblyClick = (e, address) => {
+    setHighlight(address);
+    dispatch(
+      decompileFunction({
+        filename: "/app/example-bins/hello_world.out",
+        address: address,
+      }),
+    );
+  }
+
   return (
     <div className="pl-4 pr-4 pb-4 w-full h-[50rem]">
       <div className="flex mt-2 h-full w-full justify-ceter space-x-4">
@@ -125,28 +142,28 @@ const CodeListing = () => {
               label="Sections"
               items={sections}
               type="sections"
-              handleClick={handleClick}
+              handleClick={handleMetadataClick}
             />
             <DropDown
               className="mt-2 w-full"
               label="Functions"
               items={functions}
               type="functions"
-              handleClick={handleClick}
+              handleClick={handleMetadataClick}
             />
             <DropDown
               className="mt-2 w-full"
               label="Exports"
               items={exports}
               type="exports"
-              handleClick={handleClick}
+              handleClick={handleMetadataClick}
             />
             <DropDown
               className="mt-2 w-full"
               label="Imports"
               items={imports}
               type="imports"
-              handleClick={handleClick}
+              handleClick={handleMetadataClick}
             />
             <DropDown
               className="mt-2 w-full"
@@ -159,14 +176,14 @@ const CodeListing = () => {
               label="Symbols"
               items={symbols}
               type="symbols"
-              handleClick={handleClick}
+              handleClick={handleMetadataClick}
             />
             <DropDown
               className="mt-2 w-full"
               label="Strings"
               items={strings}
               type="strings"
-              handleClick={handleClick}
+              handleClick={handleMetadataClick}
             />
           </div>
         </div>
@@ -182,13 +199,14 @@ const CodeListing = () => {
               <ul ref={assemblyListRef}>
                 {assembly
                   ? assembly.map((line, index) => {
+                    let address = `0x${line.offset.toString(16)}`
+                    let isHighlighted = address === highlight ? true : false;
                       return (
                         <li
-                          key={`assembly:0x${line.offset.toString(
-                            16,
-                          )}:${index}`}
+                          key={`assembly:${address}:${index}`}
+                          onClick={(e) => handleAssemblyClick(e, address)}
                         >
-                          <Code language="x86asm">{line.text}</Code>
+                          <Code language="x86asm" highlight={isHighlighted}>{line.text}</Code>
                         </li>
                       );
                     })
