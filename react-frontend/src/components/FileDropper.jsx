@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { useForm } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
-const FileDropper = () => {
-  const [selectedFile, setSelectedFile] = React.useState(null);
-  const [submitedString, setSubmitedString] = React.useState("");
-  const { register, errors, handleSubmit, control, setValue } = useForm();
+const FileDropper = ({ onSubmit, setSelectedFile }) => {
+  const { register, errors, handleSubmit, control, setValue } = useFormContext();
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     onDrop: (files) => {
       setValue("file", files);
@@ -18,12 +16,9 @@ const FileDropper = () => {
 
   useEffect(() => {
     setSelectedFile(acceptedFiles[0]);
+    console.log(acceptedFiles);
   }, [acceptedFiles]);
 
-  const onSubmit = (data) => {
-    console.log(data);
-    setSubmitedString(JSON.stringify(data));
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -72,7 +67,6 @@ const FileDropper = () => {
       <button type="submit" className="btn-primary">
         SEND
       </button>
-      <p>{submitedString}</p>
     </form>
   );
 };

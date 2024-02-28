@@ -1,5 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { Tab } from "@headlessui/react";
 import {
   PlayCircleIcon,
@@ -25,7 +26,11 @@ const Sandbox = () => {
   const currentTab = useSelector((state) => state.sandbox.currentTab);
   const isConnected = useSelector((state) => state.session.isConnected);
   const gdbPID = useSelector((state) => state.session.gdbPID);
+  const methods = useForm();
+
   const [fileDropperOpen, setFileDropperOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = React.useState(null);
+  const [submitedString, setSubmitedString] = React.useState("");
 
   useEffect(() => {
     if (!isConnected) {
@@ -73,6 +78,10 @@ const Sandbox = () => {
     dispatch(setCurrentTab(index));
   };
 
+  const onSubmit = (data) => {
+    setSubmitedString(JSON.stringify(data));
+  };
+
   let component = null;
   switch (currentTab) {
     case 0:
@@ -88,16 +97,15 @@ const Sandbox = () => {
       component = null;
   }
 
-  const handleFileDropperSubmit = (data) => {
-    console.log("submitting data... ", data);
-  };
-
   return (
     <>
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
-        <Modal title="Upload binary" isOpen={fileDropperOpen} closeModal={() => setFileDropperOpen(false)}>
-          <FileDropper/>
-        </Modal>
+        <FormProvider {...methods}>
+          <Modal title="Upload binary" isOpen={fileDropperOpen} closeModal={() => setFileDropperOpen(false)}>
+            <FileDropper onSubmit={onSubmit} setSelectedFile={setSelectedFile}/>
+            <p>{submitedString}</p>
+          </Modal>
+        </FormProvider>
         <Tab.Group onChange={(index) => handleTabChange(index)}>
           <Tab.List className="flex justify-center">
             <Tab className="flex-1">Listing</Tab>
