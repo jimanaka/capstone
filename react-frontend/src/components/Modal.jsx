@@ -2,9 +2,6 @@ import React, { Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 
 const Modal = ({ children, isOpen, closeModal, title }) => {
-  useEffect(() => {
-    console.log(isOpen);
-  }, [isOpen]);
 
   return (
     <Transition appear show={isOpen} as={Fragment}>

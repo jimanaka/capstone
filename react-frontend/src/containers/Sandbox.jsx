@@ -13,12 +13,21 @@ import {
 import CodeListing from "../components/CodeListing";
 import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
-import Modal from "../components/Modal"
+import Modal from "../components/Modal";
 import FileDropper from "../components/FileDropper";
 
-import { setCurrentTab, } from "../redux/slice/sandboxSlice";
-import { initSocket, disconnect, sendCommand, setOutput } from "../redux/slice/sessionSlice";
-import { disassembleBinary, getFileInfo } from "../redux/slice/codeListingSlice";
+import { setCurrentTab } from "../redux/slice/sandboxSlice";
+import {
+  initSocket,
+  disconnect,
+  sendCommand,
+  setOutput,
+} from "../redux/slice/sessionSlice";
+import {
+  disassembleBinary,
+  getFileInfo,
+} from "../redux/slice/codeListingSlice";
+import { uploadFile } from "../redux/slice/sandboxSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const Sandbox = () => {
@@ -28,9 +37,9 @@ const Sandbox = () => {
   const gdbPID = useSelector((state) => state.session.gdbPID);
   const methods = useForm();
 
-  const [fileDropperOpen, setFileDropperOpen] = useState(false)
+  const [fileDropperOpen, setFileDropperOpen] = useState(false);
+  const [filePickerOpen, setFilePickerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = React.useState(null);
-  const [submitedString, setSubmitedString] = React.useState("");
 
   useEffect(() => {
     if (!isConnected) {
@@ -46,8 +55,8 @@ const Sandbox = () => {
 
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {
-    setFileDropperOpen(true);
-    console.log("setting file dropper open")
+    setFilePickerOpen(true);
+    // setFileDropperOpen(true);
     // dispatch(
     //   sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
     // );
@@ -79,7 +88,8 @@ const Sandbox = () => {
   };
 
   const onSubmit = (data) => {
-    setSubmitedString(JSON.stringify(data));
+    data.file = data.file[0]
+    dispatch(uploadFile(data));
   };
 
   let component = null;
@@ -101,9 +111,18 @@ const Sandbox = () => {
     <>
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
         <FormProvider {...methods}>
-          <Modal title="Upload binary" isOpen={fileDropperOpen} closeModal={() => setFileDropperOpen(false)}>
-            <FileDropper onSubmit={onSubmit} setSelectedFile={setSelectedFile}/>
-            <p>{submitedString}</p>
+          <Modal title="Files" isOpen={filePickerOpen} closeModal={() => setFilePickerOpen(false)}>
+          </Modal>
+          <Modal
+            title="Upload binary"
+            isOpen={fileDropperOpen}
+            closeModal={() => setFileDropperOpen(false)}
+          >
+            <FileDropper
+              onSubmit={onSubmit}
+              setSelectedFile={setSelectedFile}
+              selectedFile={selectedFile}
+            />
           </Modal>
         </FormProvider>
         <Tab.Group onChange={(index) => handleTabChange(index)}>

@@ -1,11 +1,13 @@
 import logging
 import os
+from pprint import pprint
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
-from flask_jwt_extended import JWTManager, jwt_required, get_current_user
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from src.utils.gdb_utils.gdb_session import GdbSessionManager
+from pathlib import Path
 import src.utils.radare2_util as rd2
 
 # with code from: https://github.com/cs01/gdbgui/
@@ -21,7 +23,7 @@ app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
-app.config["UPLOAD_PATH"] = "/uploads"
+app.config["UPLOAD_PATH"] = "/app/uploads"
 
 jwt = JWTManager(app)
 # Todo: work on radare2 api
@@ -37,22 +39,24 @@ def hello_world():
     return jsonify(status="api is up!"), 200
 
 
-@app.route("/upload", methods=["POST"])
-@jwt_required
+@app.route("/upload-file", methods=["POST"])
+@jwt_required()
 def upload_file():
-    user = get_current_user()
+    user = get_jwt_identity()
+    pprint(request)
     if "file" not in request.files:
         return jsonify(msg="no file provided"), 200
     file = request.files["file"]
+    logging.info(file)
     if file.filename == "":
         return jsonify(msg="no filename provided"), 200
 
     if file and secure_filename(file.filename):
         filename = secure_filename(file.filename)
+        Path(os.path.join(app.config["UPLOAD_PATH"], user)).mkdir(parents=True, exist_ok=True)
         file.save(os.path.join(app.config["UPLOAD_PATH"], user, filename))
     response = jsonify(msg="file upload successfull")
     return response, 200
-
 
 
 @app.route("/get-file-info", methods=["POST"])
