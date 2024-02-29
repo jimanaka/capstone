@@ -15,6 +15,7 @@ import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
 import Modal from "../components/Modal";
 import FileDropper from "../components/FileDropper";
+import FilePicker from "../components/FilePicker";
 
 import { setCurrentTab } from "../redux/slice/sandboxSlice";
 import {
@@ -40,6 +41,10 @@ const Sandbox = () => {
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const [selectedFile, setSelectedFile] = React.useState(null);
+
+  useEffect(() => {
+    setFilePickerOpen(true);
+  }, []);
 
   useEffect(() => {
     if (!isConnected) {
@@ -112,6 +117,7 @@ const Sandbox = () => {
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
         <FormProvider {...methods}>
           <Modal title="Files" isOpen={filePickerOpen} closeModal={() => setFilePickerOpen(false)}>
+            <FilePicker />
           </Modal>
           <Modal
             title="Upload binary"

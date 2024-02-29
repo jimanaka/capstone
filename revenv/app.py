@@ -43,19 +43,28 @@ def hello_world():
 @jwt_required()
 def upload_file():
     user = get_jwt_identity()
-    pprint(request)
     if "file" not in request.files:
         return jsonify(msg="no file provided"), 200
     file = request.files["file"]
-    logging.info(file)
     if file.filename == "":
         return jsonify(msg="no filename provided"), 200
 
     if file and secure_filename(file.filename):
         filename = secure_filename(file.filename)
-        Path(os.path.join(app.config["UPLOAD_PATH"], user)).mkdir(parents=True, exist_ok=True)
+        Path(os.path.join(app.config["UPLOAD_PATH"], user)).mkdir(
+            parents=True, exist_ok=True)
         file.save(os.path.join(app.config["UPLOAD_PATH"], user, filename))
     response = jsonify(msg="file upload successfull")
+    return response, 200
+
+
+@app.route("/list-files", methods=["GET"])
+@jwt_required()
+def list_files():
+    user = get_jwt_identity()
+    files = os.listdir(path=os.path.join(app.config["UPLOAD_PATH"], user))
+    pprint(files)
+    response = jsonify(msg="file listing", files=files)
     return response, 200
 
 

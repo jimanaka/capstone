@@ -13,7 +13,6 @@ export const uploadFileService = async ({ file }) => {
     };
     let formData = new FormData();
     formData.append("file", file)
-    console.log(formData);
     const response = await axios.post(
       API_URL + "upload-file",
       formData,
@@ -25,3 +24,23 @@ export const uploadFileService = async ({ file }) => {
     throw error;
   }
 };
+
+export const listFilesService = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.get(
+      API_URL + "list-files",
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to get file list");
+    throw error;
+  }
+}
