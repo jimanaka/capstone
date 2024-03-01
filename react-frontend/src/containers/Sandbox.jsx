@@ -1,5 +1,6 @@
 import React from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import { Tab } from "@headlessui/react";
 import {
   PlayCircleIcon,
@@ -8,21 +9,42 @@ import {
   ChevronDoubleRightIcon,
   StopIcon,
 } from "@heroicons/react/24/outline";
+import { useDispatch, useSelector } from "react-redux";
 
 import CodeListing from "../components/CodeListing";
 import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
+import Modal from "../components/Modal";
+import FileDropper from "../components/FileDropper";
+import FilePicker from "../components/FilePicker";
 
-import { setCurrentTab, } from "../redux/slice/sandboxSlice";
-import { initSocket, disconnect, sendCommand, setOutput } from "../redux/slice/sessionSlice";
-import { disassembleBinary, getFileInfo } from "../redux/slice/codeListingSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
+import {
+  initSocket,
+  disconnect,
+  setOutput,
+  sendCommand,
+} from "../redux/slice/sessionSlice";
+import {
+  disassembleBinary,
+  getFileInfo,
+} from "../redux/slice/codeListingSlice";
 
 const Sandbox = () => {
   const dispatch = useDispatch();
   const currentTab = useSelector((state) => state.sandbox.currentTab);
   const isConnected = useSelector((state) => state.session.isConnected);
   const gdbPID = useSelector((state) => state.session.gdbPID);
+  const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
+  const methods = useForm();
+
+  const [fileDropperOpen, setFileDropperOpen] = useState(false);
+  const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [selectedFile, setSelectedFile] = React.useState(null);
+
+  useEffect(() => {
+    setFilePickerOpen(true);
+  }, []);
 
   useEffect(() => {
     if (!isConnected) {
@@ -36,20 +58,27 @@ const Sandbox = () => {
     };
   }, [isConnected]);
 
+  useEffect(() => {
+    if (currentFilePath) {
+      dispatch(sendCommand("-file-exec-and-symbols " + currentFilePath));
+      dispatch(getFileInfo({ filename: currentFilePath }));
+      dispatch(
+        disassembleBinary({
+          filename: currentFilePath,
+          direction: null,
+          target: null,
+          mode: "refresh",
+        }),
+      );
+    }
+  }, [currentFilePath]);
+
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {
-    dispatch(
-      sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
-    );
-    dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
-    dispatch(
-      disassembleBinary({
-        filename: "/app/example-bins/hello_world.out",
-        direction: null,
-        target: null,
-        mode: "concat",
-      }),
-    );
+    setFilePickerOpen(true);
+  };
+  const handleFileAddPress = () => {
+    setFileDropperOpen(true);
   };
   const handleRunPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
@@ -66,6 +95,13 @@ const Sandbox = () => {
   };
   const handleTabChange = (index) => {
     dispatch(setCurrentTab(index));
+  };
+
+  const onSubmit = (data) => {
+    data.file = data.file[0];
+    dispatch(uploadFile(data));
+    setFileDropperOpen(false);
+    setFilePickerOpen(true);
   };
 
   let component = null;
@@ -86,6 +122,29 @@ const Sandbox = () => {
   return (
     <>
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
+        <FormProvider {...methods}>
+          <Modal
+            title="Available Files"
+            isOpen={filePickerOpen}
+            closeModal={() => setFilePickerOpen(false)}
+          >
+            <FilePicker
+              handleFileAddPress={handleFileAddPress}
+              setVisible={setFilePickerOpen}
+            />
+          </Modal>
+          <Modal
+            title="Upload binary"
+            isOpen={fileDropperOpen}
+            closeModal={() => setFileDropperOpen(false)}
+          >
+            <FileDropper
+              onSubmit={onSubmit}
+              setSelectedFile={setSelectedFile}
+              selectedFile={selectedFile}
+            />
+          </Modal>
+        </FormProvider>
         <Tab.Group onChange={(index) => handleTabChange(index)}>
           <Tab.List className="flex justify-center">
             <Tab className="flex-1">Listing</Tab>
