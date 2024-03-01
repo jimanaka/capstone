@@ -6,10 +6,15 @@
   .btn-primary {
     @apply bg-ctp-surface0 text-ctp-text hover:bg-ctp-surface1 hover:text-ctp-mauve rounded px-4 py-2 font-bold;
   }
+  .btn-confirm {
+    @apply bg-ctp-green text-ctp-base w-full rounded-lg py-2 hover:bg-lime-200;
+  }
+  .btn-deny{
+    @apply bg-ctp-red text-ctp-base w-full rounded-lg py-2 hover:bg-red-200;
+  }
   .container {
     @apply px-6 py-4 h-full w-full max-w-[1024px] mx-auto;
   }
-
   .icon-outlined {
     @apply text-ctp-text hover:text-ctp-mauve mr-2 h-8 w-8
   }

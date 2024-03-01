@@ -38,7 +38,7 @@ def __test_jwt():
 def hello_world():
     return jsonify(status="api is up!"), 200
 
-
+# Todo: error handling
 @app.route("/upload-file", methods=["POST"])
 @jwt_required()
 def upload_file():
@@ -55,6 +55,19 @@ def upload_file():
             parents=True, exist_ok=True)
         file.save(os.path.join(app.config["UPLOAD_PATH"], user, filename))
     response = jsonify(msg="file upload successfull")
+    return response, 200
+
+
+# Todo: error handling
+@app.route("/delete-file", methods=["POST"])
+@jwt_required()
+def delete_file():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    insecure_filename = request_details["filename"]
+    filename = secure_filename(insecure_filename)
+    Path(os.paht.join(app.config["UPLOAD_PATH"], user, filename)).unlink(missing_ok=True)
+    response = jsonify(msg="file removed")
     return response, 200
 
 

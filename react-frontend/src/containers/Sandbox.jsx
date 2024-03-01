@@ -24,10 +24,6 @@ import {
   sendCommand,
   setOutput,
 } from "../redux/slice/sessionSlice";
-import {
-  disassembleBinary,
-  getFileInfo,
-} from "../redux/slice/codeListingSlice";
 import { uploadFile } from "../redux/slice/sandboxSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -61,19 +57,9 @@ const Sandbox = () => {
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {
     setFilePickerOpen(true);
-    // setFileDropperOpen(true);
-    // dispatch(
-    //   sendCommand("-file-exec-and-symbols /app/example-bins/hello_world.out"),
-    // );
-    // dispatch(getFileInfo({ filename: "/app/example-bins/hello_world.out" }));
-    // dispatch(
-    //   disassembleBinary({
-    //     filename: "/app/example-bins/hello_world.out",
-    //     direction: null,
-    //     target: null,
-    //     mode: "concat",
-    //   }),
-    // );
+  };
+  const handleFileAddPress = () => {
+    setFileDropperOpen(true);
   };
   const handleRunPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
@@ -93,8 +79,10 @@ const Sandbox = () => {
   };
 
   const onSubmit = (data) => {
-    data.file = data.file[0]
+    data.file = data.file[0];
     dispatch(uploadFile(data));
+    setFileDropperOpen(false);
+    setFilePickerOpen(true);
   };
 
   let component = null;
@@ -116,8 +104,15 @@ const Sandbox = () => {
     <>
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
         <FormProvider {...methods}>
-          <Modal title="Files" isOpen={filePickerOpen} closeModal={() => setFilePickerOpen(false)}>
-            <FilePicker />
+          <Modal
+            title="Available Files"
+            isOpen={filePickerOpen}
+            closeModal={() => setFilePickerOpen(false)}
+          >
+            <FilePicker
+              handleFileAddPress={handleFileAddPress}
+              setVisible={setFilePickerOpen}
+            />
           </Modal>
           <Modal
             title="Upload binary"
