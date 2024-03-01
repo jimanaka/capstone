@@ -1,15 +1,8 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import ConfirmButton from "./ConfirmButton";
+import { PlusCircleIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
-import { listFiles } from "../redux/slice/sandboxSlice";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
-
-import { sendCommand } from "../redux/slice/sessionSlice";
-import {
-  disassembleBinary,
-  getFileInfo,
-} from "../redux/slice/codeListingSlice";
+import { listFiles, deleteFile, setCurrentFilePath } from "../redux/slice/sandboxSlice";
 
 const FilePicker = ({ handleFileAddPress, setVisible }) => {
   const dispatch = useDispatch();
@@ -17,33 +10,28 @@ const FilePicker = ({ handleFileAddPress, setVisible }) => {
   const user = useSelector((state) => state.auth.user);
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [highlightLine, setHighlightLine] = useState(null);
 
   useEffect(() => {
     dispatch(listFiles());
+
+    return () => {
+      setSelectedFile(null);
+    }
   }, []);
 
-  const handleFilePress = (filename) => {
+  const handleFilePress = (filename, index) => {
     setSelectedFile(filename);
+    setHighlightLine(index);
+  };
+
+  const handleDeletePress = (filename) => {
+    dispatch(deleteFile({ filename: filename }));
   };
 
   const handleConfirmClick = () => {
     if (selectedFile) {
-      dispatch(
-        sendCommand(
-          "-file-exec-and-symbols /app/uploads/" + user + "/" + selectedFile,
-        ),
-      );
-      dispatch(
-        getFileInfo({ filename: "/app/uploads/" + user + "/" + selectedFile }),
-      );
-      dispatch(
-        disassembleBinary({
-          filename: "/app/uploads/" + user + "/" + selectedFile,
-          direction: null,
-          target: null,
-          mode: "concat",
-        }),
-      );
+      dispatch(setCurrentFilePath("/app/uploads/" + user + "/" + selectedFile));
       setVisible ? setVisible(false) : null;
     }
   };
@@ -51,18 +39,29 @@ const FilePicker = ({ handleFileAddPress, setVisible }) => {
   return (
     <div>
       <ul>
-        <hr className="border-ctp-surface1" />
+        <hr className="border-ctp-surface1 mx-1" />
         {fileList.length > 0
           ? fileList.map((file, index) => {
+              let highlight = index === highlightLine ? true : false;
               return (
                 <div key={index}>
-                  <li
-                    onClick={() => handleFilePress(file)}
-                    className="mt-2 mb-2"
+                  <div
+                    className={`${
+                      highlight ? "bg-ctp-overlay0" : null
+                    } flex justify-between items-center rounded-md`}
+                    onClick={() => handleFilePress(file, index)}
                   >
-                    <p>{file}</p>
-                  </li>
-                  <hr className="border-ctp-surface1" />
+                    <li
+                      className="mt-2 mb-2 pl-4"
+                    >
+                      <p>{file}</p>
+                    </li>
+                    <TrashIcon
+                      className="h-8 w-8 text-ctp-red hover:text-red-300 hover:bg-ctp-mantle active:bg-ctp-crust rounded-md p-1"
+                      onClick={() => handleDeletePress(file)}
+                    />
+                  </div>
+                  <hr className="border-ctp-surface1 mx-1" />
                 </div>
               );
             })

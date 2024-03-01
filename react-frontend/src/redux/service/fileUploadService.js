@@ -44,3 +44,24 @@ export const listFilesService = async () => {
     throw error;
   }
 }
+
+export const deleteFileService = async ({ filename }) => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "delete-file",
+      { filename },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to delete file");
+    throw error;
+  }
+}

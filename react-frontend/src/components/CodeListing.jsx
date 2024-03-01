@@ -8,6 +8,7 @@ import {
   decompileFunction,
 } from "../redux/slice/codeListingSlice";
 import { useSelector, useDispatch } from "react-redux";
+import { current } from "@reduxjs/toolkit";
 
 const CodeListing = () => {
   const dispatch = useDispatch();
@@ -21,12 +22,12 @@ const CodeListing = () => {
   const symbols = useSelector((state) => state.codeListing.symbols);
   const strings = useSelector((state) => state.codeListing.strings);
   const assembly = useSelector((state) => state.codeListing.assembly);
-  const oldTopAddress = useSelector((state) => state.codeListing.oldTopAddress);
   const topAddress = useSelector((state) => state.codeListing.topAddress);
   const bottomAddress = useSelector((state) => state.codeListing.bottomAddress);
   const decompiledCode = useSelector(
     (state) => state.codeListing.decompiledCode,
   );
+  const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
 
   const [scrollTop, setScrollTop] = useState(null);
   const [scrollBot, setScrollBot] = useState(null);
@@ -72,7 +73,7 @@ const CodeListing = () => {
       setOldAssemblyHeight(assemblyListRef.current.clientHeight);
       dispatch(
         disassembleBinary({
-          filename: "/app/example-bins/hello_world.out",
+          filename: currentFilePath,
           direction: "up",
           target: `${topAddress}`,
           mode: "concat",
@@ -82,7 +83,7 @@ const CodeListing = () => {
     if (scrollBot === 0) {
       dispatch(
         disassembleBinary({
-          filename: "/app/example-bins/hello_world.out",
+          filename: currentFilePath,
           direction: "down",
           target: `${bottomAddress}`,
           mode: "concat",
@@ -97,7 +98,7 @@ const CodeListing = () => {
     setOldAssemblyHeight(0);
     dispatch(
       disassembleBinary({
-        filename: "/app/example-bins/hello_world.out",
+        filename: currentFilePath,
         direction: null,
         target: address,
         mode: "refresh",
@@ -105,7 +106,7 @@ const CodeListing = () => {
     );
     dispatch(
       decompileFunction({
-        filename: "/app/example-bins/hello_world.out",
+        filename: currentFilePath,
         address: address,
       }),
     );
@@ -119,7 +120,7 @@ const CodeListing = () => {
     setHighlight(address);
     dispatch(
       decompileFunction({
-        filename: "/app/example-bins/hello_world.out",
+        filename: currentFilePath,
         address: address,
       }),
     );

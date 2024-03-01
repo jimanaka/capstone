@@ -63,11 +63,13 @@ def upload_file():
 @jwt_required()
 def delete_file():
     user = get_jwt_identity()
+    print("THIS IS A TEST " + user)
     request_details = request.get_json()
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)
-    Path(os.paht.join(app.config["UPLOAD_PATH"], user, filename)).unlink(missing_ok=True)
-    response = jsonify(msg="file removed")
+    logging.info(os.path.join(app.config["UPLOAD_PATH"], user, filename))
+    Path(os.path.join(app.config["UPLOAD_PATH"], user, filename)).unlink(missing_ok=True)
+    response = jsonify(msg="file removed", file=filename)
     return response, 200
 
 

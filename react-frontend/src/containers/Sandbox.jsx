@@ -9,6 +9,7 @@ import {
   ChevronDoubleRightIcon,
   StopIcon,
 } from "@heroicons/react/24/outline";
+import { useDispatch, useSelector } from "react-redux";
 
 import CodeListing from "../components/CodeListing";
 import Debugger from "../components/Debugger";
@@ -17,21 +18,24 @@ import Modal from "../components/Modal";
 import FileDropper from "../components/FileDropper";
 import FilePicker from "../components/FilePicker";
 
-import { setCurrentTab } from "../redux/slice/sandboxSlice";
+import { setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
 import {
   initSocket,
   disconnect,
-  sendCommand,
   setOutput,
+  sendCommand,
 } from "../redux/slice/sessionSlice";
-import { uploadFile } from "../redux/slice/sandboxSlice";
-import { useDispatch, useSelector } from "react-redux";
+import {
+  disassembleBinary,
+  getFileInfo,
+} from "../redux/slice/codeListingSlice";
 
 const Sandbox = () => {
   const dispatch = useDispatch();
   const currentTab = useSelector((state) => state.sandbox.currentTab);
   const isConnected = useSelector((state) => state.session.isConnected);
   const gdbPID = useSelector((state) => state.session.gdbPID);
+  const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
   const methods = useForm();
 
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
@@ -53,6 +57,21 @@ const Sandbox = () => {
       }
     };
   }, [isConnected]);
+
+  useEffect(() => {
+    if (currentFilePath) {
+      dispatch(sendCommand("-file-exec-and-symbols " + currentFilePath));
+      dispatch(getFileInfo({ filename: currentFilePath }));
+      dispatch(
+        disassembleBinary({
+          filename: currentFilePath,
+          direction: null,
+          target: null,
+          mode: "refresh",
+        }),
+      );
+    }
+  }, [currentFilePath]);
 
   //Todo: create global constants for gdbmi commands
   const handleFileLoadPress = () => {

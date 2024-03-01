@@ -1,5 +1,6 @@
 docker-compose-dev.yml
 mongo/data
+revenv/uploads/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
