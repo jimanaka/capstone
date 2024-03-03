@@ -22,3 +22,23 @@ export const insertCourseService = async ({ course }) => {
     throw error;
   }
 };
+
+export const listAvailableCoursesService = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.get(
+      API_URL + "get-available-courses",
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to get courses");
+    throw error;
+  }
+}

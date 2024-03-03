@@ -1,7 +1,9 @@
 from flask import jsonify
 from typing import Dict, Tuple
+from pprint import pprint
 from http import HTTPStatus as HTTP
 from datetime import datetime, timezone
+from bson.json_util import dumps, loads
 from src.utils.mongo_context import MongoContext
 from src.constants import COURSES_COLLECTION, USERS_COLLECTION
 from src.utils.request_util import corsify_response
@@ -28,14 +30,21 @@ def get_user_courses(username: str, db_ctx: MongoContext) -> Tuple[Dict, int]:
 
 def get_available_courses(db_ctx: MongoContext, next_cursor: str = None) -> Tuple[Dict, int]:
     courses_col = _get_db(db_ctx)[COURSES_COLLECTION]
-    cursor = courses_col.find({"private": False})
+    if next_cursor is None:
+        query = {"private": False}
+    else:
+        query = {"private": False, "_id": {"$gt": next_cursor}}
+    cursor = courses_col.find(query, limit=10, sort={"date": -1})
 
     if cursor is None:
-        response = corsify_response(jsonify(msg="Unable to get available courses"))
+        response = corsify_response(
+            jsonify(msg="Unable to get available courses"))
         return response, HTTP.SERVICE_UNAVAILABLE.value
 
-    print(cursor)
-    response = corsify_response(jsonify(msg="working"))
+    courses = list(cursor)
+    courses = dumps(courses)
+    pprint(courses)
+    response = corsify_response(jsonify(courses=courses))
     return response, HTTP.OK.value
 
 

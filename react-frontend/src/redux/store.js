@@ -12,6 +12,7 @@ export default configureStore({
     sandbox: sandboxReducer,
     auth: authReducer,
     session: sessionReducer,
+    course: courseReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

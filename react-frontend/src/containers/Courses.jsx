@@ -1,14 +1,20 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import CourseCard from "../components/CourseCard";
-import { insertCourse } from "../redux/slice/courseSlice";
+import { insertCourse, listAvailableCourses } from "../redux/slice/courseSlice";
 
 const Courses = () => {
   const dispatch = useDispatch();
+  const courses = useSelector((state) => state.course.courses);
   const handleAddCourseClick = () => {
-    dispatch(insertCourse({ course: { name: "testInsert", private: false } }));
+    dispatch(insertCourse({ course: { name: "testInsert", private: false, description: "this is a test thingy!" } }));
   };
+
+  useEffect(() => {
+    dispatch(listAvailableCourses());
+  }, []);
+
   return (
     <div className="container">
       <div className="flex w-full items-center justify-between">
@@ -22,13 +28,17 @@ const Courses = () => {
         </button>
       </div>
       <div className="grid grid-flow-row grid-cols-3 gap-4 py-8">
-        <CourseCard />
-        <CourseCard />
-        <CourseCard />
-        <CourseCard />
-        <CourseCard />
-        <CourseCard />
-        <CourseCard />
+        {courses.length > 0
+          ? courses.map((course, index) => {
+              return (
+                <CourseCard
+                  key={index}
+                  title={course.name}
+                  description={course.description}
+                />
+              );
+            })
+          : null}
       </div>
     </div>
   );
