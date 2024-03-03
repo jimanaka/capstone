@@ -6,6 +6,7 @@ import logging
 
 from src.utils.mongo_context import MongoContext
 import src.utils.auth as auth
+import src.utils.course as course
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,6 +29,7 @@ db = db_ctx.mongo.db
 
 users_collection = db.users
 templates_collection = db.templates
+courses_collection = db.courses
 token_blacklist = db.tokenBlacklist
 token_blacklist.create_index("expirationDate", expireAfterSeconds=0)
 
@@ -73,4 +75,29 @@ def refresh():
 def logout():
     current_user = get_jwt()
     response = auth.logout_user(current_user, db_ctx)
+    return response
+
+
+@app.route("/get-available-courses", methods=["GET"])
+@jwt_required()
+def get_available_courses():
+    response = course.get_available_courses(db_ctx)
+    return response
+
+
+@app.route("/get-user-courses", methods=["GET"])
+@jwt_required()
+def get_user_courses():
+    user = get_jwt_identity()
+    response = course.get_user_courses(user, db_ctx)
+    return response
+
+
+@app.route("/insert-course", methods=["POST"])
+@jwt_required()
+def insert_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    new_course = details["course"]
+    response = course.insert_course(user, new_course, db_ctx)
     return response

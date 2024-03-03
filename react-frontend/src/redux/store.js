@@ -3,6 +3,7 @@ import codeListingReducer from "./slice/codeListingSlice";
 import sandboxReducer from "./slice/sandboxSlice";
 import authReducer from "./slice/authSlice";
 import sessionReducer from "./slice/sessionSlice";
+import courseReducer from "./slice/courseSlice";
 import sessionMiddleware from "./middleware/socketMiddleware";
 
 export default configureStore({

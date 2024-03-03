@@ -26,9 +26,8 @@ def register_user(user: Dict, db_ctx: MongoContext) -> Tuple[Dict, int]:
             f'attempted to register an already existing username: {user["username"]}')
         return jsonify({"msg": "User already exists"}), HTTP.CONFLICT.value
     # else create the user
-    print("user is:")
-    print(user)
     try:
+        user["courses"] = {}
         users_col.insert_one(user)
         logging.info(f'successfully registered user: {user["username"]}')
         return jsonify({"msg": "User registered successfully"}), HTTP.CREATED.value
