@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import { PlusCircleIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import FileDropper from "../components/FileDropper";
 import Modal from "../components/Modal";
+import { Disclosure } from "@headlessui/react";
 
 const CreateCourse = () => {
   const methods = useForm();
@@ -45,7 +46,7 @@ const CreateCourse = () => {
     setValue("file", null);
     setConfirmedFilename("");
     setFileDropperOpen(false);
-  }
+  };
 
   return (
     <div className="container">
@@ -118,35 +119,57 @@ const CreateCourse = () => {
           <h1 className="text-2xl font-bold mb-2">Questions</h1>
           {questionArray.map((item, index) => {
             return (
-              <div key={index} className="flex flex-col w-full my-4">
-                <hr />
-                <label className="my-2">Question {index + 1}</label>
-                <textarea
-                  name="question"
-                  placeholder="Question text"
-                  className="input-primary resize-y"
-                  required
-                  onChange={(event) => handleQuestionChange(event, index)}
-                  value={item.question}
-                />
-                <label className="my-2">Answer</label>
-                <textarea
-                  name="answer"
-                  placeholder="Answer"
-                  className="input-primary resize-y"
-                  required
-                  onChange={(event) => handleQuestionChange(event, index)}
-                  value={item.answer}
-                />
-                <label className="my-2">Hint</label>
-                <textarea
-                  name="hint"
-                  placeholder="Hint"
-                  className="input-primary resize-y"
-                  required
-                  onChange={(event) => handleQuestionChange(event, index)}
-                  value={item.hint}
-                />
+              <div className="my-4">
+                <Disclosure key={index} defaultOpen>
+                  {({ open }) => (
+                    <>
+                      <Disclosure.Button className="bg-ctp-mantle flex w-full justify-between rounded-md px-4 py-2 text-left text-lg font-medium hover:bg-ctp-overlay0 focus:outline-none focus-visible:ring focus-visible:ring-ctp-mauve">
+                        <span>{`Question ${index + 1}`}</span>
+                        <ChevronRightIcon
+                          className={`${
+                            open ? "rotate-90 transform" : ""
+                          } h-5 w-5 text-ctp-muave`}
+                        />
+                      </Disclosure.Button>
+                      <Disclosure.Panel className="px-4 pb-2 pt-2 text-md overflow-auto">
+                        <div className="flex flex-col w-full my-2">
+                          <label className="my-2">Question {index + 1}</label>
+                          <textarea
+                            name="question"
+                            placeholder="Question text"
+                            className="input-primary resize-y"
+                            required
+                            onChange={(event) =>
+                              handleQuestionChange(event, index)
+                            }
+                            value={item.question}
+                          />
+                          <label className="my-2">Answer</label>
+                          <textarea
+                            name="answer"
+                            placeholder="Answer"
+                            className="input-primary resize-y"
+                            required
+                            onChange={(event) =>
+                              handleQuestionChange(event, index)
+                            }
+                            value={item.answer}
+                          />
+                          <label className="my-2">Hint</label>
+                          <textarea
+                            name="hint"
+                            placeholder="Hint"
+                            className="input-primary resize-y"
+                            onChange={(event) =>
+                              handleQuestionChange(event, index)
+                            }
+                            value={item.hint}
+                          />
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
               </div>
             );
           })}
