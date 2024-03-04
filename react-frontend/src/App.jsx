@@ -9,6 +9,7 @@ import Courses from "./containers/Courses";
 import Sandbox from "./containers/Sandbox";
 import Login from "./containers/Login";
 import Register from "./containers/Register";
+import CreateCourse from "./containers/CreateCourse";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/sandbox" element={<Sandbox />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/create-course" element={<CreateCourse />} />
       </Routes>
     </div>
   );
