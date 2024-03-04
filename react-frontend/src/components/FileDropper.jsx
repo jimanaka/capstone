@@ -6,7 +6,7 @@ import {
   DocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 
-const FileDropper = ({ onSubmit, setSelectedFile, selectedFile }) => {
+const FileDropper = ({ onConfirmClick, onCancelClick, setSelectedFile, selectedFile, confirm }) => {
   const { register, errors, handleSubmit, control, setValue } =
     useFormContext();
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
@@ -23,13 +23,13 @@ const FileDropper = ({ onSubmit, setSelectedFile, selectedFile }) => {
     setSelectedFile(acceptedFiles[0]);
   }, [acceptedFiles]);
 
-  const onCancelClick = () => {
+  const handleCancelClick = onCancelClick ? onCancelClick : () => {
     setSelectedFile(null);
     setValue("file", null);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <div>
       <div
         {...getRootProps({
           className: "dropzone",
@@ -68,18 +68,19 @@ const FileDropper = ({ onSubmit, setSelectedFile, selectedFile }) => {
         <button
           type="reset"
           className="bg-ctp-red text-ctp-base w-full rounded-lg py-4 hover:bg-red-200 mt-2"
-          onClick={onCancelClick}
+          onClick={handleCancelClick}
         >
           Cancel
         </button>
         <button
-          type="submit"
+          type="button"
           className="bg-ctp-green text-ctp-base w-full rounded-lg py-4 hover:bg-lime-200 mt-2"
+          onClick={onConfirmClick}
         >
           Upload
         </button>
       </div>
-    </form>
+    </div>
   );
 };
 

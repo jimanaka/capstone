@@ -4,6 +4,7 @@ import sandboxReducer from "./slice/sandboxSlice";
 import authReducer from "./slice/authSlice";
 import sessionReducer from "./slice/sessionSlice";
 import courseReducer from "./slice/courseSlice";
+import createCourseReducer from "./slice/createCourseSlice"
 import sessionMiddleware from "./middleware/socketMiddleware";
 
 export default configureStore({
@@ -13,6 +14,7 @@ export default configureStore({
     auth: authReducer,
     session: sessionReducer,
     course: courseReducer,
+    createCourse: createCourseReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

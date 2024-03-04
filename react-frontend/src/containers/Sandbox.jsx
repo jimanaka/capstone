@@ -37,9 +37,11 @@ const Sandbox = () => {
   const gdbPID = useSelector((state) => state.session.gdbPID);
   const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
   const methods = useForm();
+  const { handleSubmit, setValue } = methods;
 
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [fileConfirmOpen, setFileConfirmOpen] = useState(false);
   const [selectedFile, setSelectedFile] = React.useState(null);
 
   useEffect(() => {
@@ -97,7 +99,18 @@ const Sandbox = () => {
     dispatch(setCurrentTab(index));
   };
 
+  const onCancelClick = () => {
+    setFileConfirmOpen(false);
+    setFileDropperOpen(true);
+  };
+
+  const onConfirmClick = () => {
+    setFileDropperOpen(false);
+    setFileConfirmOpen(true);
+  };
+
   const onSubmit = (data) => {
+    console.log("submitted");
     data.file = data.file[0];
     dispatch(uploadFile(data));
     setFileDropperOpen(false);
@@ -122,28 +135,53 @@ const Sandbox = () => {
   return (
     <>
       <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
+        <Modal
+          title="Available Files"
+          isOpen={filePickerOpen}
+          closeModal={() => setFilePickerOpen(false)}
+        >
+          <FilePicker
+            handleFileAddPress={handleFileAddPress}
+            setVisible={setFilePickerOpen}
+          />
+        </Modal>
         <FormProvider {...methods}>
-          <Modal
-            title="Available Files"
-            isOpen={filePickerOpen}
-            closeModal={() => setFilePickerOpen(false)}
-          >
-            <FilePicker
-              handleFileAddPress={handleFileAddPress}
-              setVisible={setFilePickerOpen}
-            />
-          </Modal>
-          <Modal
-            title="Upload binary"
-            isOpen={fileDropperOpen}
-            closeModal={() => setFileDropperOpen(false)}
-          >
-            <FileDropper
-              onSubmit={onSubmit}
-              setSelectedFile={setSelectedFile}
-              selectedFile={selectedFile}
-            />
-          </Modal>
+          <form id="file-form" onSubmit={handleSubmit(onSubmit)}>
+            <Modal
+              title="Upload binary"
+              isOpen={fileDropperOpen}
+              closeModal={() => setFileDropperOpen(false)}
+            >
+              <FileDropper
+                onConfirmClick={onConfirmClick}
+                setSelectedFile={setSelectedFile}
+                selectedFile={selectedFile}
+              />
+            </Modal>
+            <Modal
+              title={`Upload ${selectedFile ? selectedFile.name : null}?`}
+              isOpen={fileConfirmOpen}
+              closeModal={() => setFileConfirmOpen(false)}
+            >
+              <div className="flex w-full space-x-2">
+                <button
+                  type="reset"
+                  className="bg-ctp-red text-ctp-base w-full rounded-lg py-4 hover:bg-red-200 mt-2"
+                  onClick={onCancelClick}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  form="file-form"
+                  className="bg-ctp-green text-ctp-base w-full rounded-lg py-4 hover:bg-lime-200 mt-2"
+                  onClick={() => setFileConfirmOpen(false)}
+                >
+                  Confirm
+                </button>
+              </div>
+            </Modal>
+          </form>
         </FormProvider>
         <Tab.Group onChange={(index) => handleTabChange(index)}>
           <Tab.List className="flex justify-center">
