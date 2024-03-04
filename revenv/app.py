@@ -39,6 +39,8 @@ def hello_world():
     return jsonify(status="api is up!"), 200
 
 # Todo: error handling
+
+
 @app.route("/upload-file", methods=["POST"])
 @jwt_required()
 def upload_file():
@@ -51,6 +53,7 @@ def upload_file():
 
     if file and secure_filename(file.filename):
         filename = secure_filename(file.filename)
+        print(filename)
         Path(os.path.join(app.config["UPLOAD_PATH"], user)).mkdir(
             parents=True, exist_ok=True)
         file.save(os.path.join(app.config["UPLOAD_PATH"], user, filename))
@@ -68,7 +71,8 @@ def delete_file():
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)
     logging.info(os.path.join(app.config["UPLOAD_PATH"], user, filename))
-    Path(os.path.join(app.config["UPLOAD_PATH"], user, filename)).unlink(missing_ok=True)
+    Path(os.path.join(app.config["UPLOAD_PATH"],
+         user, filename)).unlink(missing_ok=True)
     response = jsonify(msg="file removed", file=filename)
     return response, 200
 
