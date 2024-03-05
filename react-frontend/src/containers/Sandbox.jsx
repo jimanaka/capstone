@@ -111,7 +111,6 @@ const Sandbox = () => {
 
   const onSubmit = (data) => {
     data.file = data.file[0];
-    console.log(data)
     dispatch(uploadFile(data));
     setFileDropperOpen(false);
     setFilePickerOpen(true);

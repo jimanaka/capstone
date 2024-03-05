@@ -2,7 +2,7 @@ import axios from "axios";
 import cookies from "js-cookie";
 const API_URL = "http://localhost:80/revenv/";
 
-export const uploadFileService = async ({ file }) => {
+export const uploadFileService = async ({ file, lesson, lessonName }) => {
   try {
     const config = {
       headers: {
@@ -12,7 +12,9 @@ export const uploadFileService = async ({ file }) => {
       withCredentials: true,
     };
     let formData = new FormData();
-    formData.append("file", file)
+    formData.append("file", file);
+    formData.append("lesson", lesson);
+    formData.append("lessonName", lessonName);
     const response = await axios.post(
       API_URL + "upload-file",
       formData,

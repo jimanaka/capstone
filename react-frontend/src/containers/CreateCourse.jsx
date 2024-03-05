@@ -19,7 +19,7 @@ const CreateCourse = () => {
   const maxInputLength = 25;
 
   const handleCourseCreate = (data) => {
-    const fileData = { file: data.file[0] };
+    const fileData = { file: data.file[0], lesson: true, lessonName: data.name };
     data.questions = questionArray;
     data.private = false;
     data.binary = data.file[0].name;

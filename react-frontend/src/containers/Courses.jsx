@@ -17,18 +17,6 @@ const Courses = () => {
     // dispatch(insertCourse({ course: { name: "testInsert", private: false, description: "this is a test thingy!" } }));
   };
 
-  const createCourseClick = () => {
-    dispatch(
-      insertCourse({
-        course: {
-          name: "testInsert",
-          private: false,
-          description: "this is a test thingy!",
-        },
-      }),
-    );
-  };
-
   return (
     <div className="container">
       <div className="flex w-full items-center justify-between">
