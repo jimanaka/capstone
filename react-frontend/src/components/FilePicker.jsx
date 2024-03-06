@@ -29,9 +29,10 @@ const FilePicker = ({ handleFileAddPress, setVisible }) => {
     dispatch(deleteFile({ filename: filename }));
   };
 
+  //todo make this a const
   const handleConfirmClick = () => {
     if (selectedFile) {
-      dispatch(setCurrentFilePath("/app/uploads/" + user + "/" + selectedFile));
+      dispatch(setCurrentFilePath("/app/user-uploads/" + user + "/" + selectedFile));
       setVisible ? setVisible(false) : null;
     }
   };

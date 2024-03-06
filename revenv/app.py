@@ -61,6 +61,7 @@ def upload_file():
             path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
         Path(path).mkdir(parents=True, exist_ok=True)
         file.save(os.path.join(path, filename))
+        os.chmod(os.path.join(path, filename), 0o555)
     response = jsonify(msg="file upload successfull")
     return response, 200
 
