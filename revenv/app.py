@@ -85,8 +85,12 @@ def delete_file():
 @jwt_required()
 def list_files():
     user = get_jwt_identity()
-    files = os.listdir(path=os.path.join(app.config["UPLOAD_USER_PATH"], user))
-    pprint(files)
+    path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
+    if os.path.isdir(path) is False:
+        response = jsonify(msg="User directory does not yet exist. Please upload a file", files=[])
+        return response, 200
+
+    files = os.listdir(path)
     response = jsonify(msg="file listing", files=files)
     return response, 200
 

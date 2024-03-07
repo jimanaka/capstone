@@ -9,7 +9,7 @@ const CodeView = forwardRef((props, ref) => {
       ref={ref}
       {...otherProps}
       className={twMerge(
-        "outline-ctp-green h-full w-full rounded-md p-2 outline outline-2 outline-offset-2 text-center",
+        "outline-ctp-green rounded-md p-2 outline outline-2 outline-offset-[-2px] text-center",
         className,
       )}
     >

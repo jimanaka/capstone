@@ -119,7 +119,7 @@ const Sandbox = () => {
   let component = null;
   switch (currentTab) {
     case 0:
-      component = <CodeListing classname="w-full" />;
+      component = <CodeListing />;
       break;
     case 1:
       component = <Debugger classname="w-full" />;
@@ -133,7 +133,7 @@ const Sandbox = () => {
 
   return (
     <>
-      <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
+      <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8 ">
         <Modal
           title="Available Files"
           isOpen={filePickerOpen}
@@ -182,7 +182,7 @@ const Sandbox = () => {
             </Modal>
           </form>
         </FormProvider>
-        <Tab.Group onChange={(index) => handleTabChange(index)}>
+        <Tab.Group onChange={(index) => handleTabChange(index)} className="h-6">
           <Tab.List className="flex justify-center">
             <Tab className="flex-1">Listing</Tab>
             <Tab className="flex-1">Debugger</Tab>

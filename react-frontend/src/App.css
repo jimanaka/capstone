@@ -23,3 +23,9 @@
     @apply focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 ;
   }
 }
+
+@layer utilities {
+  .max-h-inherit {
+    max-height: inherit 
+  }
+}
