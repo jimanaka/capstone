@@ -133,7 +133,7 @@ const Sandbox = () => {
 
   return (
     <>
-      <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8 ">
+      <div className="w-full space-x-4 bg-ctp-mantle py-1 pl-8 ">
         <Modal
           title="Available Files"
           isOpen={filePickerOpen}
@@ -165,7 +165,7 @@ const Sandbox = () => {
               <div className="flex w-full space-x-2">
                 <button
                   type="reset"
-                  className="bg-ctp-red text-ctp-base w-full rounded-lg py-4 hover:bg-red-200 mt-2"
+                  className="mt-2 w-full rounded-lg bg-ctp-red py-4 text-ctp-base hover:bg-red-200"
                   onClick={onCancelClick}
                 >
                   Cancel
@@ -173,7 +173,7 @@ const Sandbox = () => {
                 <button
                   type="submit"
                   form="file-form"
-                  className="bg-ctp-green text-ctp-base w-full rounded-lg py-4 hover:bg-lime-200 mt-2"
+                  className="mt-2 w-full rounded-lg bg-ctp-green py-4 text-ctp-base hover:bg-lime-200"
                   onClick={() => setFileConfirmOpen(false)}
                 >
                   Confirm
@@ -190,34 +190,34 @@ const Sandbox = () => {
           </Tab.List>
         </Tab.Group>
       </div>
-      <div className="flex mt-2 mr-6 ml-6">
+      <div className="ml-6 mr-6 mt-2 flex">
         <button
           onClick={handleFileLoadPress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <DocumentPlusIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleRunPress}
-          className="rounded-full text-ctp-green active:text-green-300 active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-green active:bg-ctp-crust active:text-green-300"
         >
           <PlayCircleIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleRunPress}
-          className="rounded-full text-ctp-red active:text-red-300 active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-red active:bg-ctp-crust active:text-red-300"
         >
           <StopIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleNextPress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronRightIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleContinuePress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronDoubleRightIcon className="h-6 w-6" />
         </button>

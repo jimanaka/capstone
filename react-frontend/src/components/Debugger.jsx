@@ -33,172 +33,164 @@ const Debugger = () => {
   };
   const handleUserCmdSend = (data) => {
     dispatch(sendCommand(data.gdbCommand));
-    document.getElementById("gdbCommand").value ="";
-  }
+    document.getElementById("gdbCommand").value = "";
+  };
 
   return (
-    <div className="flex flex-col">
-      <div className="pl-4 pr-4 pb-4 flex w-full h-[50rem] justify-center space-x-4">
-        <div className="flex flex-col w-[30rem] shrink-0">
-          <h1 className="w-full text-center">Assembly</h1>
-          <CodeView className="overflow-y-scroll w-full mt-2 h-full">
-            <div className="overflow-auto h-full w-full">
-              <ul>
-                {disassemblyOutput && frame
-                  ? disassemblyOutput.map((line) => {
-                      let highlight = line.address === frame.addr ? true : false;
-                      return (
-                        <li key={line.address}>
-                          <Code
-                            language="x86asm"
-                            highlight={highlight}
-                            line={line.address}
-                            funcName={line["func-name"]}
-                            offset={line.offset}
-                          >
-                            {line.inst}
-                          </Code>
-                        </li>
-                      );
-                    })
-                  : null}
-              </ul>
-            </div>
+    <div className="flex max-h-[calc(100vh_-_10rem)] flex-1 justify-center space-x-4 pb-4 pl-4 pr-4">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <h1 className="w-full text-center">Assembly</h1>
+        <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+          <ul className="w-full">
+            {disassemblyOutput && frame
+              ? disassemblyOutput.map((line) => {
+                  let highlight = line.address === frame.addr ? true : false;
+                  return (
+                    <li key={line.address}>
+                      <Code
+                        language="x86asm"
+                        highlight={highlight}
+                        line={line.address}
+                        funcName={line["func-name"]}
+                        offset={line.offset}
+                      >
+                        {line.inst}
+                      </Code>
+                    </li>
+                  );
+                })
+              : null}
+          </ul>
+        </CodeView>
+      </div>
+      <div className="flex max-w-md flex-1 flex-col space-y-4">
+        <div className="flex flex-1 flex-col">
+          <h1 className="w-full text-center">Registers</h1>
+          <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+            <ul className="w-full">
+              {registerValues.length > 0 && registerNames.length > 0
+                ? registerNames.map((regName, index) => {
+                    let highlightStyle = changedRegisters.includes(
+                      registerValues[index].number,
+                    )
+                      ? "bg-ctp-overlay0"
+                      : null;
+                    return (
+                      <li
+                        key={regName}
+                        className={`flex justify-between ${highlightStyle}`}
+                      >
+                        <div className="text-left">{regName}</div>
+                        <div className="text-left">
+                          {registerValues[index].value}
+                        </div>
+                      </li>
+                    );
+                  })
+                : null}
+            </ul>
           </CodeView>
         </div>
-        <div className="flex flex-col space-y-4 w-4/5 h-full">
-          <div className="flex flex-col w-full h-full">
-            <h1 className="w-full text-center">Registers</h1>
-            <CodeView className="flex overflow-auto w-full mt-2">
-              <ul className="w-full">
-                {registerValues.length > 0 && registerNames.length > 0
-                  ? registerNames.map((regName, index) => {
-                      let highlightStyle = changedRegisters.includes(
-                        registerValues[index].number,
-                      )
-                        ? "bg-ctp-overlay0"
-                        : null;
-                      return (
-                        <li
-                          key={regName}
-                          className={`flex justify-between ${highlightStyle}`}
-                        >
-                          <div className="text-left">{regName}</div>
-                          <div className="text-left">
-                            {registerValues[index].value}
-                          </div>
-                        </li>
-                      );
-                    })
-                  : null}
-              </ul>
-            </CodeView>
-          </div>
-          <div className="w-full flex flex-col h-full">
-            <h1 className="w-full text-center">Stack</h1>
-            <CodeView className="flex overflow-auto w-full mt-2">
-              <ul className="w-full">
-                {stack.length > 0
-                  ? stack.map((stackLine) => {
-                      return (
-                        <li
-                          key={`stackAddr ${stackLine.addr}`}
-                          className="flex justify-between"
-                        >
-                          <div>{stackLine.addr}:</div>
-                          <div>{stackLine.data}</div>
-                        </li>
-                      );
-                    })
-                  : null}
-              </ul>
-            </CodeView>
-          </div>
+        <div className="flex flex-1 flex-col">
+          <h1 className="w-full text-center">Stack</h1>
+          <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+            <ul className="w-full">
+              {stack.length > 0
+                ? stack.map((stackLine) => {
+                    return (
+                      <li
+                        key={`stackAddr ${stackLine.addr}`}
+                        className="flex justify-between"
+                      >
+                        <div>{stackLine.addr}:</div>
+                        <div>{stackLine.data}</div>
+                      </li>
+                    );
+                  })
+                : null}
+            </ul>
+          </CodeView>
         </div>
-        <div className="flex flex-col space-y-4 w-4/5">
-          <div className="flex flex-col w-full h-[16rem]">
-            <h1 className="text-center w-full">Breakpoints</h1>
-            <CodeView className="flex flex-col overflow-auto mt-2 w-full justify-between h-full">
-              <div className="w-full overflow-y-scroll mb-2">
-                <ul role="list" className="w-full text-left">
-                  {breakpoints.length > 0
-                    ? breakpoints.map((breakpoint) => {
-                        return (
-                          <li
-                            className="my-2"
-                            key={`breakpoint ${breakpoint.number}`}
-                          >
-                            <div>
-                              #{breakpoint.number} {breakpoint.addr} in{" "}
-                              {breakpoint.func} at {breakpoint.file}:
-                              {breakpoint.line}
-                            </div>
-                          </li>
-                        );
-                      })
-                    : null}
-                </ul>
-              </div>
-              <form
-                className="flex w-full"
-                onSubmit={handleSubmit(handleBreakpointAdd)}
+      </div>
+      <div className="flex max-w-lg flex-1 flex-col space-y-4">
+        <div className="flex h-[16rem] w-full flex-col overflow-hidden">
+          <h1 className="w-full text-center">Breakpoints</h1>
+          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-scroll text-left font-mono">
+            <ul role="list" className="mb-2 w-full">
+              {breakpoints.length > 0
+                ? breakpoints.map((breakpoint) => {
+                    return (
+                      <li
+                        className="my-2"
+                        key={`breakpoint ${breakpoint.number}`}
+                      >
+                        <div>
+                          #{breakpoint.number} {breakpoint.addr} in{" "}
+                          {breakpoint.func} at {breakpoint.file}:
+                          {breakpoint.line}
+                        </div>
+                      </li>
+                    );
+                  })
+                : null}
+            </ul>
+            <form
+              className="flex w-full"
+              onSubmit={handleSubmit(handleBreakpointAdd)}
+            >
+              <input
+                type="text"
+                name="newBreakpoint"
+                id="newBreakpoint"
+                placeholder="Symbol name, address, etc..."
+                required
+                className="mr-2 w-full appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-2 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
+                {...register("newBreakpoint")}
+              />
+              <button
+                type="submit"
+                className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
               >
-                <input
-                  type="text"
-                  name="newBreakpoint"
-                  id="newBreakpoint"
-                  placeholder="Symbol name, address, etc..."
-                  required
-                  className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 px-2 mr-2 w-full"
-                  {...register("newBreakpoint")}
-                />
-                <button
-                  type="submit"
-                  className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
-                >
-                  <PlusCircleIcon className="h-7 w-7" />
-                </button>
-              </form>
-            </CodeView>
-          </div>
-          <div className="grow flex flex-col w-full max-h-[32rem]">
-            <h1 className="text-center w-full">Output</h1>
-            <CodeView className="flex flex-col overflow-auto mt-2 w-full justify-between h-full">
-              <div className="w-full overflow-y-scroll mb-2">
-                <ul role="list" className="w-full text-left">
-                  {output.length > 0
-                    ? output.map((line, index) => {
-                        return (
-                          <li key={`output${index + 1}`} className="my-2">
-                            #{index + 1} {line}
-                          </li>
-                        );
-                      })
-                    : null}
-                </ul>
-              </div>
-              <form
-                className="flex w-full"
-                onSubmit={handleSubmit(handleUserCmdSend)}
+                <PlusCircleIcon className="h-7 w-7" />
+              </button>
+            </form>
+          </CodeView>
+        </div>
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <h1 className="w-full text-center">Output</h1>
+          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-scroll text-left font-mono">
+            <ul role="list" className="mb-2 w-full">
+              {output.length > 0
+                ? output.map((line, index) => {
+                    return (
+                      <li key={`output${index + 1}`} className="my-2">
+                        #{index + 1} {line}
+                      </li>
+                    );
+                  })
+                : null}
+            </ul>
+            <form
+              className="flex w-full"
+              onSubmit={handleSubmit(handleUserCmdSend)}
+            >
+              <input
+                type="text"
+                name="gdbCommand"
+                id="gdbCommand"
+                placeholder="Gdb CLI command"
+                required
+                className="mr-2 w-full appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-2 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
+                {...register("gdbCommand")}
+              />
+              <button
+                type="submit"
+                className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
               >
-                <input
-                  type="text"
-                  name="gdbCommand"
-                  id="gdbCommand"
-                  placeholder="Gdb CLI command"
-                  required
-                  className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 px-2 mr-2 w-full"
-                  {...register("gdbCommand")}
-                />
-                <button
-                  type="submit"
-                  className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
-                >
-                  <ArrowRightCircleIcon className="h-7 w-7" />
-                </button>
-              </form>
-            </CodeView>
-          </div>
+                <ArrowRightCircleIcon className="h-7 w-7" />
+              </button>
+            </form>
+          </CodeView>
         </div>
       </div>
     </div>
