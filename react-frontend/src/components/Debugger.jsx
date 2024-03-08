@@ -64,9 +64,9 @@ const Debugger = () => {
         </CodeView>
       </div>
       <div className="flex max-w-md flex-1 flex-col space-y-4">
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Registers</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+          <CodeView className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono">
             <ul className="w-full">
               {registerValues.length > 0 && registerNames.length > 0
                 ? registerNames.map((regName, index) => {
@@ -91,7 +91,7 @@ const Debugger = () => {
             </ul>
           </CodeView>
         </div>
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Stack</h1>
           <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
             <ul className="w-full">

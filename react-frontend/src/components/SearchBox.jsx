@@ -2,51 +2,50 @@ import React from "react";
 
 const SearchBox = () => {
   return (
-        <div class="box">
-          <div class="box-wrapper">
-            <div
-              class="bg-white rounded flex items-center p-3 shadow-sm border border-gray-200"
+    <div className="box">
+      <div className="box-wrapper">
+        <div className="input-primary flex items-center rounded shadow-sm">
+          <button className="outline-none focus:outline-none">
+            <svg
+              className="h-5 w-5 cursor-pointer"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <button
-                class="outline-none focus:outline-none"
-              >
-                <svg
-                  class="w-5 text-gray-600 h-5 cursor-pointer"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </button>
-              <input
-                type="search"
-                name=""
-                id=""
-                placeholder="search for images"
-                x-model="q"
-                class="w-full pl-4 text-sm outline-none focus:outline-none bg-transparent"
-              />
-              <div class="select">
-                <select
-                  name=""
-                  id=""
-                  x-model="image_type"
-                  class="text-sm outline-none focus:outline-none bg-transparent"
-                >
-                  <option value="all" selected>All</option>
-                  <option value="photo">Photo</option>
-                  <option value="illustration">Illustration</option>
-                  <option value="vector">Vector</option>
-                </select>
-              </div>
-            </div>
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </button>
+          <input
+            type="search"
+            name=""
+            id=""
+            placeholder="search for courses"
+            x-model="q"
+            className="text-md w-full bg-transparent pl-4 outline-none focus:outline-none"
+          />
+          <div className="select">
+            <select
+              name=""
+              id=""
+              x-model="image_type"
+              className="bg-transparent text-sm outline-none focus:outline-none"
+              defaultValue={"all"}
+            >
+              <option value="all">
+                All
+              </option>
+              <option value="photo">Photo</option>
+              <option value="illustration">Illustration</option>
+              <option value="vector">Vector</option>
+            </select>
           </div>
         </div>
-  )
-}
+      </div>
+    </div>
+  );
+};
 
 export default SearchBox;

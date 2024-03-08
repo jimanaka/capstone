@@ -16,7 +16,7 @@ const CreateCourse = () => {
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [confirmedFilename, setConfirmedFilename] = useState("");
-  const maxInputLength = 25;
+  const maxInputLength = 50;
 
   const handleCourseCreate = (data) => {
     const fileData = { file: data.file[0], lesson: true, lessonName: data.name };
@@ -99,7 +99,6 @@ const CreateCourse = () => {
               id="description"
               placeholder="Course description"
               className="input-primary resize-y"
-              maxLength={maxInputLength}
               required
               {...register("description")}
             />
