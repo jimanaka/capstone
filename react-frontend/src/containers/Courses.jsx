@@ -16,13 +16,13 @@ const Courses = () => {
     dispatch(listAvailableCourses());
   }, []);
 
-  useEffect(() => {
-    console.log(selectedCourse);
-  }, [selectedCourse]);
+  // useEffect(() => {
+  //   console.log(selectedCourse);
+  // }, [selectedCourse]);
 
   const handleCourseListItemClick = (item) => {
     setSelectedCourse(item);
-  }
+  };
 
   const CourseListItem = ({ title, author }) => {
     return (
@@ -32,14 +32,14 @@ const Courses = () => {
             <h2 className="text-lg">{title}</h2>
             <h3 className="text-md text-ctp-subtext0">Author: {author}</h3>
           </div>
-        <h3 className="text-sm text-ctp-subtext0">Tags here...</h3>
+          <h3 className="text-sm text-ctp-subtext0">Tags here...</h3>
         </div>
       </>
     );
   };
 
   return (
-    <div className="flex flex-1 flex-col px-11 py-4 ">
+    <div className="flex flex-1 flex-col px-11 py-4">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-6xl font-extrabold">Courses</h1>
         <Link to={"/create-course"}>
@@ -49,16 +49,23 @@ const Courses = () => {
           </button>
         </Link>
       </div>
-      <div className="mt-4 flex flex-1 space-x-4">
-        <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="mt-4 flex max-h-[calc(100vh_-_11rem)] flex-1 space-x-4">
+        <div className="flex flex-1 flex-col">
           <SearchBox />
-          <div className="overflow-scroll">
-            <ul className="mt-4">
+          <div className="mt-4 flex-1 overflow-scroll">
+            <ul>
               {courses.length > 0
                 ? courses.map((item, index) => {
                     return (
-                      <li key={index} onClick={() => handleCourseListItemClick(item)}>
-                        <CourseListItem title={item.name} author={item.author}/>
+                      <li
+                        key={index}
+                        className="border border-ctp-surface0"
+                        onClick={() => handleCourseListItemClick(item)}
+                      >
+                        <CourseListItem
+                          title={item.name}
+                          author={item.author}
+                        />
                       </li>
                     );
                   })
@@ -66,7 +73,25 @@ const Courses = () => {
             </ul>
           </div>
         </div>
-        <CodeView className="flex flex-1" />
+        <CodeView className="flex flex-1 flex-col p-8 text-left">
+          {selectedCourse ? (
+            <>
+              <h2 className="text-4xl">{selectedCourse.name}</h2>
+              <hr className="mt-4 border-ctp-surface1" />
+              <h3 className="mt-4 text-2xl">Description</h3>
+              <code className="mt-4 flex flex-1 overflow-scroll bg-ctp-mantle p-2">
+                {selectedCourse.description}
+              </code>
+              <h3 className="text-1xl mt-4">Tags here...</h3>
+              <div className="flex justify-between">
+                <h3 className="mt-4 text-2xl">
+                  Author: {selectedCourse.author}
+                </h3>
+                <button className="btn-primary">Register</button>
+              </div>
+            </>
+          ) : null}
+        </CodeView>
       </div>
     </div>
   );
