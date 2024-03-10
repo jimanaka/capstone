@@ -34,12 +34,9 @@ const SearchBox = () => {
               className="bg-transparent text-sm outline-none focus:outline-none"
               defaultValue={"all"}
             >
-              <option value="all">
-                All
-              </option>
-              <option value="photo">Photo</option>
-              <option value="illustration">Illustration</option>
-              <option value="vector">Vector</option>
+              <option value="photo">Name</option>
+              <option value="illustration">Author</option>
+              <option value="vector">Tags</option>
             </select>
           </div>
         </div>

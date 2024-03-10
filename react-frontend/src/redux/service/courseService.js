@@ -23,7 +23,7 @@ export const insertCourseService = async ({ course }) => {
   }
 };
 
-export const listAvailableCoursesService = async () => {
+export const getAvailableCoursesService = async () => {
   try {
     const config = {
       headers: {
@@ -32,13 +32,48 @@ export const listAvailableCoursesService = async () => {
       },
       withCredentials: true,
     };
-    const response = await axios.get(
-      API_URL + "get-available-courses",
-      config,
-    );
+    const response = await axios.get(API_URL + "get-available-courses", config);
     return response;
   } catch (error) {
     console.error("error: Unable to get courses");
     throw error;
   }
-}
+};
+
+export const getRegisteredCoursesService = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.get(API_URL + "get-registered-courses", config);
+    return response;
+  } catch (error) {
+    console.error("error: Unable to get courses");
+    throw error;
+  }
+};
+
+export const registerCourseService = async ({ courseId }) => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "register-course",
+      { courseId },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to register course");
+    throw error;
+  }
+};

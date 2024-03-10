@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, get_jwt
 from flask_cors import CORS
 from datetime import timedelta
+from pprint import pprint
 import logging
 
 from src.utils.mongo_context import MongoContext
@@ -85,11 +86,11 @@ def get_available_courses():
     return response
 
 
-@app.route("/get-user-courses", methods=["GET"])
+@app.route("/get-registered-courses", methods=["GET"])
 @jwt_required()
-def get_user_courses():
+def get_registered_courses():
     user = get_jwt_identity()
-    response = course.get_user_courses(user, db_ctx)
+    response = course.get_registered_courses(user, db_ctx)
     return response
 
 
@@ -100,4 +101,15 @@ def insert_course():
     details = request.get_json()
     new_course = details["course"]
     response = course.insert_course(user, new_course, db_ctx)
+    return response
+
+
+@app.route("/register-course", methods=["POST"])
+@jwt_required()
+def register_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    new_course_id = details["courseId"]
+    logging.info(f"registering course: {new_course_id} for user: {user}")
+    response = course.register_course(user, new_course_id, db_ctx)
     return response

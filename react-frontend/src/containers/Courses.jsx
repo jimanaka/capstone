@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { listAvailableCourses } from "../redux/slice/courseSlice";
+import {
+  getAvailableCourses,
+  getRegisteredCourses,
+  registerCourse,
+} from "../redux/slice/courseSlice";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import CodeView from "../components/CodeView";
 import SearchBox from "../components/SearchBox";
@@ -9,19 +13,27 @@ import SearchBox from "../components/SearchBox";
 const Courses = () => {
   const dispatch = useDispatch();
   const courses = useSelector((state) => state.course.courses);
+  const registeredCourses = useSelector(
+    (state) => state.course.registeredCourses,
+  );
 
   const [selectedCourse, setSelectedCourse] = useState(null);
 
   useEffect(() => {
-    dispatch(listAvailableCourses());
+    dispatch(getAvailableCourses());
+    dispatch(getRegisteredCourses());
   }, []);
-
-  // useEffect(() => {
-  //   console.log(selectedCourse);
-  // }, [selectedCourse]);
 
   const handleCourseListItemClick = (item) => {
     setSelectedCourse(item);
+  };
+
+  const handleRegisterCourseClick = () => {
+    dispatch(registerCourse({ courseId: selectedCourse._id.$oid })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(getRegisteredCourses());
+      }
+    })
   };
 
   const CourseListItem = ({ title, author }) => {
@@ -56,15 +68,21 @@ const Courses = () => {
             <ul>
               {courses.length > 0
                 ? courses.map((item, index) => {
+                    let registered = registeredCourses.includes(item._id.$oid);
                     return (
                       <li
                         key={index}
-                        className="border border-ctp-surface0"
+                        className={`border ${
+                          registered
+                            ? "border-ctp-green"
+                            : "border-ctp-surface0"
+                        }`}
                         onClick={() => handleCourseListItemClick(item)}
                       >
                         <CourseListItem
                           title={item.name}
                           author={item.author}
+                          registered={registered}
                         />
                       </li>
                     );
@@ -87,7 +105,12 @@ const Courses = () => {
                 <h3 className="mt-4 text-2xl">
                   Author: {selectedCourse.author}
                 </h3>
-                <button className="btn-primary">Register</button>
+                <button
+                  className="btn-primary"
+                  onClick={handleRegisterCourseClick}
+                >
+                  Register
+                </button>
               </div>
             </>
           ) : null}
