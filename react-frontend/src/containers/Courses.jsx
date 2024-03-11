@@ -29,11 +29,13 @@ const Courses = () => {
   };
 
   const handleRegisterCourseClick = () => {
-    dispatch(registerCourse({ courseId: selectedCourse._id.$oid })).then((res) => {
-      if (res.meta.requestStatus === "fulfilled") {
-        dispatch(getRegisteredCourses());
-      }
-    })
+    dispatch(registerCourse({ courseId: selectedCourse._id.$oid })).then(
+      (res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          dispatch(getRegisteredCourses);
+        }
+      },
+    );
   };
 
   const CourseListItem = ({ title, author }) => {
@@ -68,7 +70,7 @@ const Courses = () => {
             <ul>
               {courses.length > 0
                 ? courses.map((item, index) => {
-                    let registered = registeredCourses.includes(item._id.$oid);
+                    let registered = registeredCourses.some((obj) => obj.name === item.name);
                     return (
                       <li
                         key={index}

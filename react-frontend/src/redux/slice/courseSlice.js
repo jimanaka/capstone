@@ -102,7 +102,7 @@ const courseSlice = createSlice({
     });
     builder.addCase(getRegisteredCourses.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      state.registeredCourses = action.payload.courses;
+      state.registeredCourses = JSON.parse(action.payload.courses);
     });
     builder.addCase(getRegisteredCourses.rejected, (state, action) => {
       state.loading = "failed";

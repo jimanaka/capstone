@@ -4,6 +4,7 @@ from pprint import pprint
 from http import HTTPStatus as HTTP
 from datetime import datetime, timezone
 from bson.json_util import dumps
+from bson.objectid import ObjectId
 from src.utils.mongo_context import MongoContext
 from src.constants import COURSES_COLLECTION, USERS_COLLECTION
 from src.utils.request_util import corsify_response
@@ -21,9 +22,13 @@ def get_registered_courses(username: str, db_ctx: MongoContext) -> Tuple[Dict, i
         response = jsonify(msg="Unable to get courses; user not found")
         response = corsify_response(response)
         return response, HTTP.UNAUTHORIZED.value
+    if "registered_courses" not in doc:
+        response = corsify_response(jsonify(courses="[]")), HTTP.OK.value
+        return response
 
     courses = doc["registered_courses"]
-    response = jsonify(courses=courses)
+    pprint(courses)
+    response = jsonify(courses=dumps(courses))
     response = corsify_response(response)
     return response, HTTP.OK.value
 
@@ -66,10 +71,16 @@ def insert_course(username: str, course: Dict, db_ctx: MongoContext) -> Tuple[Di
 
 def register_course(username: str, course_id: str, db_ctx: MongoContext) -> Tuple[Dict, int]:
     users_col = _get_db(db_ctx)[USERS_COLLECTION]
+    courses_col = _get_db(db_ctx)[COURSES_COLLECTION]
     user_doc = users_col.find_one({"username": username})
+    course_doc = courses_col.find_one({"_id": ObjectId(course_id)}, {"_id": 1, "name": 1, "binary": 1})
 
     if user_doc is None:
-        result = corsify_response(jsonify(msg="Could not find user account")), HTTP.OK.value
+        result = corsify_response(jsonify(msg="Could not find user account")), HTTP.NETWORK_AUTHENTICATION_REQUIRED.value
+        return result
+    if course_doc is None:
+        result = corsify_response(jsonify(msg="Could not find course to register")), HTTP.NOT_FOUND.value
+        return result
 
     if "registered_courses" in user_doc:
         if course_id in user_doc["registered_courses"]:
@@ -78,7 +89,7 @@ def register_course(username: str, course_id: str, db_ctx: MongoContext) -> Tupl
 
     result = users_col.update_one(
         {"username": username},
-        {"$push": {"registered_courses": course_id}}
+        {"$push": {"registered_courses": course_doc}}
     )
 
     if result.modified_count > 0:

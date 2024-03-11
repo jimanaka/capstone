@@ -16,7 +16,7 @@ import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
 import Modal from "../components/Modal";
 import FileDropper from "../components/FileDropper";
-import FilePicker from "../components/FilePicker";
+import FileCoursePicker from "../components/FileCoursePicker";
 
 import { setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
 import {
@@ -134,11 +134,11 @@ const Sandbox = () => {
   return (
     <>
       <Modal
-        title="Available Files"
+        title="Available Files and Courses"
         isOpen={filePickerOpen}
         closeModal={() => setFilePickerOpen(false)}
       >
-        <FilePicker
+        <FileCoursePicker
           handleFileAddPress={handleFileAddPress}
           setVisible={setFilePickerOpen}
         />
