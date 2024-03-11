@@ -8,6 +8,7 @@ import {
   ChevronRightIcon,
   ChevronDoubleRightIcon,
   StopIcon,
+  Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -17,6 +18,7 @@ import PayloadGenerator from "../components/PayloadGenerator";
 import Modal from "../components/Modal";
 import FileDropper from "../components/FileDropper";
 import FileCoursePicker from "../components/FileCoursePicker";
+import CourseDrawer from "../components/CourseDrawer";
 
 import { setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
 import {
@@ -41,6 +43,7 @@ const Sandbox = () => {
 
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [fileConfirmOpen, setFileConfirmOpen] = useState(false);
   const [selectedFile, setSelectedFile] = React.useState(null);
 
@@ -133,6 +136,14 @@ const Sandbox = () => {
 
   return (
     <>
+      <CourseDrawer
+        title="Test"
+        description="test"
+        isOpen={drawerOpen}
+        setIsOpen={setDrawerOpen}
+      >
+        <div>this is a test!!</div>
+      </CourseDrawer>
       <Modal
         title="Available Files and Courses"
         isOpen={filePickerOpen}
@@ -191,6 +202,12 @@ const Sandbox = () => {
         </Tab.Group>
       </div>
       <div className="ml-6 mr-6 mt-2 flex">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+        >
+          <Bars3Icon className="h-6 w-6" />
+        </button>
         <button
           onClick={handleFileLoadPress}
           className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
