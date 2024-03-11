@@ -94,6 +94,16 @@ def get_registered_courses():
     return response
 
 
+@app.route("/get-registered-course", methods=["POST"])
+@jwt_required()
+def get_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    response = course.get_registered_course(user, course_id, db_ctx)
+    return response
+
+
 @app.route("/insert-course", methods=["POST"])
 @jwt_required()
 def insert_course():

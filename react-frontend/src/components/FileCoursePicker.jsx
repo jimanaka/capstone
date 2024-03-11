@@ -8,7 +8,7 @@ import {
   deleteFile,
   setCurrentFilePath,
 } from "../redux/slice/sandboxSlice";
-import { getRegisteredCourses } from "../redux/slice/courseSlice";
+import { getRegisteredCourses, loadCourse } from "../redux/slice/courseSlice";
 
 const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
   const dispatch = useDispatch();
@@ -32,10 +32,6 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log(selectedFile);
-  }, []);
-
   const handleListPress = (item, index) => {
     setSelectedFile(item);
     setHighlightLine(index);
@@ -57,6 +53,8 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
               selectedFile.binary,
           ),
         );
+        console.log(selectedFile._id.$oid);
+        dispatch(loadCourse({ courseId: selectedFile._id.$oid }));
       } else {
         dispatch(
           setCurrentFilePath("/app/user-uploads/" + user + "/" + selectedFile),
@@ -85,13 +83,13 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
                   <div
                     className={`${
                       highlight ? "bg-ctp-overlay0" : null
-                    } flex justify-between items-center rounded-md`}
+                    } flex items-center justify-between rounded-md`}
                     onClick={() => handleListPress(item, index)}
                   >
-                    <li className="mt-2 mb-2 pl-4">{itemName}</li>
+                    <li className="mb-2 mt-2 pl-4">{itemName}</li>
                     {isDisplayCourse ? null : (
                       <TrashIcon
-                        className="h-8 w-8 text-ctp-red hover:text-red-300 hover:bg-ctp-mantle active:bg-ctp-crust rounded-md p-1"
+                        className="text-ctp-red hover:bg-ctp-mantle active:bg-ctp-crust h-8 w-8 rounded-md p-1 hover:text-red-300"
                         onClick={() => handleDeletePress(itemName)}
                       />
                     )}
@@ -128,7 +126,7 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
           {isDisplayCourse ? "Show Files" : "Show Courses"}
         </button>
         <button
-          className="btn-confirm h-10 w-28 mt-4"
+          className="btn-confirm mt-4 h-10 w-28"
           onClick={handleConfirmClick}
         >
           Confirm

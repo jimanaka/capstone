@@ -4,6 +4,7 @@ import {
   getAvailableCoursesService,
   registerCourseService,
   getRegisteredCoursesService,
+  getRegisteredCourseService,
 } from "../service/courseService";
 
 export const insertCourse = createAsyncThunk(
@@ -66,11 +67,27 @@ export const registerCourse = createAsyncThunk(
   },
 );
 
+export const loadCourse = createAsyncThunk(
+  "course/loadCourse",
+  async ({ courseId }, { rejectWithValue }) => {
+    try {
+      const response = await getRegisteredCourseService({ courseId });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
 const courseSlice = createSlice({
   name: "course",
   initialState: {
     courses: [],
     registeredCourses: [],
+    currentCourse: null,
     error: null,
     loading: "idle", // idle | pending | succeeded | failed
   },
@@ -115,6 +132,17 @@ const courseSlice = createSlice({
       state.loading = "succeeded";
     });
     builder.addCase(registerCourse.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+    builder.addCase(loadCourse.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(loadCourse.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      state.currentCourse = JSON.parse(action.payload.course);
+    });
+    builder.addCase(loadCourse.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });
