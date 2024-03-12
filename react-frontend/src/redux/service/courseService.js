@@ -2,6 +2,28 @@ import axios from "axios";
 import cookies from "js-cookie";
 const API_URL = "http://localhost:80/api/";
 
+export const addCorrectAnswerService = async ({ courseId, questionNum }) => {
+  try {
+    console.log(courseId, questionNum);
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "add-correct-answer",
+      { courseId, questionNum },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to get course");
+    throw error;
+  }
+};
+
 export const getRegisteredCourseService = async ({ courseId }) => {
   try {
     const config = {
@@ -70,7 +92,10 @@ export const getRegisteredCoursesService = async () => {
       },
       withCredentials: true,
     };
-    const response = await axios.get(API_URL + "get-registered-courses", config);
+    const response = await axios.get(
+      API_URL + "get-registered-courses",
+      config,
+    );
     return response;
   } catch (error) {
     console.error("error: Unable to get courses");

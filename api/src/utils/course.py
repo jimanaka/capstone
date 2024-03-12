@@ -13,6 +13,23 @@ def _get_db(ctx: MongoContext):
     return ctx.mongo.db
 
 
+def add_correct_answer(username: str, course_id: str, question_num: int, db_ctx: MongoContext) -> Tuple[Dict, int]:
+    users_col = _get_db(db_ctx)[USERS_COLLECTION]
+    query = {"username": username}
+    # Push the new value to "arr"
+    update = {"$push": {"registered_courses.$[elem].complete_questions": question_num}}
+    array_filters = [{"elem._id": ObjectId(course_id)}]
+    result = users_col.update_one(query, update, array_filters=array_filters)
+
+    if result.modified_count == 1:
+        response = corsify_response(jsonify(msg="Correct answer saved"))
+        return response, HTTP.OK.value
+    else:
+        response = corsify_response(
+            jsonify(msg="could not update correct questions"))
+        return response, HTTP.SERVICE_UNAVAILABLE.value
+
+
 def get_registered_course(username: str, course_id: str, db_ctx: MongoContext) -> Tuple[Dict, int]:
     users_col = _get_db(db_ctx)[USERS_COLLECTION]
     courses_col = _get_db(db_ctx)[COURSES_COLLECTION]

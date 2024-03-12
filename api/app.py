@@ -123,3 +123,14 @@ def register_course():
     logging.info(f"registering course: {new_course_id} for user: {user}")
     response = course.register_course(user, new_course_id, db_ctx)
     return response
+
+
+@app.route("/add-correct-answer", methods=["POST"])
+@jwt_required()
+def add_correct_answer():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    question_num = details["questionNum"]
+    response = course.add_correct_answer(user, course_id, question_num, db_ctx)
+    return response

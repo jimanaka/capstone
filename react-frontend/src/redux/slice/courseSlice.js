@@ -5,7 +5,34 @@ import {
   registerCourseService,
   getRegisteredCoursesService,
   getRegisteredCourseService,
+  addCorrectAnswerService,
 } from "../service/courseService";
+
+export const submitAnswer = createAsyncThunk(
+  "course/submitAnswer",
+  async ({ questionNum, submittedAnswer }, { rejectWithValue, getState }) => {
+    try {
+      const { course } = getState();
+      const questionIndex = questionNum - 1;
+      if (
+        submittedAnswer === course.currentCourse.questions[questionIndex].answer
+      ) {
+        const response = await addCorrectAnswerService({
+          courseId: course.currentCourse._id.$oid,
+          questionNum: questionNum,
+        });
+        return response.data;
+      } else {
+        return rejectWithValue("Incorrect answer");
+      }
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
 export const insertCourse = createAsyncThunk(
   "course/insert",
