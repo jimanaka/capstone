@@ -1,7 +1,9 @@
 docker-compose-dev.yml
 mongo/data
 revenv/user-uploads/*
+!revenv/user-uploads/.gitkeep
 revenv/lesson-uploads/*
+!revenv/lesson-uploads/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
