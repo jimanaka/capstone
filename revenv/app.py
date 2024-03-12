@@ -1,6 +1,5 @@
 import logging
 import os
-from pprint import pprint
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
@@ -61,7 +60,7 @@ def upload_file():
             path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
         Path(path).mkdir(parents=True, exist_ok=True)
         file.save(os.path.join(path, filename))
-        os.chmod(os.path.join(path, filename), 0o555)
+        os.chmod(os.path.join(path, filename), 0o754)
     response = jsonify(msg="file upload successfull")
     return response, 200
 
@@ -87,7 +86,8 @@ def list_files():
     user = get_jwt_identity()
     path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
     if os.path.isdir(path) is False:
-        response = jsonify(msg="User directory does not yet exist. Please upload a file", files=[])
+        response = jsonify(
+            msg="User directory does not yet exist. Please upload a file", files=[])
         return response, 200
 
     files = os.listdir(path)
