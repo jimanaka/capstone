@@ -53,7 +53,6 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
               selectedFile.binary,
           ),
         );
-        console.log(selectedFile._id.$oid);
         dispatch(loadCourse({ courseId: selectedFile._id.$oid }));
       } else {
         dispatch(
@@ -73,7 +72,7 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
   return (
     <>
       <ul>
-        <hr className="border-ctp-surface1 mx-1" />
+        <hr className="mx-1 border-ctp-surface1" />
         {displayList && displayList.length > 0
           ? displayList.map((item, index) => {
               let highlight = index === highlightLine ? true : false;
@@ -89,12 +88,12 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
                     <li className="mb-2 mt-2 pl-4">{itemName}</li>
                     {isDisplayCourse ? null : (
                       <TrashIcon
-                        className="text-ctp-red hover:bg-ctp-mantle active:bg-ctp-crust h-8 w-8 rounded-md p-1 hover:text-red-300"
+                        className="h-8 w-8 rounded-md p-1 text-ctp-red hover:bg-ctp-mantle hover:text-red-300 active:bg-ctp-crust"
                         onClick={() => handleDeletePress(itemName)}
                       />
                     )}
                   </div>
-                  <hr className="border-ctp-surface1 mx-1" />
+                  <hr className="mx-1 border-ctp-surface1" />
                 </div>
               );
             })

@@ -4,7 +4,6 @@ const API_URL = "http://localhost:80/api/";
 
 export const addCorrectAnswerService = async ({ courseId, questionNum }) => {
   try {
-    console.log(courseId, questionNum);
     const config = {
       headers: {
         "X-CSRF-TOKEN": cookies.get("csrf_access_token"),

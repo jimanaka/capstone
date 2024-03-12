@@ -20,7 +20,6 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
   const currentCourse = useSelector((state) => state.course.currentCourse);
 
   const handleAnswerSubmit = (data) => {
-    console.log(data);
     dispatch(submitAnswer(data)).then((res) => {
       if (res.error) {
         setError(`${data.questionNum - 1}`, {
@@ -90,7 +89,10 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
                             className="mb-2 flex items-center justify-between"
                           >
                             <p className="mr-3">{item.question}</p>
-                            <button className="rounded font-bold hover:text-ctp-yellow">
+                            <button
+                              type="button"
+                              className="rounded font-bold hover:text-ctp-yellow"
+                            >
                               <LightBulbIcon className="h-5 w-5 pr-1 hover:text-ctp-yellow" />
                             </button>
                           </label>
@@ -99,7 +101,11 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
                               type="text"
                               id="test-input"
                               placeholder="Please input something..."
-                              className={`bg-ctp-surface0 ${errors[index] ? "border-ctp-red focus:ring-ctp-red" : "border-ctp-surface1 focus:ring-ctp-mauve"} w-full appearance-none rounded-lg border-2 px-1 py-1 text-sm placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2`}
+                              className={`bg-ctp-surface0 ${
+                                errors[index]
+                                  ? "border-ctp-red focus:ring-ctp-red"
+                                  : "border-ctp-surface1 focus:ring-ctp-mauve"
+                              } w-full appearance-none rounded-lg border-2 px-1 py-1 text-sm placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2`}
                               {...register(`${index}`)}
                             />
                             <button className="rounded hover:text-ctp-mauve">
@@ -107,7 +113,9 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
                             </button>
                           </div>
                           {errors[`${index}`] && (
-                            <p className="text-xs text-ctp-red">{errors[`${index}`].message}</p>
+                            <p className="text-xs text-ctp-red">
+                              {errors[`${index}`].message}
+                            </p>
                           )}
                         </div>
                       </form>
