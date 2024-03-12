@@ -32,7 +32,7 @@ const Courses = () => {
     dispatch(registerCourse({ courseId: selectedCourse._id.$oid })).then(
       (res) => {
         if (res.meta.requestStatus === "fulfilled") {
-          dispatch(getRegisteredCourses);
+          dispatch(getRegisteredCourses());
         }
       },
     );
