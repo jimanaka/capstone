@@ -23,6 +23,27 @@ export const addCorrectAnswerService = async ({ courseId, questionNum }) => {
   }
 };
 
+export const getCompleteQuestionsService = async ({ courseId }) => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "get-complete-questions",
+      { courseId },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to get registered course or complete questions list");
+    throw error;
+  }
+};
+
 export const getRegisteredCourseService = async ({ courseId }) => {
   try {
     const config = {

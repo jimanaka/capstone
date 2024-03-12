@@ -7,17 +7,36 @@ from bson.objectid import ObjectId
 from src.utils.mongo_context import MongoContext
 from src.constants import COURSES_COLLECTION, USERS_COLLECTION
 from src.utils.request_util import corsify_response
+from pprint import pprint
 
 
 def _get_db(ctx: MongoContext):
     return ctx.mongo.db
 
 
+def get_complete_questions(username: str, course_id: str, db_ctx: MongoContext) -> Tuple[Dict, int]:
+    users_col = _get_db(db_ctx)[USERS_COLLECTION]
+    query = {"username": username,
+             "registered_courses._id": ObjectId(course_id)}
+    projection = {"registered_courses": 1}
+    doc = users_col.find_one(query, projection)
+
+    if doc is None:
+        response = corsify_response(
+            jsonify(msg="could not find registered course")), HTTP.NOT_FOUND.value
+        return response
+
+    pprint(doc["registered_courses"][0]["complete_questions"])
+    response = corsify_response(jsonify(complete_questions=doc["registered_courses"][0]["complete_questions"]))
+    return response, HTTP.OK.value
+
+
 def add_correct_answer(username: str, course_id: str, question_num: int, db_ctx: MongoContext) -> Tuple[Dict, int]:
     users_col = _get_db(db_ctx)[USERS_COLLECTION]
     query = {"username": username}
     # Push the new value to "arr"
-    update = {"$push": {"registered_courses.$[elem].complete_questions": question_num}}
+    update = {
+        "$addToSet": {"registered_courses.$[elem].complete_questions": question_num}}
     array_filters = [{"elem._id": ObjectId(course_id)}]
     result = users_col.update_one(query, update, array_filters=array_filters)
 
@@ -126,6 +145,7 @@ def register_course(username: str, course_id: str, db_ctx: MongoContext) -> Tupl
                 jsonify(msg="Already registered for course")), HTTP.OK.value
             return result
 
+    course_doc["complete_questions"] = []
     result = users_col.update_one(
         {"username": username},
         {"$push": {"registered_courses": course_doc}}

@@ -6,8 +6,9 @@ import {
   XMarkIcon,
   ArrowRightCircleIcon,
   LightBulbIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
-import { submitAnswer } from "../redux/slice/courseSlice";
+import { submitAnswer, getCompleteQuestions } from "../redux/slice/courseSlice";
 
 const CourseDrawer = ({ isOpen, setIsOpen }) => {
   const dispatch = useDispatch();
@@ -16,8 +17,12 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
     handleSubmit,
     setError,
     formState: { errors },
+    setValue,
   } = useForm();
   const currentCourse = useSelector((state) => state.course.currentCourse);
+  const completeQuestions = useSelector(
+    (state) => state.course.completeQuestions,
+  );
 
   const handleAnswerSubmit = (data) => {
     dispatch(submitAnswer(data)).then((res) => {
@@ -25,6 +30,15 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
         setError(`${data.questionNum - 1}`, {
           type: "manual",
           message: "Incorrect Answer",
+        });
+      } else {
+        dispatch(
+          getCompleteQuestions({ courseId: currentCourse._id.$oid }),
+        ).then((res2) => {
+          if (res2.error) {
+            return;
+          }
+          setValue(`${data.questionNum - 1}`, "");
         });
       }
     });
@@ -70,6 +84,7 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
               </div>
               {currentCourse
                 ? currentCourse.questions.map((item, index) => {
+                    let isComplete = completeQuestions.includes(index + 1);
                     return (
                       <form
                         action=""
@@ -86,12 +101,14 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
                         <div className="my-2 flex w-full flex-col pl-2">
                           <label
                             htmlFor="username"
-                            className="mb-2 flex items-center justify-between"
+                            className={`mb-2 flex items-center justify-between ${
+                              isComplete ? "text-ctp-green" : null
+                            }`}
                           >
                             <p className="mr-3">{item.question}</p>
                             <button
                               type="button"
-                              className="rounded font-bold hover:text-ctp-yellow"
+                              className="rounded font-bold text-ctp-text hover:text-ctp-yellow"
                             >
                               <LightBulbIcon className="h-5 w-5 pr-1 hover:text-ctp-yellow" />
                             </button>
@@ -100,16 +117,30 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
                             <input
                               type="text"
                               id="test-input"
-                              placeholder="Please input something..."
+                              placeholder={
+                                isComplete
+                                  ? currentCourse.questions[index].answer
+                                  : "Input answer here..."
+                              }
+                              disabled={isComplete ? true : false}
                               className={`bg-ctp-surface0 ${
                                 errors[index]
                                   ? "border-ctp-red focus:ring-ctp-red"
-                                  : "border-ctp-surface1 focus:ring-ctp-mauve"
+                                  : isComplete
+                                    ? "border-ctp-green focus:ring-ctp-green"
+                                    : "border-ctp-surface1 focus:ring-ctp-mauve"
                               } w-full appearance-none rounded-lg border-2 px-1 py-1 text-sm placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2`}
                               {...register(`${index}`)}
                             />
-                            <button className="rounded hover:text-ctp-mauve">
-                              <ArrowRightCircleIcon className="h-6 w-6" />
+                            <button
+                              className="rounded hover:text-ctp-green"
+                              disabled={isComplete ? true : false}
+                            >
+                              {isComplete ? (
+                                <CheckCircleIcon className="h-6 w-6 text-ctp-green" />
+                              ) : (
+                                <ArrowRightCircleIcon className="h-6 w-6" />
+                              )}
                             </button>
                           </div>
                           {errors[`${index}`] && (

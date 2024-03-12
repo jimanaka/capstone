@@ -134,3 +134,13 @@ def add_correct_answer():
     question_num = details["questionNum"]
     response = course.add_correct_answer(user, course_id, question_num, db_ctx)
     return response
+
+
+@app.route("/get-complete-questions", methods=["POST"])
+@jwt_required()
+def get_complete_questions():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    response = course.get_complete_questions(user, course_id, db_ctx)
+    return response

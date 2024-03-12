@@ -6,6 +6,7 @@ import {
   getRegisteredCoursesService,
   getRegisteredCourseService,
   addCorrectAnswerService,
+  getCompleteQuestionsService,
 } from "../service/courseService";
 
 export const submitAnswer = createAsyncThunk(
@@ -25,6 +26,21 @@ export const submitAnswer = createAsyncThunk(
       } else {
         return rejectWithValue("Incorrect answer");
       }
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const getCompleteQuestions = createAsyncThunk(
+  "course/getCompleteQuestions",
+  async ({ courseId }, { rejectWithValue }) => {
+    try {
+      const response = await getCompleteQuestionsService({ courseId });
+      return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
         return rejectWithValue(error.response.data.message);
@@ -114,6 +130,7 @@ const courseSlice = createSlice({
   initialState: {
     courses: [],
     registeredCourses: [],
+    completeQuestions: [],
     currentCourse: null,
     error: null,
     loading: "idle", // idle | pending | succeeded | failed
@@ -170,6 +187,17 @@ const courseSlice = createSlice({
       state.currentCourse = JSON.parse(action.payload.course);
     });
     builder.addCase(loadCourse.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+    builder.addCase(getCompleteQuestions.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(getCompleteQuestions.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      state.completeQuestions = action.payload.complete_questions;
+    });
+    builder.addCase(getCompleteQuestions.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });

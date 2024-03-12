@@ -8,7 +8,7 @@ import {
   deleteFile,
   setCurrentFilePath,
 } from "../redux/slice/sandboxSlice";
-import { getRegisteredCourses, loadCourse } from "../redux/slice/courseSlice";
+import { getRegisteredCourses, loadCourse, getCompleteQuestions } from "../redux/slice/courseSlice";
 
 const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
   const dispatch = useDispatch();
@@ -54,6 +54,7 @@ const FileCoursePicker = ({ handleFileAddPress, setVisible }) => {
           ),
         );
         dispatch(loadCourse({ courseId: selectedFile._id.$oid }));
+        dispatch(getCompleteQuestions({ courseId: selectedFile._id.$oid}));
       } else {
         dispatch(
           setCurrentFilePath("/app/user-uploads/" + user + "/" + selectedFile),
