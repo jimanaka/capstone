@@ -2,10 +2,12 @@ from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, get_jwt
 from flask_cors import CORS
 from datetime import timedelta
+from pprint import pprint
 import logging
 
 from src.utils.mongo_context import MongoContext
 import src.utils.auth as auth
+import src.utils.course as course
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,6 +30,7 @@ db = db_ctx.mongo.db
 
 users_collection = db.users
 templates_collection = db.templates
+courses_collection = db.courses
 token_blacklist = db.tokenBlacklist
 token_blacklist.create_index("expirationDate", expireAfterSeconds=0)
 
@@ -73,4 +76,71 @@ def refresh():
 def logout():
     current_user = get_jwt()
     response = auth.logout_user(current_user, db_ctx)
+    return response
+
+
+@app.route("/get-available-courses", methods=["GET"])
+@jwt_required()
+def get_available_courses():
+    response = course.get_available_courses(db_ctx)
+    return response
+
+
+@app.route("/get-registered-courses", methods=["GET"])
+@jwt_required()
+def get_registered_courses():
+    user = get_jwt_identity()
+    response = course.get_registered_courses(user, db_ctx)
+    return response
+
+
+@app.route("/get-registered-course", methods=["POST"])
+@jwt_required()
+def get_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    response = course.get_registered_course(user, course_id, db_ctx)
+    return response
+
+
+@app.route("/insert-course", methods=["POST"])
+@jwt_required()
+def insert_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    new_course = details["course"]
+    response = course.insert_course(user, new_course, db_ctx)
+    return response
+
+
+@app.route("/register-course", methods=["POST"])
+@jwt_required()
+def register_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    new_course_id = details["courseId"]
+    logging.info(f"registering course: {new_course_id} for user: {user}")
+    response = course.register_course(user, new_course_id, db_ctx)
+    return response
+
+
+@app.route("/add-correct-answer", methods=["POST"])
+@jwt_required()
+def add_correct_answer():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    question_num = details["questionNum"]
+    response = course.add_correct_answer(user, course_id, question_num, db_ctx)
+    return response
+
+
+@app.route("/get-complete-questions", methods=["POST"])
+@jwt_required()
+def get_complete_questions():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    response = course.get_complete_questions(user, course_id, db_ctx)
     return response

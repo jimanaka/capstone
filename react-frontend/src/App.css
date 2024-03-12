@@ -9,13 +9,23 @@
   .btn-confirm {
     @apply bg-ctp-green text-ctp-base w-full rounded-lg py-2 hover:bg-lime-200;
   }
-  .btn-deny{
+  .btn-deny {
     @apply bg-ctp-red text-ctp-base w-full rounded-lg py-2 hover:bg-red-200;
   }
   .container {
     @apply px-6 py-4 h-full w-full max-w-[1024px] mx-auto;
   }
   .icon-outlined {
-    @apply text-ctp-text hover:text-ctp-mauve mr-2 h-8 w-8
+    @apply text-ctp-text hover:text-ctp-mauve mr-2 h-8 w-8;
+  }
+
+  .input-primary {
+    @apply focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 ;
+  }
+}
+
+@layer utilities {
+  .max-h-inherit {
+    max-height: inherit 
   }
 }

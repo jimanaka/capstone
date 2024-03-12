@@ -67,7 +67,7 @@ const CodeListing = () => {
     if (scrollTop === null || scrollBot === null) return;
     if (noAssemblyScroll) {
       setNoAssemblyScroll(false);
-      return
+      return;
     }
     if (scrollTop === 0) {
       setOldAssemblyHeight(assemblyListRef.current.clientHeight);
@@ -124,12 +124,12 @@ const CodeListing = () => {
         address: address,
       }),
     );
-  }
+  };
 
   return (
-    <div className="pl-4 pr-4 pb-4 w-full h-[50rem]">
-      <div className="flex mt-2 h-full w-full justify-ceter space-x-4">
-        <div className="flex flex-col w-80 h-full shrink-0">
+    <>
+      <div className="flex flex-1 mt-2 justify-ceter space-x-4 p-4 max-h-[calc(100vh_-_10rem)]">
+        <div className="flex flex-col flex-1 max-w-xs">
           <h1 className="w-full text-center">MetaData</h1>
           <div className="h-full w-full overflow-y-scroll">
             <DropDown
@@ -188,26 +188,27 @@ const CodeListing = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col w-[45rem] h-full shrink-0">
+        <div className="flex flex-col flex-1 overflow-hidden">
           <h1 className="w-full text-center">Assembly</h1>
-          <CodeView className="h-full w-full mt-2 overflow-y-scroll text-left font-mono whitespace-pre">
-            <div
-              className="h-full w-full overflow-auto"
-              onScroll={handleAssemblyScroll}
-              ref={assemblyContainerRef}
-              id="assemblyList"
-            >
+          <CodeView
+            className="flex flex-col flex-1 mt-2 overflow-scroll text-left font-mono whitespace-pre"
+            onScroll={handleAssemblyScroll}
+            ref={assemblyContainerRef}
+          >
+            <div className="w-full" id="assemblyList">
               <ul ref={assemblyListRef}>
                 {assembly
                   ? assembly.map((line, index) => {
-                    let address = `0x${line.offset.toString(16)}`
-                    let isHighlighted = address === highlight ? true : false;
+                      let address = `0x${line.offset.toString(16)}`;
+                      let isHighlighted = address === highlight ? true : false;
                       return (
                         <li
                           key={`assembly:${address}:${index}`}
                           onClick={(e) => handleAssemblyClick(e, address)}
                         >
-                          <Code language="x86asm" highlight={isHighlighted}>{line.text}</Code>
+                          <Code language="x86asm" highlight={isHighlighted}>
+                            {line.text}
+                          </Code>
                         </li>
                       );
                     })
@@ -216,10 +217,10 @@ const CodeListing = () => {
             </div>
           </CodeView>
         </div>
-        <div className="flex flex-col w-[45rem] h-full shrink-0">
+        <div className="flex flex-col flex-1 overflow-hidden">
           <h1 className="w-full text-center">Decompiled C Code</h1>
-          <CodeView className="h-full w-full mt-2 overflow-y-scroll text-left font-mono whitespace-pre">
-            <div className="h-full w-full overflow-auto">
+          <CodeView className="h-full w-full mt-2 overflow-scroll text-left font-mono whitespace-pre">
+            <div className="w-full">
               <ul>
                 {decompiledCode
                   ? decompiledCode.map((line, index) => {
@@ -235,7 +236,7 @@ const CodeListing = () => {
           </CodeView>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

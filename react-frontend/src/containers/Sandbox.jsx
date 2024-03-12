@@ -8,6 +8,7 @@ import {
   ChevronRightIcon,
   ChevronDoubleRightIcon,
   StopIcon,
+  Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -16,7 +17,8 @@ import Debugger from "../components/Debugger";
 import PayloadGenerator from "../components/PayloadGenerator";
 import Modal from "../components/Modal";
 import FileDropper from "../components/FileDropper";
-import FilePicker from "../components/FilePicker";
+import FileCoursePicker from "../components/FileCoursePicker";
+import CourseDrawer from "../components/CourseDrawer";
 
 import { setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
 import {
@@ -37,9 +39,12 @@ const Sandbox = () => {
   const gdbPID = useSelector((state) => state.session.gdbPID);
   const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
   const methods = useForm();
+  const { handleSubmit, setValue } = methods;
 
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [fileConfirmOpen, setFileConfirmOpen] = useState(false);
   const [selectedFile, setSelectedFile] = React.useState(null);
 
   useEffect(() => {
@@ -97,6 +102,16 @@ const Sandbox = () => {
     dispatch(setCurrentTab(index));
   };
 
+  const onCancelClick = () => {
+    setFileConfirmOpen(false);
+    setFileDropperOpen(true);
+  };
+
+  const onConfirmClick = () => {
+    setFileDropperOpen(false);
+    setFileConfirmOpen(true);
+  };
+
   const onSubmit = (data) => {
     data.file = data.file[0];
     dispatch(uploadFile(data));
@@ -107,7 +122,7 @@ const Sandbox = () => {
   let component = null;
   switch (currentTab) {
     case 0:
-      component = <CodeListing classname="w-full" />;
+      component = <CodeListing />;
       break;
     case 1:
       component = <Debugger classname="w-full" />;
@@ -121,31 +136,64 @@ const Sandbox = () => {
 
   return (
     <>
-      <div className="bg-ctp-mantle w-full space-x-4 py-1 pl-8">
-        <FormProvider {...methods}>
-          <Modal
-            title="Available Files"
-            isOpen={filePickerOpen}
-            closeModal={() => setFilePickerOpen(false)}
-          >
-            <FilePicker
-              handleFileAddPress={handleFileAddPress}
-              setVisible={setFilePickerOpen}
-            />
-          </Modal>
+      <CourseDrawer
+        title="Test"
+        description="test"
+        isOpen={drawerOpen}
+        setIsOpen={setDrawerOpen}
+      >
+        <div>this is a test!!</div>
+      </CourseDrawer>
+      <Modal
+        title="Available Files and Courses"
+        isOpen={filePickerOpen}
+        closeModal={() => setFilePickerOpen(false)}
+      >
+        <FileCoursePicker
+          handleFileAddPress={handleFileAddPress}
+          setVisible={setFilePickerOpen}
+        />
+      </Modal>
+      <FormProvider {...methods}>
+        <form id="file-form" onSubmit={handleSubmit(onSubmit)}>
           <Modal
             title="Upload binary"
             isOpen={fileDropperOpen}
             closeModal={() => setFileDropperOpen(false)}
           >
             <FileDropper
-              onSubmit={onSubmit}
+              onConfirmClick={onConfirmClick}
               setSelectedFile={setSelectedFile}
               selectedFile={selectedFile}
             />
           </Modal>
-        </FormProvider>
-        <Tab.Group onChange={(index) => handleTabChange(index)}>
+          <Modal
+            title={`Upload ${selectedFile ? selectedFile.name : null}?`}
+            isOpen={fileConfirmOpen}
+            closeModal={() => setFileConfirmOpen(false)}
+          >
+            <div className="flex w-full space-x-2">
+              <button
+                type="reset"
+                className="mt-2 w-full rounded-lg bg-ctp-red py-4 text-ctp-base hover:bg-red-200"
+                onClick={onCancelClick}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="file-form"
+                className="mt-2 w-full rounded-lg bg-ctp-green py-4 text-ctp-base hover:bg-lime-200"
+                onClick={() => setFileConfirmOpen(false)}
+              >
+                Confirm
+              </button>
+            </div>
+          </Modal>
+        </form>
+      </FormProvider>
+      <div className="w-full space-x-4 bg-ctp-mantle py-1 pl-8 ">
+        <Tab.Group onChange={(index) => handleTabChange(index)} className="h-6">
           <Tab.List className="flex justify-center">
             <Tab className="flex-1">Listing</Tab>
             <Tab className="flex-1">Debugger</Tab>
@@ -153,34 +201,40 @@ const Sandbox = () => {
           </Tab.List>
         </Tab.Group>
       </div>
-      <div className="flex mt-2 mr-6 ml-6">
+      <div className="ml-6 mr-6 mt-2 flex">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+        >
+          <Bars3Icon className="h-6 w-6" />
+        </button>
         <button
           onClick={handleFileLoadPress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <DocumentPlusIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleRunPress}
-          className="rounded-full text-ctp-green active:text-green-300 active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-green active:bg-ctp-crust active:text-green-300"
         >
           <PlayCircleIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleRunPress}
-          className="rounded-full text-ctp-red active:text-red-300 active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-red active:bg-ctp-crust active:text-red-300"
         >
           <StopIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleNextPress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronRightIcon className="h-6 w-6" />
         </button>
         <button
           onClick={handleContinuePress}
-          className="rounded-full text-ctp-text active:text-ctp-mauve active:bg-ctp-crust mr-2"
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronDoubleRightIcon className="h-6 w-6" />
         </button>

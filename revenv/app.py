@@ -23,7 +23,8 @@ app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
-app.config["UPLOAD_PATH"] = "/app/uploads"
+app.config["UPLOAD_USER_PATH"] = "/app/user-uploads"
+app.config["UPLOAD_LESSON_PATH"] = "/app/lesson-uploads"
 
 jwt = JWTManager(app)
 # Todo: work on radare2 api
@@ -39,6 +40,8 @@ def hello_world():
     return jsonify(status="api is up!"), 200
 
 # Todo: error handling
+
+
 @app.route("/upload-file", methods=["POST"])
 @jwt_required()
 def upload_file():
@@ -51,9 +54,14 @@ def upload_file():
 
     if file and secure_filename(file.filename):
         filename = secure_filename(file.filename)
-        Path(os.path.join(app.config["UPLOAD_PATH"], user)).mkdir(
-            parents=True, exist_ok=True)
-        file.save(os.path.join(app.config["UPLOAD_PATH"], user, filename))
+        if request.form.get("lesson") == "true":
+            path = os.path.join(
+                app.config["UPLOAD_LESSON_PATH"], request.form.get("lessonName"))
+        else:
+            path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
+        Path(path).mkdir(parents=True, exist_ok=True)
+        file.save(os.path.join(path, filename))
+        os.chmod(os.path.join(path, filename), 0o555)
     response = jsonify(msg="file upload successfull")
     return response, 200
 
@@ -67,8 +75,8 @@ def delete_file():
     request_details = request.get_json()
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)
-    logging.info(os.path.join(app.config["UPLOAD_PATH"], user, filename))
-    Path(os.path.join(app.config["UPLOAD_PATH"], user, filename)).unlink(missing_ok=True)
+    Path(os.path.join(app.config["UPLOAD_USER_PATH"],
+         user, filename)).unlink(missing_ok=True)
     response = jsonify(msg="file removed", file=filename)
     return response, 200
 
@@ -77,8 +85,12 @@ def delete_file():
 @jwt_required()
 def list_files():
     user = get_jwt_identity()
-    files = os.listdir(path=os.path.join(app.config["UPLOAD_PATH"], user))
-    pprint(files)
+    path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
+    if os.path.isdir(path) is False:
+        response = jsonify(msg="User directory does not yet exist. Please upload a file", files=[])
+        return response, 200
+
+    files = os.listdir(path)
     response = jsonify(msg="file listing", files=files)
     return response, 200
 

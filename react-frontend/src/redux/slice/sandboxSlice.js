@@ -7,9 +7,9 @@ import {
 
 export const uploadFile = createAsyncThunk(
   "revenv/upload-file",
-  async ({ file }, { rejectWithValue }) => {
+  async ({ file, lesson = false, lessonName = null }, { rejectWithValue }) => {
     try {
-      const response = await uploadFileService({ file });
+      const response = await uploadFileService({ file, lesson, lessonName });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -100,7 +100,7 @@ const sandboxSlice = createSlice({
       const file = action.payload.file;
       const index = state.fileList.indexOf(file);
       if (index > -1) {
-        state.fileList.splice(index, 1)
+        state.fileList.splice(index, 1);
       }
     });
     builder.addCase(deleteFile.rejected, (state, action) => {
