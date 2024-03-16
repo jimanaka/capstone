@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
-import { addUserChain, setUserChain } from "../redux/slice/payloadGenerator";
+import { addUserChain } from "../redux/slice/payloadGenerator";
 
 import CodeView from "./CodeView";
 
@@ -16,9 +16,13 @@ const PayloadGenerator = () => {
 
   const UserChainItem = () => {
     return (
-      <div className="h-[4.5rem] w-full rounded bg-ctp-mantle px-4 py-2 shadow-sm">hello</div>
+      <div className="list-item-primary" />
     )
   }
+
+  useEffect(() -> {
+    console.log(userChain);
+  }, [userChain])
 
   return (
     <div className="flex max-h-[calc(100vh_-_10rem)] flex-1 justify-center space-x-4 pb-4 pl-4 pr-4">
