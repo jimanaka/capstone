@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from src.utils.gdb_utils.gdb_session import GdbSessionManager
 from pathlib import Path
 import src.utils.radare2_util as rd2
+import src.utils.payload_generator as payload_generator
 
 # with code from: https://github.com/cs01/gdbgui/
 
@@ -24,9 +25,9 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
 app.config["UPLOAD_USER_PATH"] = "/app/user-uploads"
 app.config["UPLOAD_LESSON_PATH"] = "/app/lesson-uploads"
+app.config["TEMP-PAYLOADS"] = "/app/temp-payloads"
 
 jwt = JWTManager(app)
-# Todo: work on radare2 api
 
 
 @jwt_required()
@@ -39,6 +40,17 @@ def hello_world():
     return jsonify(status="api is up!"), 200
 
 # Todo: error handling
+# Todo: extract to separate module
+
+
+@socketio.on("do_stuff")
+def do_stuff(data):
+    sid = request.sid
+    session = session_manager.get_session_by_sid(sid)
+    iomanager = session.pygdbmi_IOManager
+    if iomanager is None:
+        emit
+    payload_generator.do_stuff(iomanager)
 
 
 @app.route("/upload-file", methods=["POST"])
@@ -182,7 +194,6 @@ def disconnect():
 
 
 def gdb_output_reader():
-    logging.info("threading!")
     while True:
         socketio.sleep(.5)
         sessions = session_manager.connections.copy()

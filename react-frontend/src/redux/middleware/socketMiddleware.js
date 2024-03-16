@@ -15,6 +15,7 @@ import {
   setGdbFrame,
   setOutput,
   addOutput,
+  doStuff,
 } from "../slice/sessionSlice";
 import {
   setFileInfo,
@@ -112,6 +113,14 @@ const socketMiddleware = (store) => {
       socket.emit("send_command", {
         cmds: action.payload,
       });
+    }
+
+    if (doStuff.match(action)) {
+      if (!socketConnection) {
+        return;
+      }
+      let socket = socketConnection.socket;
+      socket.emit("do_stuff", {});
     }
 
     next(action);

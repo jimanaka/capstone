@@ -26,6 +26,7 @@ import {
   disconnect,
   setOutput,
   sendCommand,
+  doStuff,
 } from "../redux/slice/sessionSlice";
 import {
   disassembleBinary,
@@ -97,6 +98,9 @@ const Sandbox = () => {
   const handleContinuePress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
     dispatch(sendCommand("-exec-continue"));
+  };
+  const doStuffPress = () => {
+    dispatch(doStuff());
   };
   const handleTabChange = (index) => {
     dispatch(setCurrentTab(index));
@@ -237,6 +241,12 @@ const Sandbox = () => {
           className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronDoubleRightIcon className="h-6 w-6" />
+        </button>
+        <button
+          onClick={doStuffPress}
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+        >
+          TEST
         </button>
       </div>
 

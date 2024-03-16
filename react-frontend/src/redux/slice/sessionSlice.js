@@ -26,6 +26,9 @@ const sessionSlice = createSlice({
     sendCommand: () => {
       return;
     },
+    doStuff: () => {
+      return;
+    },
     connectionEstablished: (state) => {
       state.isConnected = true;
     },
@@ -93,5 +96,6 @@ export const {
   setGdbChangedRegisters,
   setGdbStack,
   addOutput,
+  doStuff,
 } = sessionSlice.actions;
 export default sessionSlice.reducer;
