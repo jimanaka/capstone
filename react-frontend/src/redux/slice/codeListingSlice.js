@@ -54,28 +54,29 @@ export const decompileFunction = createAsyncThunk(
     }
   },
 );
+const initialState = {
+  funcPaneWidth: 0,
+  disassPaneWidth: 0,
+  loading: "idle", // idle | pending | succeeded | failed
+  error: null,
+  fileInfo: null,
+  functions: [],
+  exports: [],
+  imports: [],
+  sections: [],
+  classes: [],
+  entry: [],
+  symbols: [],
+  strings: [],
+  assembly: [],
+  topAddress: null,
+  bottomAddress: null,
+  decompiledCode: [],
+};
 
 const codeListingSlice = createSlice({
   name: "codeListing",
-  initialState: {
-    funcPaneWidth: 0,
-    disassPaneWidth: 0,
-    loading: "idle", // idle | pending | succeeded | failed
-    error: null,
-    fileInfo: null,
-    functions: [],
-    exports: [],
-    imports: [],
-    sections: [],
-    classes: [],
-    entry: [],
-    symbols: [],
-    strings: [],
-    assembly: [],
-    topAddress: null,
-    bottomAddress: null,
-    decompiledCode: [],
-  },
+  initialState,
   reducers: {
     setFuncPaneWidth: (state, action) => {
       state.funcPaneWidth = action.payload;
@@ -122,6 +123,7 @@ const codeListingSlice = createSlice({
     setDecompiledCode: (state, action) => {
       state.decompiledCode = action.payload;
     },
+    resetCodeListingState: () => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(getFileInfo.pending, (state) => {
@@ -197,6 +199,7 @@ export const {
   setTopAddress,
   setBotAddress,
   setDecompiledCode,
+  resetCodeListingState,
 } = codeListingSlice.actions;
 
 export default codeListingSlice.reducer;

@@ -1,6 +1,17 @@
-from pwnlib import ELF, ROP
-from pprint import pprint
+from pwnlib.rop import ROP
+from pwnlib.elf import ELF
+
+instructions = [{"type": "setReg", "regValues": {"rsp": 0xdeadbeef}}, {"type": "setReg"}]
 
 binary = ELF("hello_world.out")
 rop = ROP(binary)
-pprint(rop.ret)
+
+for insn in instructions:
+    match insn["type"]:
+        case "setReg":
+            rop(**insn["regValues"])
+
+        case _:
+            print("nothing...")
+
+print(rop.dump())

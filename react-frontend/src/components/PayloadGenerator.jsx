@@ -2,13 +2,15 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
-import { addUserChain, setUserChain } from "../redux/slice/payloadGenerator";
+import { addUserChain, setUserChain } from "../redux/slice/payloadGeneratorSlice";
 
 import CodeView from "./CodeView";
+import Code from "./Code";
 
 const PayloadGenerator = () => {
   const dispatch = useDispatch()
   const userChain = useSelector((store) => store.payloadGenerator.userChain);
+  const simpleGadgets = useSelector((store) => store.payloadGenerator.simpleGadgets);
 
   const handleAddChainItemPress = () => {
     dispatch(addUserChain({ item: "test" }))
@@ -53,6 +55,19 @@ const PayloadGenerator = () => {
       <div className="flex flex-1 flex-col overflow-hidden">
         <h1 className="w-full text-center">Gadgets</h1>
         <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+          <ul>
+            {
+              simpleGadgets.length > 0 ? simpleGadgets.map((item, index) => {
+                return (
+                  <li key={index} className="mt-2">
+                    <Code language="x86asm" highlight={false}>
+                      {`${item.address}: ${item.insns}\n${item.regs}`}
+                    </Code>
+                  </li>
+                )
+              }) : null
+            }
+          </ul>
         </CodeView>
       </div>
 

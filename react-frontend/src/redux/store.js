@@ -6,7 +6,7 @@ import sessionReducer from "./slice/sessionSlice";
 import courseReducer from "./slice/courseSlice";
 import createCourseReducer from "./slice/createCourseSlice"
 import sessionMiddleware from "./middleware/socketMiddleware";
-import payloadGeneratorReducer from "./slice/payloadGenerator";
+import payloadGeneratorReducer from "./slice/payloadGeneratorSlice";
 
 export default configureStore({
   reducer: {

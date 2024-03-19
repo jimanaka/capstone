@@ -1,14 +1,16 @@
 import logging
 import os
+from http import HTTPStatus as HTTP
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
-from src.utils.gdb_utils.gdb_session import GdbSessionManager
 from pathlib import Path
+from src.utils.gdb_utils.gdb_session import GdbSessionManager
+from src.utils.pg_utils.pg_manager import PGManager
 import src.utils.radare2_util as rd2
-import src.utils.payload_generator as payload_generator
+import src.utils.pg_utils.pg_util as pg_util
 
 # with code from: https://github.com/cs01/gdbgui/
 
@@ -17,7 +19,6 @@ app.config.from_object("src.config.Config")
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, manage_session=False,
                     cors_allowed_origins="*", logger=True)
-session_manager = GdbSessionManager()
 logging.basicConfig(level=logging.INFO)
 app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
@@ -28,6 +29,8 @@ app.config["UPLOAD_LESSON_PATH"] = "/app/lesson-uploads"
 app.config["TEMP-PAYLOADS"] = "/app/temp-payloads"
 
 jwt = JWTManager(app)
+session_manager = GdbSessionManager()
+pg_manager = PGManager()
 
 
 @jwt_required()
@@ -43,14 +46,36 @@ def hello_world():
 # Todo: extract to separate module
 
 
-@socketio.on("do_stuff")
-def do_stuff(data):
-    sid = request.sid
-    session = session_manager.get_session_by_sid(sid)
-    iomanager = session.pygdbmi_IOManager
-    if iomanager is None:
-        emit
-    payload_generator.do_stuff(iomanager)
+# @socketio.on("do_stuff")
+# def do_stuff(data):
+#     sid = request.sid
+#     session = session_manager.get_session_by_sid(sid)
+#     iomanager = session.pygdbmi_IOManager
+#     if iomanager is None:
+#         emit
+#     payload_generator.do_stuff(iomanager)
+
+
+@app.route("/start-pg", methods=["POST"])
+@jwt_required()
+def start_pg():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    pg = pg_manager.create_instance(user, request_details["filePath"])
+    if pg:
+        response = pg_util.get_info(pg)
+    else:
+        response = jsonify(msg="could not create payload generator"), HTTP.SERVICE_UNAVAILABLE.value
+    return response
+
+@app.route("/create-chain", methods=["POST"])
+@jwt_required()
+def create_chain():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    pg = pg_manager.get_instance_by_user(user)
+    pg_util.create_chain(pg, request_details["chain"])
+    return jsonify(msg="test"), 200
 
 
 @app.route("/upload-file", methods=["POST"])
