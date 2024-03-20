@@ -47,6 +47,10 @@ const payloadGeneratorSlice = createSlice({
     setUserChain: (state, action) => {
       state.userChain = action.payload;
     },
+    setUserChainIndexField: (state, action) => {
+      console.log(action.payload);
+      state.userChain[action.payload.index][action.payload.field] = action.payload.value;
+    },
     addUserChain: (state, action) => {
       state.userChain.push(action.payload);
     },
@@ -80,6 +84,7 @@ const payloadGeneratorSlice = createSlice({
 export const {
   setUserChain,
   addUserChain,
+  setUserChainIndexField,
   resetPayloadGeneratorState,
 } = payloadGeneratorSlice.actions;
 

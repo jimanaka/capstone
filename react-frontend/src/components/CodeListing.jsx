@@ -8,7 +8,6 @@ import {
   decompileFunction,
 } from "../redux/slice/codeListingSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { current } from "@reduxjs/toolkit";
 
 const CodeListing = () => {
   const dispatch = useDispatch();
@@ -128,8 +127,8 @@ const CodeListing = () => {
 
   return (
     <>
-      <div className="flex flex-1 mt-2 justify-ceter space-x-4 p-4 max-h-[calc(100vh_-_10rem)]">
-        <div className="flex flex-col flex-1 max-w-xs">
+      <div className="justify-ceter mt-2 flex max-h-[calc(100vh_-_10rem)] flex-1 space-x-4 p-4">
+        <div className="flex max-w-xs flex-1 flex-col">
           <h1 className="w-full text-center">MetaData</h1>
           <div className="h-full w-full overflow-y-scroll">
             <DropDown
@@ -188,10 +187,10 @@ const CodeListing = () => {
             />
           </div>
         </div>
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Assembly</h1>
           <CodeView
-            className="flex flex-col flex-1 mt-2 overflow-scroll text-left font-mono whitespace-pre"
+            className="mt-2 flex flex-1 flex-col overflow-scroll whitespace-pre text-left font-mono"
             onScroll={handleAssemblyScroll}
             ref={assemblyContainerRef}
           >
@@ -217,9 +216,9 @@ const CodeListing = () => {
             </div>
           </CodeView>
         </div>
-        <div className="flex flex-col flex-1 overflow-hidden">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Decompiled C Code</h1>
-          <CodeView className="h-full w-full mt-2 overflow-scroll text-left font-mono whitespace-pre">
+          <CodeView className="mt-2 h-full w-full overflow-scroll whitespace-pre text-left font-mono">
             <div className="w-full">
               <ul>
                 {decompiledCode
