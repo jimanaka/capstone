@@ -76,8 +76,8 @@ def create_chain():
     user = get_jwt_identity()
     request_details = request.get_json()
     pg = pg_manager.get_instance_by_user(user)
-    pg_util.create_chain(pg, request_details["input"])
-    return jsonify(msg="test"), 200
+    response = pg_util.create_chain(pg, request_details["input"])
+    return response
 
 
 @app.route("/upload-file", methods=["POST"])
@@ -109,7 +109,6 @@ def upload_file():
 @jwt_required()
 def delete_file():
     user = get_jwt_identity()
-    print("THIS IS A TEST " + user)
     request_details = request.get_json()
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)

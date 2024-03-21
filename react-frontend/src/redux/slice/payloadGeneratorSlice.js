@@ -78,6 +78,9 @@ const payloadGeneratorSlice = createSlice({
     });
     builder.addCase(createPayload.fulfilled, (state, action) => {
       state.loading = "succeeded";
+      console.log(action.payload)
+      state.payloadDump = action.payload.payload_dump;
+      state.payloadHexdump = action.payload.hexdump;
     });
     builder.addCase(createPayload.rejected, (state, action) => {
       state.loading = "failed";

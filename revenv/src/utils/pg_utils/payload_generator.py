@@ -1,6 +1,5 @@
 import re
 import logging
-from pprint import pprint
 from pygdbmi.IoManager import IoManager
 from pwnlib.rop import ROP
 from pwnlib.elf import ELF
@@ -30,10 +29,12 @@ class PayloadGenerator:
                 if not _is_hexidecimal(link["value"]):
                     # need to throw error
                     logging.info("not a hex value")
-            elif link["subtype"] == "numerical":
+                link["value"] = int(link["value"], 16)
+            elif link["subtype"] == "numeric":
                 if not _is_numerical(link["value"]):
                     # need to throw error
                     logging.info("not a numerical value")
+                link["value"] = int(link["value"])
 
             match link["type"]:
                 case "reg":
@@ -49,8 +50,8 @@ class PayloadGenerator:
     def dump(self) -> str:
         return self.rop.dump()
 
-    def hexdump(self) -> None:
-        hexdump(self.rop.chain())
+    def hexdump(self) -> str:
+        return hexdump(self.rop.chain())
 
     def chain(self) -> str:
         return self.rop.chain()
@@ -64,14 +65,5 @@ class PayloadGenerator:
     def send_payload(gdbPID: int):
         pass
 
-    def restart():
-        pass
-
-
-def do_stuff(iomanager: IoManager):
-    elf = ELF("/app/user-uploads/test/hello_world.out")
-    rop = ROP(elf)
-    rop.raw(b'-break-insert main')
-    print(f"{bytes(rop)}")
-    iomanager.write(f"-exec-run < {bytes(rop)}", timeout_sec=0,
-                    raise_error_on_timeout=False, read_response=False)
+    def clear(self) -> None:
+        self.rop = ROP(self.elf)

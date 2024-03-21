@@ -24,11 +24,20 @@ const PayloadGenerator = () => {
     formState: { errors },
     setValue,
   } = useForm();
+
   const userChain = useSelector((store) => store.payloadGenerator.userChain);
   const simpleGadgets = useSelector(
     (store) => store.payloadGenerator.simpleGadgets,
   );
-  const availableRegs = useSelector((state) => state.payloadGenerator.availableRegs);
+  const availableRegs = useSelector(
+    (state) => state.payloadGenerator.availableRegs,
+  );
+  const payloadHexdump = useSelector(
+    (state) => state.payloadGenerator.payloadHexdump,
+  );
+  const payloadDump = useSelector(
+    (state) => state.payloadGenerator.payloadDump,
+  );
 
   const handleAddChainItemPress = () => {
     dispatch(addUserChain({ type: "", subtype: "", reg: "" }));
@@ -72,7 +81,7 @@ const PayloadGenerator = () => {
       item.reg = userChain[index].reg;
     });
     dispatch(createPayload(data));
-    console.log(data.input)
+    console.log(data.input);
   };
 
   const SelectionMenu = ({
@@ -262,13 +271,21 @@ const PayloadGenerator = () => {
       <div className="flex max-w-md flex-1 flex-col space-y-4">
         <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Payload Chain</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono"></CodeView>
+          <CodeView className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono">
+            <Code language="x86asm" highlight={false}>
+              {payloadDump}
+            </Code>
+          </CodeView>
         </div>
 
         {/* payload hexdump */}
         <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Hexdump</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono"></CodeView>
+          <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+            <Code language="x86asm" highlight={false}>
+              {payloadHexdump}
+            </Code>
+          </CodeView>
         </div>
       </div>
     </div>
