@@ -65,16 +65,18 @@ def start_pg():
     if pg:
         response = pg_util.get_info(pg)
     else:
-        response = jsonify(msg="could not create payload generator"), HTTP.SERVICE_UNAVAILABLE.value
+        response = jsonify(
+            msg="could not create payload generator"), HTTP.SERVICE_UNAVAILABLE.value
     return response
 
-@app.route("/create-chain", methods=["POST"])
+
+@app.route("/create-payload", methods=["POST"])
 @jwt_required()
 def create_chain():
     user = get_jwt_identity()
     request_details = request.get_json()
     pg = pg_manager.get_instance_by_user(user)
-    pg_util.create_chain(pg, request_details["chain"])
+    pg_util.create_chain(pg, request_details["input"])
     return jsonify(msg="test"), 200
 
 

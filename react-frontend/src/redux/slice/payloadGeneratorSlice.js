@@ -1,5 +1,21 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { startPGService, createChainService } from "../service/payloadGeneratorService";
+import { startPGService, createChainService, createPayloadService } from "../service/payloadGeneratorService";
+
+export const createPayload = createAsyncThunk(
+  "revenv/create-payload",
+  async ({ input }, { rejectWithValue }) => {
+    try {
+      console.log(input);
+      const response = await createPayloadService({ input });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
 
 export const startPG = createAsyncThunk(
   "revenv/start-pg",
@@ -16,26 +32,12 @@ export const startPG = createAsyncThunk(
   },
 );
 
-export const createChain = createAsyncThunk(
-  "revenv/create-chain",
-  async ({ chain }, { rejectWithValue }) => {
-    try {
-      const response = await createChainService({ chain });
-      return response.data;
-    } catch (error) {
-      if (error.response && error.response.data.message) {
-        return rejectWithValue(error.response.data.message);
-      }
-      return rejectWithValue(error.message);
-    }
-  },
-);
-
 const initialState = {
   loading: "idle", // idle | pending | succeeded | failed
   error: null,
   userChain: [],
   simpleGadgets: [],
+  availableRegs: [],
   payloadDump: "",
   payloadHexdump: "",
 };
@@ -47,8 +49,10 @@ const payloadGeneratorSlice = createSlice({
     setUserChain: (state, action) => {
       state.userChain = action.payload;
     },
+    setUserChainIndex: (state, action) => {
+      state.userChain[action.payload.index] = action.payload.chain;
+    },
     setUserChainIndexField: (state, action) => {
-      console.log(action.payload);
       state.userChain[action.payload.index][action.payload.field] = action.payload.value;
     },
     addUserChain: (state, action) => {
@@ -63,18 +67,19 @@ const payloadGeneratorSlice = createSlice({
     builder.addCase(startPG.fulfilled, (state, action) => {
       state.loading = "succeeded";
       state.simpleGadgets = action.payload["simple_gadgets"];
+      state.availableRegs = action.payload["available_regs"];
     });
     builder.addCase(startPG.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });
-    builder.addCase(createChain.pending, (state) => {
+    builder.addCase(createPayload.pending, (state) => {
       state.loading = "pending";
     });
-    builder.addCase(createChain.fulfilled, (state, action) => {
+    builder.addCase(createPayload.fulfilled, (state, action) => {
       state.loading = "succeeded";
     });
-    builder.addCase(createChain.rejected, (state, action) => {
+    builder.addCase(createPayload.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });
@@ -84,6 +89,7 @@ const payloadGeneratorSlice = createSlice({
 export const {
   setUserChain,
   addUserChain,
+  setUserChainIndex,
   setUserChainIndexField,
   resetPayloadGeneratorState,
 } = payloadGeneratorSlice.actions;

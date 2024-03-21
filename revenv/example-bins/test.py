@@ -1,17 +1,7 @@
-from pwnlib.rop import ROP
-from pwnlib.elf import ELF
+lists = [{"l1": ["0x1", "0x2", "ebp", "esp"]}, {"l1": ["0x5", "ebp", "rax"]}]
 
-instructions = [{"type": "setReg", "regValues": {"rsp": 0xdeadbeef}}, {"type": "setReg"}]
+merged_list = []
+for gadget in lists:
+    merged_list.extend(item for item in gadget["l1"] if not item.startswith("0x"))
 
-binary = ELF("hello_world.out")
-rop = ROP(binary)
-
-for insn in instructions:
-    match insn["type"]:
-        case "setReg":
-            rop(**insn["regValues"])
-
-        case _:
-            print("nothing...")
-
-print(rop.dump())
+print(merged_list)

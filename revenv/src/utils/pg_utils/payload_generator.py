@@ -1,8 +1,21 @@
+import re
+import logging
+from pprint import pprint
 from pygdbmi.IoManager import IoManager
 from pwnlib.rop import ROP
 from pwnlib.elf import ELF
 from pwnlib.util.fiddling import hexdump
-from typing import List, Dict
+from typing import List, Dict, Tuple
+
+
+def _is_hexidecimal(string: str) -> bool:
+    pattern = re.compile(r'^[0-9a-fA-F]+$')
+    return bool(pattern.match(string))
+
+
+def _is_numerical(string: str) -> bool:
+    pattern = re.compile(r'^[0-9]+$')
+    return bool(pattern.match(string))
 
 
 class PayloadGenerator:
@@ -11,11 +24,25 @@ class PayloadGenerator:
         self.rop: ROP = ROP(self.elf)
         self.all_gadgets: dict = {}
 
-    def create_rop_chain(self, instructions: List) -> None:
-        for insn in instructions:
-            match insn["type"]:
-                case "setReg":
-                    self.rop(**insn["regValues"])
+    def create_rop_chain(self, chain: List) -> None:
+        for link in chain:
+            if link["subtype"] == "hex":
+                if not _is_hexidecimal(link["value"]):
+                    # need to throw error
+                    logging.info("not a hex value")
+            elif link["subtype"] == "numerical":
+                if not _is_numerical(link["value"]):
+                    # need to throw error
+                    logging.info("not a numerical value")
+
+            match link["type"]:
+                case "reg":
+                    self.rop(**{link["reg"]: link["value"]})
+                case "raw":
+                    logging.info("length is " + str(len(chain)))
+                    self.rop.raw(link["value"])
+                case "padding":
+                    pass
                 case _:
                     continue
 

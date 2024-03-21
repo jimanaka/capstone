@@ -103,11 +103,11 @@ const CreateCourse = () => {
               {...register("description")}
             />
           </div>
-          <div className="my-5 flex w-full flex-col mb-2">
+          <div className="my-5 mb-2 flex w-full flex-col">
             <label htmlFor="binary" className="mb-2">
               Binary File
             </label>
-            <div className="w-full relative">
+            <div className="relative w-full">
               <input
                 id="binary"
                 placeholder="Upload a file"
@@ -118,28 +118,28 @@ const CreateCourse = () => {
                 value={confirmedFilename}
               />
               <div
-                className="absolute left-0 right-0 top-0 bottom-0 cursor-pointer"
+                className="absolute bottom-0 left-0 right-0 top-0 cursor-pointer"
                 onClick={() => setFileDropperOpen(true)}
               />
             </div>
           </div>
-          <h1 className="text-2xl font-bold mb-2">Questions</h1>
+          <h1 className="mb-2 text-2xl font-bold">Questions</h1>
           {questionArray.map((item, index) => {
             return (
               <div key={index} className="my-4">
                 <Disclosure defaultOpen>
                   {({ open }) => (
                     <>
-                      <Disclosure.Button className="bg-ctp-mantle flex w-full justify-between rounded-md px-4 py-2 text-left text-lg font-medium hover:bg-ctp-overlay0 focus:outline-none focus-visible:ring focus-visible:ring-ctp-mauve">
+                      <Disclosure.Button className="flex w-full justify-between rounded-md bg-ctp-mantle px-4 py-2 text-left text-lg font-medium hover:bg-ctp-overlay0 focus:outline-none focus-visible:ring focus-visible:ring-ctp-mauve">
                         <span>{`Question ${index + 1}`}</span>
                         <ChevronRightIcon
                           className={`${
                             open ? "rotate-90 transform" : ""
-                          } h-5 w-5 text-ctp-muave`}
+                          } text-ctp-muave h-5 w-5`}
                         />
                       </Disclosure.Button>
-                      <Disclosure.Panel className="px-4 pb-2 pt-2 text-md overflow-auto">
-                        <div className="flex flex-col w-full my-2">
+                      <Disclosure.Panel className="text-md overflow-auto px-4 pb-2 pt-2">
+                        <div className="my-2 flex w-full flex-col">
                           <label className="my-2">Question {index + 1}</label>
                           <textarea
                             name="question"
@@ -182,7 +182,7 @@ const CreateCourse = () => {
           })}
           <button
             type="button"
-            className="btn-primary mt-2 inline-flex items-center rounded-full w-full justify-center"
+            className="btn-primary mt-2 inline-flex w-full items-center justify-center rounded-full"
             onClick={handleAddQuestion}
           >
             <PlusCircleIcon className="mr-2 h-8 w-8" />
