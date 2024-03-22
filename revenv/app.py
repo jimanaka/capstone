@@ -1,4 +1,5 @@
 import logging
+from pprint import pprint
 import os
 from http import HTTPStatus as HTTP
 from flask import Flask, request, jsonify
@@ -77,6 +78,19 @@ def create_chain():
     request_details = request.get_json()
     pg = pg_manager.get_instance_by_user(user)
     response = pg_util.create_chain(pg, request_details["input"])
+    return response
+
+
+# change this as a socketio function
+@app.route("/use-payload", methods=["POST"])
+@jwt_required()
+def use_payload():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    pid = request_details["pid"]
+    pg = pg_manager.get_instance_by_user(user)
+    iomanager = session_manager.get_session_by_pid(pid).pygdbmi_IOManager
+    response = pg_util.use_payload(pg, iomanager)
     return response
 
 
@@ -205,9 +219,19 @@ def handle_command(data):
     if iomanager is None:
         emit
     cmds = data["cmds"]
-    logging.info(f"sending cmd: {cmds}")
     iomanager.write(cmds, timeout_sec=0,
                     raise_error_on_timeout=False, read_response=False)
+
+
+@socketio.on("send_program_input")
+def send_program_input(data):
+    sid = request.sid
+    session = session_manager.get_session_by_sid(sid)
+    iomanager = session.pygdbmi_IOManager
+    if iomanager is None:
+        emit
+    input = data["input"]
+    session.program_pty.write(input + "\n")
 
 
 @socketio.on("disconnect")

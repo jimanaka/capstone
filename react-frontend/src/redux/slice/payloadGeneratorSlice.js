@@ -1,12 +1,26 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { startPGService, createChainService, createPayloadService } from "../service/payloadGeneratorService";
+import { startPGService, createPayloadService, usePayloadService } from "../service/payloadGeneratorService";
 
 export const createPayload = createAsyncThunk(
   "revenv/create-payload",
   async ({ input }, { rejectWithValue }) => {
     try {
-      console.log(input);
       const response = await createPayloadService({ input });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const usePayload = createAsyncThunk(
+  "revenv/use-payload",
+  async ({ pid }, { rejectWithValue }) => {
+    try {
+      const response = await usePayloadService({ pid });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {

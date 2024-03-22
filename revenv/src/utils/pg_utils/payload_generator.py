@@ -40,10 +40,9 @@ class PayloadGenerator:
                 case "reg":
                     self.rop(**{link["reg"]: link["value"]})
                 case "raw":
-                    logging.info("length is " + str(len(chain)))
                     self.rop.raw(link["value"])
                 case "padding":
-                    pass
+                    self.rop.raw(link["padding"] * int(link["paddingAmount"]))
                 case _:
                     continue
 

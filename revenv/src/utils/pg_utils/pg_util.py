@@ -5,6 +5,7 @@ from flask import jsonify
 from http import HTTPStatus as HTTP
 from typing import Dict, List, Tuple
 from src.utils.request_util import corsify_response
+from pygdbmi.IoManager import IoManager
 
 
 def get_info(pg) -> Tuple[Dict, int]:
@@ -25,5 +26,10 @@ def create_chain(pg: PayloadGenerator, chain: List) -> Tuple[Dict, int]:
     pg.create_rop_chain(chain)
     payload_dump = pg.dump()
     hexdump = pg.hexdump()
-    print(payload_dump)
     return corsify_response(jsonify(payload_dump=payload_dump, hexdump=hexdump)), HTTP.OK.value
+
+
+def use_payload(pg: PayloadGenerator, iomanager: IoManager) -> Tuple[Dict, int]:
+    iomanager.write(f"run < <(python -c \"import sys; sys.stdout.buffer.write("
+                    f"{pg.chain()})\")", timeout_sec=0, raise_error_on_timeout=False, read_response=False)
+    return jsonify(msg="done"), HTTP.OK.value

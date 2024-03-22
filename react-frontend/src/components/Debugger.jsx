@@ -2,7 +2,7 @@ import React from "react";
 import CodeView from "./CodeView";
 import Code from "./Code";
 import { useForm } from "react-hook-form";
-import { sendCommand } from "../redux/slice/sessionSlice";
+import { sendCommand, sendProgramInput } from "../redux/slice/sessionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   PlusCircleIcon,
@@ -34,6 +34,10 @@ const Debugger = () => {
   const handleUserCmdSend = (data) => {
     dispatch(sendCommand(data.gdbCommand));
     document.getElementById("gdbCommand").value = "";
+  };
+  const handleProgramInputSend = (data) => {
+    dispatch(sendProgramInput(data.programInput));
+    document.getElementById("programInput").value = "";
   };
 
   return (
@@ -170,6 +174,27 @@ const Debugger = () => {
                   })
                 : null}
             </ul>
+            <form
+              className="flex w-full"
+              onSubmit={handleSubmit(handleProgramInputSend)}
+            >
+              <input
+                type="text"
+                name="programInput"
+                id="programInput"
+                placeholder="Program Input"
+                required
+                className="mr-2 w-full appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-2 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
+                {...register("programInput")}
+              />
+              <button
+                type="submit"
+                className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+              >
+                <ArrowRightCircleIcon className="h-7 w-7" />
+              </button>
+            </form>
+
             <form
               className="flex w-full"
               onSubmit={handleSubmit(handleUserCmdSend)}

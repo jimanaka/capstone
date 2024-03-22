@@ -40,19 +40,28 @@ const PayloadGenerator = () => {
   );
 
   const handleAddChainItemPress = () => {
-    dispatch(addUserChain({ type: "", subtype: "", reg: "" }));
+    dispatch(addUserChain({ type: "raw", subtype: "hex", reg: "" }));
   };
 
   const handleTypeChange = (event, chainNum) => {
     dispatch(
-      setUserChainIndex({
-        index: chainNum,
-        chain: {
-          type: event.target.value,
-          subtype: "hex",
-          reg: "",
-        },
-      }),
+      event.target.value === "padding"
+        ? setUserChainIndex({
+            index: chainNum,
+            chain: {
+              type: event.target.value,
+              subtype: "padding",
+              reg: "",
+            },
+          })
+        : setUserChainIndex({
+            index: chainNum,
+            chain: {
+              type: event.target.value,
+              subtype: "hex",
+              reg: "",
+            },
+          }),
     );
   };
   const handleSubTypeChange = (event, chainNum) => {

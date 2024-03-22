@@ -6,6 +6,7 @@ import {
   connectionLost,
   setGdbPID,
   sendCommand,
+  sendProgramInput,
   setDisassemblyOutput,
   setGdbBreakpoints,
   setGdbRegisterNames,
@@ -102,12 +103,14 @@ const socketMiddleware = (store) => {
       });
     }
 
-    if (doStuff.match(action)) {
+    if (sendProgramInput.match(action)) {
       if (!socketConnection) {
         return;
       }
       let socket = socketConnection.socket;
-      socket.emit("do_stuff", {});
+      socket.emit("send_program_input", {
+        input: action.payload,
+      });
     }
 
     next(action);

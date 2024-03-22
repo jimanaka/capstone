@@ -23,6 +23,27 @@ export const createPayloadService = async ({ input }) => {
   }
 };
 
+export const usePayloadService = async ({ pid }) => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "use-payload",
+      { pid },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: failed to create payload");
+    throw error;
+  }
+};
+
 export const startPGService = async ({ filePath }) => {
   try {
     const config = {

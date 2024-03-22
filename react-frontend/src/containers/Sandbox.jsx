@@ -20,7 +20,11 @@ import FileDropper from "../components/FileDropper";
 import FileCoursePicker from "../components/FileCoursePicker";
 import CourseDrawer from "../components/CourseDrawer";
 
-import { resetSandboxState, setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
+import {
+  resetSandboxState,
+  setCurrentTab,
+  uploadFile,
+} from "../redux/slice/sandboxSlice";
 import {
   initSocket,
   disconnect,
@@ -32,7 +36,11 @@ import {
   getFileInfo,
   resetCodeListingState,
 } from "../redux/slice/codeListingSlice";
-import { createChain, resetPayloadGeneratorState, startPG } from "../redux/slice/payloadGeneratorSlice";
+import {
+  usePayload,
+  resetPayloadGeneratorState,
+  startPG,
+} from "../redux/slice/payloadGeneratorSlice";
 
 const Sandbox = () => {
   const dispatch = useDispatch();
@@ -56,7 +64,7 @@ const Sandbox = () => {
       dispatch(resetPayloadGeneratorState());
       dispatch(resetCodeListingState());
       dispatch(resetSandboxState());
-    }
+    };
   }, []);
 
   useEffect(() => {
@@ -75,6 +83,7 @@ const Sandbox = () => {
     if (currentFilePath) {
       dispatch(sendCommand("-file-exec-and-symbols " + currentFilePath));
       dispatch(getFileInfo({ filename: currentFilePath }));
+      dispatch(setOutput([]));
       dispatch(
         disassembleBinary({
           filename: currentFilePath,
@@ -97,7 +106,6 @@ const Sandbox = () => {
   const handleRunPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
     dispatch(sendCommand("-exec-run"));
-    dispatch(setOutput([]));
   };
   const handleNextPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
@@ -109,6 +117,9 @@ const Sandbox = () => {
   };
   const handleTabChange = (index) => {
     dispatch(setCurrentTab(index));
+  };
+  const handleUsePayloadPress = () => {
+    dispatch(usePayload({ pid: gdbPID }));
   };
 
   const onCancelClick = () => {
@@ -246,6 +257,12 @@ const Sandbox = () => {
           className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronDoubleRightIcon className="h-6 w-6" />
+        </button>
+        <button
+          onClick={handleUsePayloadPress}
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+        >
+          TEST
         </button>
       </div>
 

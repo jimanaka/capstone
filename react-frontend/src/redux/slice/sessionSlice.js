@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const sessionSlice = createSlice({
   name: "session",
@@ -24,6 +24,9 @@ const sessionSlice = createSlice({
       return;
     },
     sendCommand: () => {
+      return;
+    },
+    sendProgramInput: () => {
       return;
     },
     doStuff: () => {
@@ -84,6 +87,7 @@ export const {
   connectionLost,
   setGdbPID,
   sendCommand,
+  sendProgramInput,
   setOutput,
   setGdbState,
   setGdbStoppedReason,

@@ -13,6 +13,7 @@ import {
 } from "../redux/slice/sessionSlice";
 
 export const handleGdbGuiResponse = (store, socket, msg) => {
+  console.log(msg);
   switch (msg.type) {
     case "notify":
       if (msg.message === "running") store.dispatch(setGdbState(msg.message));
@@ -34,11 +35,18 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
             ),
           );
         }
-      } else if (msg.message === "breakpoint-created" && msg.payload.hasOwnProperty("bkpt")) {
+      } else if (
+        msg.message === "breakpoint-created" &&
+        msg.payload.hasOwnProperty("bkpt")
+      ) {
         store.dispatch(addGdbBreakpoint(msg.payload.bkpt));
       }
       break;
     case "result":
+      if (msg.payload.hasOwnProperty("message")) {
+        if (msg.payload["message"] === "error")
+          store.dispatch(addOutput(msg.payload["msg"]));
+      }
       if (msg.payload.hasOwnProperty("asm_insns")) {
         store.dispatch(setDisassemblyOutput(msg.payload.asm_insns));
       } else if (msg.payload.hasOwnProperty("bkpt")) {
