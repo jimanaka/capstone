@@ -50,7 +50,12 @@ const Debugger = () => {
               ? disassemblyOutput.map((line) => {
                   let highlight = line.address === frame.addr ? true : false;
                   return (
-                    <li key={line.address} className={`${highlight ? "bg-ctp-overlay0" : null} w-full`}>
+                    <li
+                      key={line.address}
+                      className={`${
+                        highlight ? "bg-ctp-overlay0" : null
+                      } w-full`}
+                    >
                       <Code
                         language="x86asm"
                         highlight={highlight}
@@ -130,9 +135,7 @@ const Debugger = () => {
                           key={`breakpoint ${breakpoint.number}`}
                         >
                           <div>
-                            #{breakpoint.number} {breakpoint.addr} in{" "}
-                            {breakpoint.func} at {breakpoint.file}:
-                            {breakpoint.line}
+                            #{breakpoint.number} {breakpoint.addr} {breakpoint.addr.length === 18 ? `<${breakpoint.func}+${breakpoint.line}>` : breakpoint.at}
                           </div>
                         </li>
                       );

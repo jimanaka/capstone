@@ -106,10 +106,11 @@ const Sandbox = () => {
   const handleRunPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
     dispatch(sendCommand("-exec-run"));
+    dispatch(setOutput([]));
   };
   const handleNextPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
-    dispatch(sendCommand("-exec-next"));
+    dispatch(sendCommand("-exec-next-instruction"));
   };
   const handleContinuePress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
@@ -119,6 +120,7 @@ const Sandbox = () => {
     dispatch(setCurrentTab(index));
   };
   const handleUsePayloadPress = () => {
+    dispatch(setOutput([]));
     dispatch(usePayload({ pid: gdbPID }));
   };
 

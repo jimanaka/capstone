@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment } from "react";
+import React, { useEffect, Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Menu, Transition } from "@headlessui/react";
@@ -12,6 +12,7 @@ import {
   createPayload,
   addArg,
   setArgSubtype,
+  setCurrentInputs,
 } from "../redux/slice/payloadGeneratorSlice";
 
 import CodeView from "./CodeView";
@@ -19,13 +20,6 @@ import Code from "./Code";
 
 const PayloadGenerator = () => {
   const dispatch = useDispatch();
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-    setValue,
-  } = useForm();
 
   const userChain = useSelector((store) => store.payloadGenerator.userChain);
   const simpleGadgets = useSelector(
@@ -40,6 +34,30 @@ const PayloadGenerator = () => {
   const payloadDump = useSelector(
     (state) => state.payloadGenerator.payloadDump,
   );
+  const currentInputs = useSelector(
+    (state) => state.payloadGenerator.currentInputs,
+  );
+  const [firstLoad, setFirstLoad] = useState(true);
+
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+    reset,
+    getValues,
+  } = useForm();
+
+  useEffect(() => {
+    return () => {
+      const current = getValues();
+      dispatch(setCurrentInputs({ ...current }));
+    };
+  }, []);
+
+  useEffect(() => {
+    reset(currentInputs);
+  }, [currentInputs]);
 
   const handleAddChainItemPress = () => {
     dispatch(

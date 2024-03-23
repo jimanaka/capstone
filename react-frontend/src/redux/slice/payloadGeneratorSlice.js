@@ -54,6 +54,7 @@ const initialState = {
   availableRegs: [],
   payloadDump: "",
   payloadHexdump: "",
+  currentInputs: [],
 };
 
 const payloadGeneratorSlice = createSlice({
@@ -77,6 +78,9 @@ const payloadGeneratorSlice = createSlice({
     },
     setArgSubtype: (state, action) => {
       state.userChain[action.payload.index].args[action.payload.argIndex].subtype = action.payload.value;
+    },
+    setCurrentInputs: (state, action) => {
+      state.currentInputs = action.payload;
     },
     resetPayloadGeneratorState: (state) => initialState,
   },
@@ -116,6 +120,7 @@ export const {
   resetPayloadGeneratorState,
   addArg,
   setArgSubtype,
+  setCurrentInputs,
 } = payloadGeneratorSlice.actions;
 
 export default payloadGeneratorSlice.reducer;

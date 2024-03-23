@@ -31,7 +31,9 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
                 `-data-list-register-names 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 \n` +
                 `-data-list-register-values x 0 1 2 3 4 5 6 7  8 9 10 11 12 13 14 15 16 17 \n` +
                 `-data-list-changed-registers \n` +
-                `-data-read-memory "$sp" x 8 8 1`,
+                `-data-read-memory "$sp" x ${
+                  msg.payload.frame.arch === "i386:x86-64" ? "8" : "4"
+                } 16 1`,
             ),
           );
         }
