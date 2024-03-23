@@ -25,16 +25,17 @@ class PayloadGenerator:
 
     def create_rop_chain(self, chain: List) -> None:
         for link in chain:
-            if link["subtype"] == "hex":
-                if not _is_hexidecimal(link["value"]):
-                    # need to throw error
-                    logging.info("not a hex value")
-                link["value"] = int(link["value"], 16)
-            elif link["subtype"] == "numeric":
-                if not _is_numerical(link["value"]):
-                    # need to throw error
-                    logging.info("not a numerical value")
-                link["value"] = int(link["value"])
+            match link["subtype"]:
+                case "hex" | "address":
+                    if not _is_hexidecimal(link["value"]):
+                        # need to throw error
+                        logging.info("not a hex value")
+                    link["value"] = int(link["value"], 16)
+                case "numeric":
+                    if not _is_numerical(link["value"]):
+                        # need to throw error
+                        logging.info("not a numerical value")
+                    link["value"] = int(link["value"])
 
             match link["type"]:
                 case "reg":
@@ -43,6 +44,16 @@ class PayloadGenerator:
                     self.rop.raw(link["value"])
                 case "padding":
                     self.rop.raw(link["padding"] * int(link["paddingAmount"]))
+                case "function":
+                    for item in link["args"]:
+                        if item["subtype"] == "numeric":
+                            item["arg"] = int(item["arg"])
+                        elif item["subtype"] == "hex":
+                            item["arg"] = int(item["arg"], 16)
+
+                    args = [x["arg"] for x in link["args"]]
+                    print(args)
+                    self.rop.call(link["value"], args)
                 case _:
                     continue
 

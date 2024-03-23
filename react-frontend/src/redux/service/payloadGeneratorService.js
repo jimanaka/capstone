@@ -74,7 +74,6 @@ export const createChainService = async ({ chain }) => {
       },
       withCredentials: true,
     };
-      console.log(chain)
     const response = await axios.post(
       API_URL + "create-chain",
       { chain },

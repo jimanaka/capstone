@@ -72,6 +72,12 @@ const payloadGeneratorSlice = createSlice({
     addUserChain: (state, action) => {
       state.userChain.push(action.payload);
     },
+    addArg: (state, action) => {
+      state.userChain[action.payload.index].args.push({arg: "", subtype: "numeric"})
+    },
+    setArgSubtype: (state, action) => {
+      state.userChain[action.payload.index].args[action.payload.argIndex].subtype = action.payload.value;
+    },
     resetPayloadGeneratorState: (state) => initialState,
   },
   extraReducers: (builder) => {
@@ -92,7 +98,6 @@ const payloadGeneratorSlice = createSlice({
     });
     builder.addCase(createPayload.fulfilled, (state, action) => {
       state.loading = "succeeded";
-      console.log(action.payload)
       state.payloadDump = action.payload.payload_dump;
       state.payloadHexdump = action.payload.hexdump;
     });
@@ -109,6 +114,8 @@ export const {
   setUserChainIndex,
   setUserChainIndexField,
   resetPayloadGeneratorState,
+  addArg,
+  setArgSubtype,
 } = payloadGeneratorSlice.actions;
 
 export default payloadGeneratorSlice.reducer;

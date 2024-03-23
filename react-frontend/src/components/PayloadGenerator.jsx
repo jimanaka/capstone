@@ -10,6 +10,8 @@ import {
   setUserChainIndex,
   setUserChainIndexField,
   createPayload,
+  addArg,
+  setArgSubtype,
 } from "../redux/slice/payloadGeneratorSlice";
 
 import CodeView from "./CodeView";
@@ -40,7 +42,14 @@ const PayloadGenerator = () => {
   );
 
   const handleAddChainItemPress = () => {
-    dispatch(addUserChain({ type: "raw", subtype: "hex", reg: "" }));
+    dispatch(
+      addUserChain({
+        type: "raw",
+        subtype: "hex",
+        reg: "",
+        args: [],
+      }),
+    );
   };
 
   const handleTypeChange = (event, chainNum) => {
@@ -52,16 +61,28 @@ const PayloadGenerator = () => {
               type: event.target.value,
               subtype: "padding",
               reg: "",
+              args: [],
             },
           })
-        : setUserChainIndex({
-            index: chainNum,
-            chain: {
-              type: event.target.value,
-              subtype: "hex",
-              reg: "",
-            },
-          }),
+        : event.target.value === "function"
+          ? setUserChainIndex({
+              index: chainNum,
+              chain: {
+                type: event.target.value,
+                subtype: "symbol",
+                reg: "",
+                args: [],
+              },
+            })
+          : setUserChainIndex({
+              index: chainNum,
+              chain: {
+                type: event.target.value,
+                subtype: "hex",
+                reg: "",
+                args: [],
+              },
+            }),
     );
   };
   const handleSubTypeChange = (event, chainNum) => {
@@ -82,15 +103,40 @@ const PayloadGenerator = () => {
       }),
     );
   };
+  const handleAddArg = (chainNum) => {
+    dispatch(
+      addArg({
+        index: chainNum,
+      }),
+    );
+  };
+  const handleArgSubtypeChange = (event, chainNum, argIndex) => {
+    dispatch(
+      setArgSubtype({
+        index: chainNum,
+        argIndex: argIndex,
+        value: event.target.value,
+      }),
+    );
+  };
 
   const handleChainSubmit = (data) => {
     data.input.map((item, index) => {
+      let argArray = [];
       item.type = userChain[index].type;
       item.subtype = userChain[index].subtype;
       item.reg = userChain[index].reg;
+      if (item.args) {
+        item.args.map((arg, argIndex) => {
+          argArray.push({
+            arg: arg,
+            subtype: userChain[index].args[argIndex].subtype,
+          });
+        });
+      }
+      item.args = argArray;
     });
     dispatch(createPayload(data));
-    console.log(data.input);
   };
 
   const SelectionMenu = ({
@@ -149,71 +195,123 @@ const PayloadGenerator = () => {
     );
   };
 
-  const types = ["raw", "padding", "reg"];
-  const rawTypes = ["hex", "numeric", "string"];
   const UserChainItem = ({ chainNum }) => {
+    const types = ["raw", "padding", "reg", "function"];
+    const subTypes = ["hex", "numeric", "string"];
+    const resolvableTypes = ["address", "symbol"];
     return (
-      <div className="flex h-[4rem] w-full items-center justify-between border border-ctp-surface0 bg-ctp-mantle px-2 py-2 shadow-sm">
-        <div className="flex">
-          {/* chain types selection */}
-          <SelectionMenu
-            chainNum={chainNum}
-            handleChange={handleTypeChange}
-            items={types}
-            placeholder="Type"
-            currentVal={userChain[chainNum].type}
-          />
-          {userChain[chainNum].type !== "padding" &&
-          userChain[chainNum].type !== "" ? (
-            <SelectionMenu
-              className="mr-2"
-              chainNum={chainNum}
-              handleChange={handleSubTypeChange}
-              items={rawTypes}
-              placeholder="Subtype"
-              currentVal={userChain[chainNum].subtype}
-            />
-          ) : null}
-          {userChain[chainNum].type === "reg" ? (
+      <div className="flex w-full flex-col border border-ctp-surface0 bg-ctp-mantle p-2 shadow-sm">
+        <div className="flex w-full items-center justify-between">
+          <div className="flex">
+            {/* chain types selection */}
             <SelectionMenu
               chainNum={chainNum}
-              handleChange={handleRegChange}
-              items={availableRegs}
-              placeholder="Registers"
-              currentVal={userChain[chainNum].reg}
+              handleChange={handleTypeChange}
+              items={types}
+              placeholder="Type"
+              currentVal={userChain[chainNum].type}
             />
-          ) : null}
-        </div>
-        {userChain[chainNum].type === "padding" ? (
-          <div>
-            <input
-              type="text"
-              id={`paddingVal${chainNum}`}
-              className="input-primary mr-2 w-14 p-2"
-              placeholder="Char"
-              required
-              maxLength={1}
-              {...register(`input.${chainNum}.padding`)}
-            />
-            <input
-              type="number"
-              id={`paddingAmount${chainNum}`}
-              placeholder="Amount"
-              className="input-primary mr-2 w-32 p-2"
-              required
-              {...register(`input.${chainNum}.paddingAmount`)}
-            />
+            {userChain[chainNum].type !== "padding" &&
+            userChain[chainNum].type !== "" ? (
+              <SelectionMenu
+                className="mr-2"
+                chainNum={chainNum}
+                handleChange={handleSubTypeChange}
+                items={
+                  userChain[chainNum].type === "function"
+                    ? resolvableTypes
+                    : subTypes
+                }
+                placeholder="Subtype"
+                currentVal={userChain[chainNum].subtype}
+              />
+            ) : null}
+            {userChain[chainNum].type === "reg" ? (
+              <SelectionMenu
+                chainNum={chainNum}
+                handleChange={handleRegChange}
+                items={availableRegs}
+                placeholder="Registers"
+                currentVal={userChain[chainNum].reg}
+              />
+            ) : null}
           </div>
-        ) : (
-          <input
-            type={userChain[chainNum].subtype === "numeric" ? "number" : "text"}
-            id={`input${chainNum}`}
-            placeholder="Value"
-            className="input-primary mr-2 w-full min-w-0 resize-x p-2"
-            required
-            {...register(`input.${chainNum}.value`)}
-          />
-        )}
+          {userChain[chainNum].type === "padding" ? (
+            <div>
+              <input
+                type="text"
+                id={`paddingVal${chainNum}`}
+                className="input-primary mr-2 w-14 p-2"
+                placeholder="Char"
+                required
+                maxLength={1}
+                {...register(`input.${chainNum}.padding`)}
+              />
+              <input
+                type="number"
+                id={`paddingAmount${chainNum}`}
+                placeholder="Amount"
+                className="input-primary mr-2 w-32 p-2"
+                required
+                {...register(`input.${chainNum}.paddingAmount`)}
+              />
+            </div>
+          ) : (
+            <input
+              type={
+                userChain[chainNum].subtype === "numeric" ? "number" : "text"
+              }
+              id={`input${chainNum}`}
+              placeholder="Value"
+              className="input-primary mr-2 w-full min-w-0 resize-x p-2"
+              required
+              {...register(`input.${chainNum}.value`)}
+            />
+          )}
+        </div>
+        {userChain[chainNum].type === "function" ? (
+          <>
+            {userChain[chainNum].args.map((arg, argIndex) => {
+              return (
+                <div
+                  key={`chain${chainNum}.arg${argIndex}`}
+                  className="mt-2 flex"
+                >
+                  <SelectionMenu
+                    chainNum={chainNum}
+                    handleChange={(event) =>
+                      handleArgSubtypeChange(event, chainNum, argIndex)
+                    }
+                    items={subTypes}
+                    placeholder="subtype"
+                    currentVal={userChain[chainNum].args[argIndex].subtype}
+                  />
+
+                  <input
+                    type={
+                      userChain[chainNum].args[argIndex].subtype === "numeric"
+                        ? "number"
+                        : "text"
+                    }
+                    id={`input${chainNum}.arg${argIndex}`}
+                    placeholder="Value"
+                    className="input-primary mr-2 w-full min-w-0 resize-x p-2"
+                    required
+                    {...register(`input.${chainNum}.args.${argIndex}`)}
+                  />
+                </div>
+              );
+            })}
+            <button
+              type="button"
+              className="btn-primary mt-2 inline-flex  items-center justify-center p-1"
+              onClick={() => handleAddArg(chainNum)}
+            >
+              <PlusCircleIcon className="mr-1 h-8 w-8" />
+              <span>Add Arg</span>
+            </button>
+          </>
+        ) : null}
       </div>
     );
   };

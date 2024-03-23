@@ -9,10 +9,10 @@ const Code = ({ children, language, line, funcName, offset, bytes, highlight }) 
     <pre className={`${highlight ? "bg-ctp-overlay0" : null} flex px-1`}>
       {
         (funcName && offset) ?
-          <div>({funcName}+{offset})</div> :
+          <div>({funcName}+{offset}) </div> :
         null
       }
-      <div>{line}</div>
+      <div>{line}   </div>
       {
         bytes ? <div> {bytes}</div> : null
       }

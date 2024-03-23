@@ -45,12 +45,12 @@ const Debugger = () => {
       <div className="flex flex-1 flex-col overflow-hidden">
         <h1 className="w-full text-center">Assembly</h1>
         <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
-          <ul className="w-full">
+          <ul className="w-fit">
             {disassemblyOutput && frame
               ? disassemblyOutput.map((line) => {
                   let highlight = line.address === frame.addr ? true : false;
                   return (
-                    <li key={line.address}>
+                    <li key={line.address} className={`${highlight ? "bg-ctp-overlay0" : null} w-full`}>
                       <Code
                         language="x86asm"
                         highlight={highlight}
@@ -119,25 +119,27 @@ const Debugger = () => {
       <div className="flex max-w-lg flex-1 flex-col space-y-4">
         <div className="flex h-[16rem] w-full flex-col overflow-hidden">
           <h1 className="w-full text-center">Breakpoints</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-scroll text-left font-mono">
-            <ul role="list" className="mb-2 w-full">
-              {breakpoints.length > 0
-                ? breakpoints.map((breakpoint) => {
-                    return (
-                      <li
-                        className="my-2"
-                        key={`breakpoint ${breakpoint.number}`}
-                      >
-                        <div>
-                          #{breakpoint.number} {breakpoint.addr} in{" "}
-                          {breakpoint.func} at {breakpoint.file}:
-                          {breakpoint.line}
-                        </div>
-                      </li>
-                    );
-                  })
-                : null}
-            </ul>
+          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-hidden text-left font-mono">
+            <div className="flex flex-1 flex-col overflow-scroll">
+              <ul role="list" className="mb-2 w-full">
+                {breakpoints.length > 0
+                  ? breakpoints.map((breakpoint) => {
+                      return (
+                        <li
+                          className="my-2"
+                          key={`breakpoint ${breakpoint.number}`}
+                        >
+                          <div>
+                            #{breakpoint.number} {breakpoint.addr} in{" "}
+                            {breakpoint.func} at {breakpoint.file}:
+                            {breakpoint.line}
+                          </div>
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
             <form
               className="flex w-full"
               onSubmit={handleSubmit(handleBreakpointAdd)}
@@ -162,20 +164,22 @@ const Debugger = () => {
         </div>
         <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Output</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-scroll text-left font-mono">
-            <ul role="list" className="mb-2 w-full">
-              {output.length > 0
-                ? output.map((line, index) => {
-                    return (
-                      <li key={`output${index + 1}`} className="my-2">
-                        #{index + 1} {line}
-                      </li>
-                    );
-                  })
-                : null}
-            </ul>
+          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-hidden text-left font-mono">
+            <div className="flex flex-1 flex-col overflow-scroll">
+              <ul role="list" className="mb-2 w-full">
+                {output.length > 0
+                  ? output.map((line, index) => {
+                      return (
+                        <li key={`output${index + 1}`} className="my-2">
+                          #{index + 1} {line}
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
             <form
-              className="flex w-full"
+              className="flex w-full mt-1"
               onSubmit={handleSubmit(handleProgramInputSend)}
             >
               <input
@@ -194,9 +198,8 @@ const Debugger = () => {
                 <ArrowRightCircleIcon className="h-7 w-7" />
               </button>
             </form>
-
             <form
-              className="flex w-full"
+              className="flex w-full mt-1"
               onSubmit={handleSubmit(handleUserCmdSend)}
             >
               <input
