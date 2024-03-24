@@ -14,7 +14,7 @@ ENV PYTHONUNBUFFERED 1
 # Install requirements using pip
 ADD requirements.txt .
 RUN dpkg --add-architecture i386
-RUN apt update -y && apt install gdb git libc6:i386 libncurses5:i386 wget cmake -y
+RUN apt update -y && apt install gdb git libc6:i386 libc6-dbg:i386 libncurses5:i386 wget cmake -y
 RUN python -m pip install -r requirements.txt
 RUN git config --global http.postBuffer 157286400
 
