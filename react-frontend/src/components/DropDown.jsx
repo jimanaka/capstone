@@ -9,14 +9,12 @@ const DropDown = ({ label, items, type, handleClick }) => {
         return (
           <ul>
             {items
-              ? Object.keys(items).map((k) => {
-                  return Object.keys(items[k]).map((kk, ii) => {
-                    return (
-                      <li key={`${k}${ii}`} className="whitespace-nowrap">
-                        {kk}: {items[k][kk].toString()}
-                      </li>
-                    );
-                  });
+              ? Object.entries(items).map(([key, value], index) => {
+                  return (
+                    <li key={`${key}`} className="whitespace-nowrap">
+                      {key}: {value.toString()}
+                    </li>
+                  );
                 })
               : null}
           </ul>
@@ -69,8 +67,7 @@ const DropDown = ({ label, items, type, handleClick }) => {
                       key={`${type}:${item.name}`}
                       onClick={
                         "plt" in item
-                          ? (e) =>
-                              handleClick(e, `0x${item.plt.toString(16)}`)
+                          ? (e) => handleClick(e, `0x${item.plt.toString(16)}`)
                           : null
                       }
                     >

@@ -13,7 +13,7 @@ import {
 } from "../redux/slice/sessionSlice";
 
 export const handleGdbGuiResponse = (store, socket, msg) => {
-  console.log(msg);
+  // console.log(msg);
   switch (msg.type) {
     case "notify":
       if (msg.message === "running") store.dispatch(setGdbState(msg.message));

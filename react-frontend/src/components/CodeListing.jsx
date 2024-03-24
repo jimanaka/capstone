@@ -3,7 +3,6 @@ import CodeView from "./CodeView";
 import DropDown from "./DropDown";
 import Code from "./Code";
 import {
-  getFileInfo,
   disassembleBinary,
   decompileFunction,
 } from "../redux/slice/codeListingSlice";
