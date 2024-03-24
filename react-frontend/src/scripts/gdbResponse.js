@@ -13,6 +13,7 @@ import {
 } from "../redux/slice/sessionSlice";
 
 export const handleGdbGuiResponse = (store, socket, msg) => {
+  // console.log(msg);
   switch (msg.type) {
     case "notify":
       if (msg.message === "running") store.dispatch(setGdbState(msg.message));
@@ -30,15 +31,24 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
                 `-data-list-register-names 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 \n` +
                 `-data-list-register-values x 0 1 2 3 4 5 6 7  8 9 10 11 12 13 14 15 16 17 \n` +
                 `-data-list-changed-registers \n` +
-                `-data-read-memory "$sp" x 8 8 1`,
+                `-data-read-memory "$sp" x ${
+                  msg.payload.frame.arch === "i386:x86-64" ? "8" : "4"
+                } 16 1`,
             ),
           );
         }
-      } else if (msg.message === "breakpoint-created" && msg.payload.hasOwnProperty("bkpt")) {
+      } else if (
+        msg.message === "breakpoint-created" &&
+        msg.payload.hasOwnProperty("bkpt")
+      ) {
         store.dispatch(addGdbBreakpoint(msg.payload.bkpt));
       }
       break;
     case "result":
+      if (msg.payload.hasOwnProperty("message")) {
+        if (msg.payload["message"] === "error")
+          store.dispatch(addOutput(msg.payload["msg"]));
+      }
       if (msg.payload.hasOwnProperty("asm_insns")) {
         store.dispatch(setDisassemblyOutput(msg.payload.asm_insns));
       } else if (msg.payload.hasOwnProperty("bkpt")) {

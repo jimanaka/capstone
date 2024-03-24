@@ -20,7 +20,11 @@ import FileDropper from "../components/FileDropper";
 import FileCoursePicker from "../components/FileCoursePicker";
 import CourseDrawer from "../components/CourseDrawer";
 
-import { setCurrentTab, uploadFile } from "../redux/slice/sandboxSlice";
+import {
+  resetSandboxState,
+  setCurrentTab,
+  uploadFile,
+} from "../redux/slice/sandboxSlice";
 import {
   initSocket,
   disconnect,
@@ -30,7 +34,13 @@ import {
 import {
   disassembleBinary,
   getFileInfo,
+  resetCodeListingState,
 } from "../redux/slice/codeListingSlice";
+import {
+  usePayload,
+  resetPayloadGeneratorState,
+  startPG,
+} from "../redux/slice/payloadGeneratorSlice";
 
 const Sandbox = () => {
   const dispatch = useDispatch();
@@ -39,7 +49,7 @@ const Sandbox = () => {
   const gdbPID = useSelector((state) => state.session.gdbPID);
   const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
   const methods = useForm();
-  const { handleSubmit, setValue } = methods;
+  const { handleSubmit } = methods;
 
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
@@ -49,6 +59,12 @@ const Sandbox = () => {
 
   useEffect(() => {
     setFilePickerOpen(true);
+
+    return () => {
+      dispatch(resetPayloadGeneratorState());
+      dispatch(resetCodeListingState());
+      dispatch(resetSandboxState());
+    };
   }, []);
 
   useEffect(() => {
@@ -67,6 +83,7 @@ const Sandbox = () => {
     if (currentFilePath) {
       dispatch(sendCommand("-file-exec-and-symbols " + currentFilePath));
       dispatch(getFileInfo({ filename: currentFilePath }));
+      dispatch(setOutput([]));
       dispatch(
         disassembleBinary({
           filename: currentFilePath,
@@ -75,6 +92,7 @@ const Sandbox = () => {
           mode: "refresh",
         }),
       );
+      dispatch(startPG({ filePath: currentFilePath }));
     }
   }, [currentFilePath]);
 
@@ -92,7 +110,7 @@ const Sandbox = () => {
   };
   const handleNextPress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
-    dispatch(sendCommand("-exec-next"));
+    dispatch(sendCommand("-exec-next-instruction"));
   };
   const handleContinuePress = () => {
     if (currentTab !== 1) dispatch(setCurrentTab(1));
@@ -100,6 +118,10 @@ const Sandbox = () => {
   };
   const handleTabChange = (index) => {
     dispatch(setCurrentTab(index));
+  };
+  const handleUsePayloadPress = () => {
+    dispatch(setOutput([]));
+    dispatch(usePayload({ pid: gdbPID }));
   };
 
   const onCancelClick = () => {
@@ -237,6 +259,12 @@ const Sandbox = () => {
           className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
         >
           <ChevronDoubleRightIcon className="h-6 w-6" />
+        </button>
+        <button
+          onClick={handleUsePayloadPress}
+          className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+        >
+          TEST
         </button>
       </div>
 

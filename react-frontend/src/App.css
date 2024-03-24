@@ -4,28 +4,40 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-ctp-surface0 text-ctp-text hover:bg-ctp-surface1 hover:text-ctp-mauve rounded px-4 py-2 font-bold;
+    @apply bg-ctp-surface0 text-ctp-text hover:bg-ctp-surface1 hover:text-ctp-mauve rounded px-3 py-2 font-bold;
   }
+
+  .btn-square {
+    @apply bg-ctp-surface0 text-ctp-text hover:bg-ctp-surface1 hover:text-ctp-mauve rounded-lg py-2;
+  }
+
   .btn-confirm {
-    @apply bg-ctp-green text-ctp-base w-full rounded-lg py-2 hover:bg-lime-200;
+    @apply bg-ctp-green text-ctp-base rounded-lg px-3 py-2 hover:bg-lime-200 font-bold;
   }
+
   .btn-deny {
     @apply bg-ctp-red text-ctp-base w-full rounded-lg py-2 hover:bg-red-200;
   }
+
   .container {
     @apply px-6 py-4 h-full w-full max-w-[1024px] mx-auto;
   }
+
   .icon-outlined {
     @apply text-ctp-text hover:text-ctp-mauve mr-2 h-8 w-8;
   }
 
   .input-primary {
-    @apply focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 ;
+    @apply focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2;
+  }
+
+  .list-element-primary {
+    @apply h-[4.5rem] w-full rounded bg-ctp-mantle px-4 py-2 shadow-sm;
   }
 }
 
 @layer utilities {
   .max-h-inherit {
-    max-height: inherit 
+    max-height: inherit
   }
 }

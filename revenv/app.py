@@ -1,13 +1,17 @@
 import logging
+from pprint import pprint
 import os
+from http import HTTPStatus as HTTP
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
-from src.utils.gdb_utils.gdb_session import GdbSessionManager
 from pathlib import Path
+from src.utils.gdb_utils.gdb_session import GdbSessionManager
+from src.utils.pg_utils.pg_manager import PGManager
 import src.utils.radare2_util as rd2
+import src.utils.pg_utils.pg_util as pg_util
 
 # with code from: https://github.com/cs01/gdbgui/
 
@@ -16,7 +20,6 @@ app.config.from_object("src.config.Config")
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, manage_session=False,
                     cors_allowed_origins="*", logger=True)
-session_manager = GdbSessionManager()
 logging.basicConfig(level=logging.INFO)
 app.config["GDB_EXECUTABLE"] = "gdb"
 app.config["GDB_INTERPRETER"] = "mi"
@@ -24,9 +27,11 @@ app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
 app.config["JWT_COOKIE_SECURE"] = False
 app.config["UPLOAD_USER_PATH"] = "/app/user-uploads"
 app.config["UPLOAD_LESSON_PATH"] = "/app/lesson-uploads"
+app.config["TEMP-PAYLOADS"] = "/app/temp-payloads"
 
 jwt = JWTManager(app)
-# Todo: work on radare2 api
+session_manager = GdbSessionManager()
+pg_manager = PGManager()
 
 
 @jwt_required()
@@ -39,6 +44,54 @@ def hello_world():
     return jsonify(status="api is up!"), 200
 
 # Todo: error handling
+# Todo: extract to separate module
+
+
+# @socketio.on("do_stuff")
+# def do_stuff(data):
+#     sid = request.sid
+#     session = session_manager.get_session_by_sid(sid)
+#     iomanager = session.pygdbmi_IOManager
+#     if iomanager is None:
+#         emit
+#     payload_generator.do_stuff(iomanager)
+
+
+@app.route("/start-pg", methods=["POST"])
+@jwt_required()
+def start_pg():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    pg = pg_manager.create_instance(user, request_details["filePath"])
+    if pg:
+        response = pg_util.get_info(pg)
+    else:
+        response = jsonify(
+            msg="could not create payload generator"), HTTP.SERVICE_UNAVAILABLE.value
+    return response
+
+
+@app.route("/create-payload", methods=["POST"])
+@jwt_required()
+def create_chain():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    pg = pg_manager.get_instance_by_user(user)
+    response = pg_util.create_chain(pg, request_details["input"])
+    return response
+
+
+# change this as a socketio function
+@app.route("/use-payload", methods=["POST"])
+@jwt_required()
+def use_payload():
+    user = get_jwt_identity()
+    request_details = request.get_json()
+    pid = request_details["pid"]
+    pg = pg_manager.get_instance_by_user(user)
+    iomanager = session_manager.get_session_by_pid(pid).pygdbmi_IOManager
+    response = pg_util.use_payload(pg, iomanager)
+    return response
 
 
 @app.route("/upload-file", methods=["POST"])
@@ -70,7 +123,6 @@ def upload_file():
 @jwt_required()
 def delete_file():
     user = get_jwt_identity()
-    print("THIS IS A TEST " + user)
     request_details = request.get_json()
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)
@@ -167,9 +219,19 @@ def handle_command(data):
     if iomanager is None:
         emit
     cmds = data["cmds"]
-    logging.info(f"sending cmd: {cmds}")
     iomanager.write(cmds, timeout_sec=0,
                     raise_error_on_timeout=False, read_response=False)
+
+
+@socketio.on("send_program_input")
+def send_program_input(data):
+    sid = request.sid
+    session = session_manager.get_session_by_sid(sid)
+    iomanager = session.pygdbmi_IOManager
+    if iomanager is None:
+        emit
+    input = data["input"]
+    session.program_pty.write(input + "\n")
 
 
 @socketio.on("disconnect")
@@ -182,7 +244,6 @@ def disconnect():
 
 
 def gdb_output_reader():
-    logging.info("threading!")
     while True:
         socketio.sleep(.5)
         sessions = session_manager.connections.copy()

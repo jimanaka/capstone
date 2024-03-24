@@ -6,6 +6,7 @@ import {
   connectionLost,
   setGdbPID,
   sendCommand,
+  sendProgramInput,
   setDisassemblyOutput,
   setGdbBreakpoints,
   setGdbRegisterNames,
@@ -15,6 +16,7 @@ import {
   setGdbFrame,
   setOutput,
   addOutput,
+  doStuff,
 } from "../slice/sessionSlice";
 import {
   setFileInfo,
@@ -65,19 +67,6 @@ const socketMiddleware = (store) => {
           store.dispatch(setGdbStack([]));
           store.dispatch(setGdbFrame(null));
           store.dispatch(setOutput([]));
-          store.dispatch(setFileInfo(null));
-          store.dispatch(setFunctions([]));
-          store.dispatch(setExports([]));
-          store.dispatch(setImports([]));
-          store.dispatch(setSections([]));
-          store.dispatch(setClasses([]));
-          store.dispatch(setEntry([]));
-          store.dispatch(setSymbols([]));
-          store.dispatch(setStrings([]));
-          store.dispatch(setAssembly([]));
-          store.dispatch(setTopAddress(null));
-          store.dispatch(setBotAddress(null));
-          store.dispatch(setDecompiledCode([]));
         });
         socket.on("gdb_gui_response", (data) => {
           data.msg.map((msg) => {
@@ -111,6 +100,16 @@ const socketMiddleware = (store) => {
       let socket = socketConnection.socket;
       socket.emit("send_command", {
         cmds: action.payload,
+      });
+    }
+
+    if (sendProgramInput.match(action)) {
+      if (!socketConnection) {
+        return;
+      }
+      let socket = socketConnection.socket;
+      socket.emit("send_program_input", {
+        input: action.payload,
       });
     }
 

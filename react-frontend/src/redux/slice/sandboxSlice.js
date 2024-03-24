@@ -50,15 +50,17 @@ export const deleteFile = createAsyncThunk(
   },
 );
 
+const initialState = {
+  currentTab: 0,
+  currentFilePath: null,
+  loading: "idle", // idle | pending | succeeded | failed
+  error: null,
+  fileList: [],
+}
+
 const sandboxSlice = createSlice({
   name: "sandbox",
-  initialState: {
-    currentTab: 0,
-    currentFilePath: null,
-    loading: "idle", // idle | pending | succeeded | failed
-    error: null,
-    fileList: [],
-  },
+  initialState,
   reducers: {
     setCurrentTab: (state, action) => {
       state.currentTab = action.payload;
@@ -69,6 +71,7 @@ const sandboxSlice = createSlice({
     setFileList: (state, action) => {
       state.fileList = action.payload;
     },
+    resetSandboxState: () => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(uploadFile.pending, (state) => {
@@ -110,7 +113,7 @@ const sandboxSlice = createSlice({
   },
 });
 
-export const { setCurrentTab, setCurrentFilePath, setFileList } =
+export const { setCurrentTab, setCurrentFilePath, setFileList, resetSandboxState } =
   sandboxSlice.actions;
 
 export default sandboxSlice.reducer;

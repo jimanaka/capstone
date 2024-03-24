@@ -18,7 +18,7 @@ def get_complete_questions(username: str, course_id: str, db_ctx: MongoContext) 
     users_col = _get_db(db_ctx)[USERS_COLLECTION]
     query = {"username": username,
              "registered_courses._id": ObjectId(course_id)}
-    projection = {"registered_courses": 1}
+    projection = {"registered_courses.$": 1}
     doc = users_col.find_one(query, projection)
 
     if doc is None:

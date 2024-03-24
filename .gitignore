@@ -4,6 +4,8 @@ revenv/user-uploads/*
 !revenv/user-uploads/.gitkeep
 revenv/lesson-uploads/*
 !revenv/lesson-uploads/.gitkeep
+revenv/temp-payloads/*
+!revenv/tep-payloads/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

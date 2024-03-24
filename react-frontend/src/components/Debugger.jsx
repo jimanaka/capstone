@@ -2,7 +2,7 @@ import React from "react";
 import CodeView from "./CodeView";
 import Code from "./Code";
 import { useForm } from "react-hook-form";
-import { sendCommand } from "../redux/slice/sessionSlice";
+import { sendCommand, sendProgramInput } from "../redux/slice/sessionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   PlusCircleIcon,
@@ -35,18 +35,27 @@ const Debugger = () => {
     dispatch(sendCommand(data.gdbCommand));
     document.getElementById("gdbCommand").value = "";
   };
+  const handleProgramInputSend = (data) => {
+    dispatch(sendProgramInput(data.programInput));
+    document.getElementById("programInput").value = "";
+  };
 
   return (
     <div className="flex max-h-[calc(100vh_-_10rem)] flex-1 justify-center space-x-4 pb-4 pl-4 pr-4">
       <div className="flex flex-1 flex-col overflow-hidden">
         <h1 className="w-full text-center">Assembly</h1>
         <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
-          <ul className="w-full">
+          <ul className="w-fit">
             {disassemblyOutput && frame
               ? disassemblyOutput.map((line) => {
                   let highlight = line.address === frame.addr ? true : false;
                   return (
-                    <li key={line.address}>
+                    <li
+                      key={line.address}
+                      className={`${
+                        highlight ? "bg-ctp-overlay0" : null
+                      } w-full`}
+                    >
                       <Code
                         language="x86asm"
                         highlight={highlight}
@@ -115,25 +124,25 @@ const Debugger = () => {
       <div className="flex max-w-lg flex-1 flex-col space-y-4">
         <div className="flex h-[16rem] w-full flex-col overflow-hidden">
           <h1 className="w-full text-center">Breakpoints</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-scroll text-left font-mono">
-            <ul role="list" className="mb-2 w-full">
-              {breakpoints.length > 0
-                ? breakpoints.map((breakpoint) => {
-                    return (
-                      <li
-                        className="my-2"
-                        key={`breakpoint ${breakpoint.number}`}
-                      >
-                        <div>
-                          #{breakpoint.number} {breakpoint.addr} in{" "}
-                          {breakpoint.func} at {breakpoint.file}:
-                          {breakpoint.line}
-                        </div>
-                      </li>
-                    );
-                  })
-                : null}
-            </ul>
+          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-hidden text-left font-mono">
+            <div className="flex flex-1 flex-col overflow-scroll">
+              <ul role="list" className="mb-2 w-full">
+                {breakpoints.length > 0
+                  ? breakpoints.map((breakpoint) => {
+                      return (
+                        <li
+                          className="my-2"
+                          key={`breakpoint ${breakpoint.number}`}
+                        >
+                          <div>
+                            #{breakpoint.number} {breakpoint.addr} {breakpoint.addr.length === 18 ? `<${breakpoint.func}+${breakpoint.line}>` : breakpoint.at}
+                          </div>
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
             <form
               className="flex w-full"
               onSubmit={handleSubmit(handleBreakpointAdd)}
@@ -158,20 +167,42 @@ const Debugger = () => {
         </div>
         <div className="flex flex-1 flex-col overflow-hidden">
           <h1 className="w-full text-center">Output</h1>
-          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-scroll text-left font-mono">
-            <ul role="list" className="mb-2 w-full">
-              {output.length > 0
-                ? output.map((line, index) => {
-                    return (
-                      <li key={`output${index + 1}`} className="my-2">
-                        #{index + 1} {line}
-                      </li>
-                    );
-                  })
-                : null}
-            </ul>
+          <CodeView className="mt-2 flex flex-1 flex-col justify-between overflow-hidden text-left font-mono">
+            <div className="flex flex-1 flex-col overflow-scroll">
+              <ul role="list" className="mb-2 w-full">
+                {output.length > 0
+                  ? output.map((line, index) => {
+                      return (
+                        <li key={`output${index + 1}`} className="my-2">
+                          #{index + 1} {line}
+                        </li>
+                      );
+                    })
+                  : null}
+              </ul>
+            </div>
             <form
-              className="flex w-full"
+              className="flex w-full mt-1"
+              onSubmit={handleSubmit(handleProgramInputSend)}
+            >
+              <input
+                type="text"
+                name="programInput"
+                id="programInput"
+                placeholder="Program Input"
+                required
+                className="mr-2 w-full appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-2 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
+                {...register("programInput")}
+              />
+              <button
+                type="submit"
+                className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+              >
+                <ArrowRightCircleIcon className="h-7 w-7" />
+              </button>
+            </form>
+            <form
+              className="flex w-full mt-1"
               onSubmit={handleSubmit(handleUserCmdSend)}
             >
               <input

@@ -1,5 +1,4 @@
-import logging
-import r2pipe
+import rzpipe
 from flask import jsonify
 from http import HTTPStatus as HTTP
 from typing import Dict, Tuple, IO
@@ -8,8 +7,9 @@ from pprint import pprint
 
 
 def _setup_rd2(filename: str) -> IO:
-    r = r2pipe.open(filename)
-    r.cmd("aaaa")
+    r = rzpipe.open(filename)
+    r.cmd("e log.level=5")
+    r.cmd("aaa")
     return r
 
 
@@ -33,7 +33,7 @@ def disassemble_binary(filename: str, direction: str = None, target: str = "", m
         sign = ""
 
     if not target:
-        target = ""
+        target = "entry0"
 
     payload = r.cmdj(f"pdJ {sign}64 @ {target}")
     response = jsonify(msg="r2response", payload=payload, direction=direction, mode=mode)

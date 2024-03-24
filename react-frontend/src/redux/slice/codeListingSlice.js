@@ -54,28 +54,29 @@ export const decompileFunction = createAsyncThunk(
     }
   },
 );
+const initialState = {
+  funcPaneWidth: 0,
+  disassPaneWidth: 0,
+  loading: "idle", // idle | pending | succeeded | failed
+  error: null,
+  fileInfo: null,
+  functions: [],
+  exports: [],
+  imports: [],
+  sections: [],
+  classes: [],
+  entry: [],
+  symbols: [],
+  strings: [],
+  assembly: [],
+  topAddress: null,
+  bottomAddress: null,
+  decompiledCode: [],
+};
 
 const codeListingSlice = createSlice({
   name: "codeListing",
-  initialState: {
-    funcPaneWidth: 0,
-    disassPaneWidth: 0,
-    loading: "idle", // idle | pending | succeeded | failed
-    error: null,
-    fileInfo: null,
-    functions: [],
-    exports: [],
-    imports: [],
-    sections: [],
-    classes: [],
-    entry: [],
-    symbols: [],
-    strings: [],
-    assembly: [],
-    topAddress: null,
-    bottomAddress: null,
-    decompiledCode: [],
-  },
+  initialState,
   reducers: {
     setFuncPaneWidth: (state, action) => {
       state.funcPaneWidth = action.payload;
@@ -122,6 +123,7 @@ const codeListingSlice = createSlice({
     setDecompiledCode: (state, action) => {
       state.decompiledCode = action.payload;
     },
+    resetCodeListingState: () => initialState,
   },
   extraReducers: (builder) => {
     builder.addCase(getFileInfo.pending, (state) => {
@@ -131,14 +133,14 @@ const codeListingSlice = createSlice({
       state.loading = "succeeded";
       // let data = JSON.parse(action.payload.payload);
       let data = action.payload.payload;
-      state.fileInfo = data.i;
-      state.exports = data.iE;
-      state.imports = data.ii;
-      state.sections = data.iS;
-      state.classes = data.ic;
-      state.entry = data.ie;
-      state.symbols = data.is;
-      state.strings = data.iz;
+      state.fileInfo = data.info;
+      state.exports = data.exports;
+      state.imports = data.imports;
+      state.sections = data.sections;
+      state.classes = data.classes;
+      state.entry = data.entries;
+      state.symbols = data.symbols;
+      state.strings = data.strings;
       state.functions = data.afl;
     });
     builder.addCase(getFileInfo.rejected, (state, action) => {
@@ -197,6 +199,7 @@ export const {
   setTopAddress,
   setBotAddress,
   setDecompiledCode,
+  resetCodeListingState,
 } = codeListingSlice.actions;
 
 export default codeListingSlice.reducer;
