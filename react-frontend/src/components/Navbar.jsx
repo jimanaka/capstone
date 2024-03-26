@@ -1,9 +1,11 @@
 import React from "react";
 import { useEffect, Fragment } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { UserCircleIcon } from "@heroicons/react/24/outline";
-
+import {
+  UserCircleIcon,
+  ArrowLeftCircleIcon,
+} from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 
 import { verifyUser, logoutUser } from "../redux/slice/authSlice";
@@ -11,6 +13,8 @@ import { verifyUser, logoutUser } from "../redux/slice/authSlice";
 import CircleSpinner from "./CircleSpinner";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const user = useSelector((state) => state.auth.user);
   const loading = useSelector((state) => state.auth.loading);
   const dispatch = useDispatch();
@@ -19,16 +23,30 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    dispatch(logoutUser()).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        navigate("/");
+      }
+    });
   };
 
+  const handleBackPress = () => {
+    if (location.pathname !== "/") {
+      navigate(-1);
+    }
+  }
+
   const loggedInLinks = [
-    { link: "/profile", label: "Profile", action: null },
+    { link: "/profile", label: "Profile", action: () => navigate("/profile") },
     { link: "/", label: "Logout", action: handleLogout },
   ];
   const loggedOutLinks = [
-    { link: "/login", label: "Login", action: null },
-    { link: "/register", label: "Register", action: null },
+    { link: "/login", label: "Login", action: () => navigate("/login") },
+    {
+      link: "/register",
+      label: "Register",
+      action: () => navigate("/register"),
+    },
   ];
 
   let accountMenu = null;
@@ -65,9 +83,7 @@ const Navbar = () => {
                   onClick={link.action}
                   className="text-ctp-text hover:bg-ctp-mauve hover:text-ctp-base group flex w-full items-center rounded-md p-2 text-sm font-bold"
                 >
-                  <Link to={link.link}>
-                    <button>{link.label}</button>
-                  </Link>
+                  <button>{link.label}</button>
                 </Menu.Item>
               </div>
             ))}
@@ -83,15 +99,19 @@ const Navbar = () => {
         <div className="mx-auto px-2 sm:px-6 lg:px-8">
           <div className="relative flex h-16 items-center justify-between">
             <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-              <Link to={"/"}>
-                <div className="flex shrink-0 items-center">
-                  <img
-                    className="h-8 w-auto"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Your Company"
-                  />
-                </div>
-              </Link>
+              <button onClick={handleBackPress} className="hover:text-ctp-mauve">
+                <ArrowLeftCircleIcon className="h-8 w-8" />
+              </button>
+              <button
+                onClick={() => navigate("/")}
+                className="flex shrink-0 items-center ml-2"
+              >
+                <img
+                  className="h-8 w-auto"
+                  src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                  alt="Your Company"
+                />
+              </button>
             </div>
             {accountMenu}
           </div>
