@@ -86,9 +86,11 @@ const Sandbox = () => {
       let lastSlashIndex = currentFilePath.lastIndexOf("/");
       if (lastSlashIndex !== -1) {
         let workingDir = currentFilePath.substring(0, lastSlashIndex + 1);
-        dispatch(sendCommand("-environment-cd " + workingDir));
+        dispatch(sendCommand("-environment-cd " + `\"${workingDir}\"`));
       }
-      dispatch(sendCommand("-file-exec-and-symbols " + currentFilePath));
+      dispatch(
+        sendCommand("-file-exec-and-symbols " + `\"${currentFilePath}\"`),
+      );
       dispatch(getFileInfo({ filename: currentFilePath }));
       dispatch(setOutput([]));
       dispatch(

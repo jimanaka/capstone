@@ -16,19 +16,24 @@ const CreateCourse = () => {
   const { register, handleSubmit, setValue } = methods;
   const [questionArray, setQuestionArray] = useState([]);
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
+  const [fileTextDropperOpen, setFileTextDropperOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedTextFile, setSelectedTextFile] = useState(null);
   const [confirmedFilename, setConfirmedFilename] = useState("");
+  const [confirmedTextFilename, setConfirmedTextFilename] = useState("");
   const maxInputLength = 50;
 
   const handleCourseCreate = (data) => {
+    console.log(data);
     const fileData = {
-      file: data.file[0],
+      fileBinary: data.fileBinary[0],
+      fileText: data.fileText[0],
       lesson: true,
       lessonName: data.name,
     };
     data.questions = questionArray;
     data.private = false;
-    data.binary = data.file[0].name;
+    data.binary = data.fileBinary[0].name;
     dispatch(insertCourse({ course: data })).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
         dispatch(uploadFile(fileData)).then((res2) => {
@@ -64,9 +69,21 @@ const CreateCourse = () => {
 
   const handleFileCancelClick = () => {
     setSelectedFile(null);
-    setValue("file", null);
+    setValue("fileBinary", null);
     setConfirmedFilename("");
     setFileDropperOpen(false);
+  };
+
+  const onCancelTextClick = () => {
+    setValue("fileText", null);
+    setSelectedTextFile(null);
+    setFileTextDropperOpen(false);
+    setConfirmedTextFilename("");
+  };
+
+  const onConfirmTextClick = () => {
+    setFileTextDropperOpen(false);
+    setConfirmedTextFilename(selectedTextFile.name);
   };
 
   return (
@@ -87,6 +104,20 @@ const CreateCourse = () => {
               selectedFile={selectedFile}
               onConfirmClick={handleFileConfirmClick}
               onCancelClick={handleFileCancelClick}
+              registerName="fileBinary"
+            />
+          </Modal>
+          <Modal
+            title="Upload text file (optional)"
+            isOpen={fileTextDropperOpen}
+            closeModal={() => setFileTextDropperOpen(false)}
+          >
+            <FileDropper
+              onConfirmClick={onConfirmTextClick}
+              onCancelClick={onCancelTextClick}
+              setSelectedFile={setSelectedTextFile}
+              selectedFile={selectedTextFile}
+              registerName="fileText"
             />
           </Modal>
           <h1 className="text-5xl font-bold">Create a Lesson</h1>
@@ -133,6 +164,25 @@ const CreateCourse = () => {
               <div
                 className="absolute bottom-0 left-0 right-0 top-0 cursor-pointer"
                 onClick={() => setFileDropperOpen(true)}
+              />
+            </div>
+          </div>
+          <div className="my-5 mb-2 flex w-full flex-col">
+            <label htmlFor="binary" className="mb-2">
+              Text File (Optional)
+            </label>
+            <div className="relative w-full">
+              <input
+                id="textFile"
+                placeholder="Upload a file"
+                className="input-primary w-full"
+                onKeyDown={() => {}}
+                onChange={() => {}}
+                value={confirmedTextFilename}
+              />
+              <div
+                className="absolute bottom-0 left-0 right-0 top-0 cursor-pointer"
+                onClick={() => setFileTextDropperOpen(true)}
               />
             </div>
           </div>
