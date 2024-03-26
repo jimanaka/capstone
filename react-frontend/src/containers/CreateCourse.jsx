@@ -24,10 +24,9 @@ const CreateCourse = () => {
   const maxInputLength = 50;
 
   const handleCourseCreate = (data) => {
-    console.log(data);
     const fileData = {
       fileBinary: data.fileBinary[0],
-      fileText: data.fileText[0],
+      fileText: data.fileText ? data.fileText[0] : null,
       lesson: true,
       lessonName: data.name,
     };
