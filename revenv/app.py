@@ -1,6 +1,6 @@
 import logging
-from pprint import pprint
 import os
+import shutil
 from http import HTTPStatus as HTTP
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -106,7 +106,8 @@ def upload_file():
                 app.config["UPLOAD_LESSON_PATH"], request.form.get("lessonName"))
         else:
             proj_name = _get_substring_before_dot(files[0].filename)
-            path = os.path.join(app.config["UPLOAD_USER_PATH"], user, proj_name)
+            path = os.path.join(
+                app.config["UPLOAD_USER_PATH"], user, proj_name)
         Path(path).mkdir(parents=True, exist_ok=True)
         files[0].save(os.path.join(path, filename))
         os.chmod(os.path.join(path, filename), 0o754)
@@ -128,8 +129,11 @@ def delete_file():
     request_details = request.get_json()
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)
-    Path(os.path.join(app.config["UPLOAD_USER_PATH"],
-         user, filename)).unlink(missing_ok=True)
+    path = os.path.join(app.config["UPLOAD_USER_PATH"],
+                        user, filename)
+    shutil.rmtree(path)
+    # Path(os.path.join(app.config["UPLOAD_USER_PATH"],
+    #      user, filename)).unlink(missing_ok=True)
     response = jsonify(msg="file removed", file=filename)
     return response, 200
 
