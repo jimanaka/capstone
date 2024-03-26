@@ -112,8 +112,8 @@ def upload_file():
         files[0].save(os.path.join(path, filename))
         os.chmod(os.path.join(path, filename), 0o754)
 
-    filename = secure_filename(files[1].filename)
     if len(files) > 1:
+        filename = secure_filename(files[1].filename)
         if files[1] and filename:
             files[1].save(os.path.join(path, filename))
             os.chmod(os.path.join(path, filename), 0o744)
