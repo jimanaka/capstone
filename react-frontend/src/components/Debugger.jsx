@@ -129,13 +129,17 @@ const Debugger = () => {
               <ul role="list" className="mb-2 w-full">
                 {breakpoints.length > 0
                   ? breakpoints.map((breakpoint) => {
+                      console.log(breakpoint);
                       return (
                         <li
                           className="my-2"
                           key={`breakpoint ${breakpoint.number}`}
                         >
                           <div>
-                            #{breakpoint.number} {breakpoint.addr} {breakpoint.addr.length === 18 ? `<${breakpoint.func}+${breakpoint.line}>` : breakpoint.at}
+                            #{breakpoint.number} {breakpoint.addr}{" "}
+                            {breakpoint.at
+                              ? breakpoint.at
+                              : `<${breakpoint.func}+${breakpoint.line}>`}
                           </div>
                         </li>
                       );

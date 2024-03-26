@@ -53,6 +53,7 @@ class GdbSessionManager:
             f"set inferior-tty {program_pty.ttyname}",
             "set pagination off",
             "set disassembly-flavor intel",
+            "set print leading-zeros off",
             f"set working-directory {workdir}"
         ]
         startup_cmds = " ".join([f"-iex='{c}'" for c in gui_cmds])
