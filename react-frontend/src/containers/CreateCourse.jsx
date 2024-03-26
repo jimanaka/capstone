@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useForm, FormProvider } from "react-hook-form";
 import { PlusCircleIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import FileDropper from "../components/FileDropper";
@@ -10,6 +11,7 @@ import { uploadFile } from "../redux/slice/sandboxSlice";
 
 const CreateCourse = () => {
   const methods = useForm();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { register, handleSubmit, setValue } = methods;
   const [questionArray, setQuestionArray] = useState([]);
@@ -19,12 +21,23 @@ const CreateCourse = () => {
   const maxInputLength = 50;
 
   const handleCourseCreate = (data) => {
-    const fileData = { file: data.file[0], lesson: true, lessonName: data.name };
+    const fileData = {
+      file: data.file[0],
+      lesson: true,
+      lessonName: data.name,
+    };
     data.questions = questionArray;
     data.private = false;
     data.binary = data.file[0].name;
-    dispatch(insertCourse({ course: data }));
-    dispatch(uploadFile(fileData));
+    dispatch(insertCourse({ course: data })).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(uploadFile(fileData)).then((res2) => {
+          if (res2.meta.requestStatus === "fulfilled") {
+            navigate("/courses");
+          }
+        });
+      }
+    });
   };
 
   const handleAddQuestion = () => {
