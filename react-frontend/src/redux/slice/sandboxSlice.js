@@ -7,9 +7,12 @@ import {
 
 export const uploadFile = createAsyncThunk(
   "revenv/upload-file",
-  async ({ file, lesson = false, lessonName = null }, { rejectWithValue }) => {
+  async (
+    { fileBinary, fileText, lesson = false, lessonName = null },
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await uploadFileService({ file, lesson, lessonName });
+      const response = await uploadFileService({ fileBinary, fileText, lesson, lessonName });
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -56,7 +59,7 @@ const initialState = {
   loading: "idle", // idle | pending | succeeded | failed
   error: null,
   fileList: [],
-}
+};
 
 const sandboxSlice = createSlice({
   name: "sandbox",
@@ -113,7 +116,11 @@ const sandboxSlice = createSlice({
   },
 });
 
-export const { setCurrentTab, setCurrentFilePath, setFileList, resetSandboxState } =
-  sandboxSlice.actions;
+export const {
+  setCurrentTab,
+  setCurrentFilePath,
+  setFileList,
+  resetSandboxState,
+} = sandboxSlice.actions;
 
 export default sandboxSlice.reducer;

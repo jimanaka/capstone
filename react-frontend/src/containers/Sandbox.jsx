@@ -49,13 +49,15 @@ const Sandbox = () => {
   const gdbPID = useSelector((state) => state.session.gdbPID);
   const currentFilePath = useSelector((state) => state.sandbox.currentFilePath);
   const methods = useForm();
-  const { handleSubmit } = methods;
+  const { handleSubmit, setValue } = methods;
 
   const [fileDropperOpen, setFileDropperOpen] = useState(false);
+  const [fileTextDropperOpen, setFileTextDropperOpen] = useState(false);
   const [filePickerOpen, setFilePickerOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [fileConfirmOpen, setFileConfirmOpen] = useState(false);
   const [selectedFile, setSelectedFile] = React.useState(null);
+  const [selectedTextFile, setSelectedTextFile] = React.useState(null);
 
   useEffect(() => {
     setFilePickerOpen(true);
@@ -81,6 +83,11 @@ const Sandbox = () => {
 
   useEffect(() => {
     if (currentFilePath) {
+      let lastSlashIndex = currentFilePath.lastIndexOf("/");
+      if (lastSlashIndex !== -1) {
+        let workingDir = currentFilePath.substring(0, lastSlashIndex + 1);
+        dispatch(sendCommand("-environment-cd " + workingDir));
+      }
       dispatch(sendCommand("-file-exec-and-symbols " + currentFilePath));
       dispatch(getFileInfo({ filename: currentFilePath }));
       dispatch(setOutput([]));
@@ -129,13 +136,30 @@ const Sandbox = () => {
     setFileDropperOpen(true);
   };
 
+  const onCancelTextClick = () => {
+    setValue("fileText", null);
+    setSelectedTextFile(null);
+    setFileTextDropperOpen(false);
+    setFileConfirmOpen(true);
+  };
+
   const onConfirmClick = () => {
     setFileDropperOpen(false);
+    setFileTextDropperOpen(true);
+  };
+
+  const onConfirmTextClick = () => {
+    setFileTextDropperOpen(false);
     setFileConfirmOpen(true);
   };
 
   const onSubmit = (data) => {
-    data.file = data.file[0];
+    data.fileBinary = data.fileBinary[0];
+    if (data.fileText) {
+      data.fileText = data.fileText[0];
+    } else {
+      data.fileText = null;
+    }
     dispatch(uploadFile(data));
     setFileDropperOpen(false);
     setFilePickerOpen(true);
@@ -187,10 +211,31 @@ const Sandbox = () => {
               onConfirmClick={onConfirmClick}
               setSelectedFile={setSelectedFile}
               selectedFile={selectedFile}
+              registerName="fileBinary"
+            />
+          </Modal>
+          {/* text file upload */}
+          <Modal
+            title="Upload text file (optional)"
+            isOpen={fileTextDropperOpen}
+            closeModal={() => setFileTextDropperOpen(false)}
+          >
+            <FileDropper
+              onConfirmClick={onConfirmTextClick}
+              onCancelClick={onCancelTextClick}
+              setSelectedFile={setSelectedTextFile}
+              selectedFile={selectedTextFile}
+              registerName="fileText"
             />
           </Modal>
           <Modal
-            title={`Upload ${selectedFile ? selectedFile.name : null}?`}
+            title={`Upload ${
+              selectedFile
+                ? selectedTextFile
+                  ? selectedFile.name + " and " + selectedTextFile.name
+                  : selectedFile.name
+                : null
+            }?`}
             isOpen={fileConfirmOpen}
             closeModal={() => setFileConfirmOpen(false)}
           >

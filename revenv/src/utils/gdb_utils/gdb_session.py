@@ -44,7 +44,7 @@ class GdbSessionManager:
         self.connections: Dict[GdbSession, List[str]] = {}
         self.output_reader = None
 
-    def create_session(self, gdb_cmd: str, id: str) -> GdbSession:
+    def create_session(self, gdb_cmd: str, workdir: str, id: str) -> GdbSession:
         logging.info(f"creating pty with cmd: {gdb_cmd} from session: {id}")
         gui_pty = Pty()
         program_pty = Pty()
@@ -52,7 +52,8 @@ class GdbSessionManager:
             f"new-ui mi {gui_pty.ttyname}",
             f"set inferior-tty {program_pty.ttyname}",
             "set pagination off",
-            "set disassembly-flavor intel"
+            "set disassembly-flavor intel",
+            f"set working-directory {workdir}"
         ]
         startup_cmds = " ".join([f"-iex='{c}'" for c in gui_cmds])
         logging.info(f"creating session with : {gdb_cmd} {startup_cmds}")

@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../redux/slice/authSlice";
-import { unwrapResult } from "@reduxjs/toolkit";
 
 const Register = () => {
   const { register, handleSubmit } = useForm();
@@ -13,7 +12,6 @@ const Register = () => {
 
   const handleRegister = (data) => {
     dispatch(registerUser(data)).then((res) => {
-      console.log(res)
       if (res.meta.requestStatus === "fulfilled") {
         navigate("/login");
       }

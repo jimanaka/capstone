@@ -2,7 +2,12 @@ import axios from "axios";
 import cookies from "js-cookie";
 const API_URL = "http://localhost:80/revenv/";
 
-export const uploadFileService = async ({ file, lesson, lessonName }) => {
+export const uploadFileService = async ({
+  fileBinary,
+  fileText,
+  lesson,
+  lessonName,
+}) => {
   try {
     const config = {
       headers: {
@@ -12,9 +17,11 @@ export const uploadFileService = async ({ file, lesson, lessonName }) => {
       withCredentials: true,
     };
     let formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", fileBinary);
+    formData.append("file", fileText);
     formData.append("lesson", lesson);
     formData.append("lessonName", lessonName);
+    console.log(formData);
     const response = await axios.post(
       API_URL + "upload-file",
       formData,
@@ -36,16 +43,13 @@ export const listFilesService = async () => {
       },
       withCredentials: true,
     };
-    const response = await axios.get(
-      API_URL + "list-files",
-      config,
-    );
+    const response = await axios.get(API_URL + "list-files", config);
     return response;
   } catch (error) {
     console.error("error: Unable to get file list");
     throw error;
   }
-}
+};
 
 export const deleteFileService = async ({ filename }) => {
   try {
@@ -66,4 +70,4 @@ export const deleteFileService = async ({ filename }) => {
     console.error("error: Unable to delete file");
     throw error;
   }
-}
+};
