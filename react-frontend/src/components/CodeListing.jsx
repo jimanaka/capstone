@@ -194,7 +194,7 @@ const CodeListing = () => {
             ref={assemblyContainerRef}
           >
             <div className="w-full" id="assemblyList">
-              <ul ref={assemblyListRef}>
+              <ul ref={assemblyListRef} className="w-fit">
                 {assembly
                   ? assembly.map((line, index) => {
                       let address = `0x${line.offset.toString(16)}`;
@@ -203,6 +203,9 @@ const CodeListing = () => {
                         <li
                           key={`assembly:${address}:${index}`}
                           onClick={(e) => handleAssemblyClick(e, address)}
+                          className={`${
+                            isHighlighted ? "bg-ctp-overlay0" : null
+                          } w-full`}
                         >
                           <Code language="x86asm" highlight={isHighlighted}>
                             {line.text}
