@@ -6,27 +6,40 @@ import {
   DocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 
-const FileDropper = ({ onConfirmClick, onCancelClick, setSelectedFile, selectedFile, confirm }) => {
+const FileDropper = ({
+  onConfirmClick,
+  onCancelClick,
+  setSelectedFile,
+  selectedFile,
+  confirm,
+  registerName,
+}) => {
   const { register, errors, handleSubmit, control, setValue } =
     useFormContext();
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     onDrop: (files) => {
-      setValue("file", files);
+      setValue(registerName, files);
     },
   });
 
   useEffect(() => {
-    register("file");
+    register(registerName);
   }, []);
 
   useEffect(() => {
-    setSelectedFile(acceptedFiles[0]);
+    if (setSelectedFile) {
+      setSelectedFile(acceptedFiles[0]);
+    }
   }, [acceptedFiles]);
 
-  const handleCancelClick = onCancelClick ? onCancelClick : () => {
-    setSelectedFile(null);
-    setValue("file", null);
-  };
+  const handleCancelClick = onCancelClick
+    ? onCancelClick
+    : () => {
+        if (setSelectedFile) {
+          setSelectedFile(null);
+        }
+        setValue(registerName, null);
+      };
 
   return (
     <div>

@@ -1,6 +1,6 @@
 import logging
-from pprint import pprint
 import os
+import shutil
 from http import HTTPStatus as HTTP
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -34,6 +34,11 @@ session_manager = GdbSessionManager()
 pg_manager = PGManager()
 
 
+def _get_substring_before_dot(string: str) -> str:
+    parts = string.split(".", 1)
+    return parts[0] if len(parts) > 1 else string
+
+
 @jwt_required()
 def __test_jwt():
     pass
@@ -45,16 +50,6 @@ def hello_world():
 
 # Todo: error handling
 # Todo: extract to separate module
-
-
-# @socketio.on("do_stuff")
-# def do_stuff(data):
-#     sid = request.sid
-#     session = session_manager.get_session_by_sid(sid)
-#     iomanager = session.pygdbmi_IOManager
-#     if iomanager is None:
-#         emit
-#     payload_generator.do_stuff(iomanager)
 
 
 @app.route("/start-pg", methods=["POST"])
@@ -98,22 +93,30 @@ def use_payload():
 @jwt_required()
 def upload_file():
     user = get_jwt_identity()
-    if "file" not in request.files:
+    files = request.files.getlist('file')
+    if files is None:
         return jsonify(msg="no file provided"), 200
-    file = request.files["file"]
-    if file.filename == "":
+    if files[0].filename == "":
         return jsonify(msg="no filename provided"), 200
 
-    if file and secure_filename(file.filename):
-        filename = secure_filename(file.filename)
+    filename = secure_filename(files[0].filename)
+    if files[0] and filename:
         if request.form.get("lesson") == "true":
             path = os.path.join(
                 app.config["UPLOAD_LESSON_PATH"], request.form.get("lessonName"))
         else:
-            path = os.path.join(app.config["UPLOAD_USER_PATH"], user)
+            proj_name = _get_substring_before_dot(files[0].filename)
+            path = os.path.join(
+                app.config["UPLOAD_USER_PATH"], user, proj_name)
         Path(path).mkdir(parents=True, exist_ok=True)
-        file.save(os.path.join(path, filename))
+        files[0].save(os.path.join(path, filename))
         os.chmod(os.path.join(path, filename), 0o754)
+
+    filename = secure_filename(files[1].filename)
+    if len(files) > 1:
+        if files[1] and filename:
+            files[1].save(os.path.join(path, filename))
+            os.chmod(os.path.join(path, filename), 0o744)
     response = jsonify(msg="file upload successfull")
     return response, 200
 
@@ -126,8 +129,11 @@ def delete_file():
     request_details = request.get_json()
     insecure_filename = request_details["filename"]
     filename = secure_filename(insecure_filename)
-    Path(os.path.join(app.config["UPLOAD_USER_PATH"],
-         user, filename)).unlink(missing_ok=True)
+    path = os.path.join(app.config["UPLOAD_USER_PATH"],
+                        user, filename)
+    shutil.rmtree(path)
+    # Path(os.path.join(app.config["UPLOAD_USER_PATH"],
+    #      user, filename)).unlink(missing_ok=True)
     response = jsonify(msg="file removed", file=filename)
     return response, 200
 
@@ -189,8 +195,9 @@ def connect():
         })
         return
     cmds = request.args.get("cmd", default=app.config["GDB_EXECUTABLE"])
+    workdir = request.args.get("workdir", default="")
     sid = request.sid
-    gdb_session = session_manager.create_session(cmds, sid)
+    gdb_session = session_manager.create_session(cmds, workdir, sid)
     if session_manager.output_reader is None:
         logging.info("staring gdb reader thread")
         session_manager.output_reader = socketio.start_background_task(
