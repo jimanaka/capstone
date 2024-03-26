@@ -12,6 +12,10 @@ import {
   addOutput,
 } from "../redux/slice/sessionSlice";
 
+const removeLeadingZeros = (hexString) => {
+  return hexString.replace(/^0x0+([a-fA-F\d]+)/, "0x$1");
+};
+
 export const handleGdbGuiResponse = (store, socket, msg) => {
   // console.log(msg);
   switch (msg.type) {
@@ -50,8 +54,14 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
           store.dispatch(addOutput(msg.payload["msg"]));
       }
       if (msg.payload.hasOwnProperty("asm_insns")) {
+        msg.payload.asm_insns.map((item, index) => {
+          msg.payload.asm_insns[index].address = removeLeadingZeros(
+            item.address,
+          );
+        });
         store.dispatch(setDisassemblyOutput(msg.payload.asm_insns));
       } else if (msg.payload.hasOwnProperty("bkpt")) {
+        msg.payload.bkpt.addr = removeLeadingZeros(msg.payload.bkpt.addr);
         store.dispatch(addGdbBreakpoint(msg.payload.bkpt));
       } else if (msg.payload.hasOwnProperty("register-names")) {
         store.dispatch(setGdbRegisterNames(msg.payload["register-names"]));
@@ -69,6 +79,12 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
         msg.payload.hasOwnProperty("nr-bytes") &&
         msg.payload.hasOwnProperty("memory")
       ) {
+        msg.payload.memory.map((item, index) => {
+          msg.payload.memory[index] = {
+            addr: removeLeadingZeros(item.addr),
+            data: [removeLeadingZeros(item.data[0])],
+          };
+        });
         store.dispatch(setGdbStack(msg.payload.memory));
       }
       break;
