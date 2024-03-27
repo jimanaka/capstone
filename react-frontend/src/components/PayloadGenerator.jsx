@@ -1,7 +1,7 @@
 import React, { useEffect, Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import { Menu, Transition } from "@headlessui/react";
+import { Menu, Transition, Switch } from "@headlessui/react";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
@@ -13,6 +13,8 @@ import {
   addArg,
   setArgSubtype,
   setCurrentInputs,
+  getPayloadCode,
+  getByteString,
 } from "../redux/slice/payloadGeneratorSlice";
 
 import CodeView from "./CodeView";
@@ -37,7 +39,12 @@ const PayloadGenerator = () => {
   const currentInputs = useSelector(
     (state) => state.payloadGenerator.currentInputs,
   );
-  const [firstLoad, setFirstLoad] = useState(true);
+  const payloadCode = useSelector(
+    (state) => state.payloadGenerator.payloadCode,
+  );
+  const byteString = useSelector((state) => state.payloadGenerator.byteString);
+  const [payloadSwitchEnabled, setPayloadSwitchEnabled] = useState(false);
+  const [hexSwitchEnabled, setHexSwitchEnabled] = useState(false);
 
   const {
     register,
@@ -154,7 +161,12 @@ const PayloadGenerator = () => {
       }
       item.args = argArray;
     });
-    dispatch(createPayload(data));
+    dispatch(createPayload(data)).then((res) => {
+      if (res.meta.requestStatus === "fulfilled") {
+        dispatch(getPayloadCode());
+        dispatch(getByteString());
+      }
+    });
   };
 
   const SelectionMenu = ({
@@ -395,21 +407,68 @@ const PayloadGenerator = () => {
       {/* payload print */}
       <div className="flex max-w-md flex-1 flex-col space-y-4">
         <div className="flex flex-1 flex-col overflow-hidden">
-          <h1 className="w-full text-center">Payload Chain</h1>
+          <div className="relative flex w-full justify-center">
+            <h1 className="text-center">
+              {payloadSwitchEnabled ? "Python Code" : "Payload Chain"}
+            </h1>
+            <Switch
+              checked={payloadSwitchEnabled}
+              onChange={setPayloadSwitchEnabled}
+              className={`${
+                payloadSwitchEnabled ? "bg-ctp-mauve" : "bg-gray-200"
+              } absolute inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
+            >
+              <span className="sr-only">Enable notifications</span>
+              <span
+                className={`${
+                  payloadSwitchEnabled ? "translate-x-6" : "translate-x-1"
+                } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+              />
+            </Switch>
+          </div>
           <CodeView className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono">
-            <Code language="x86asm" highlight={false}>
-              {payloadDump}
-            </Code>
+            {payloadSwitchEnabled ? (
+              <Code language="python" highlight={false}>
+                {payloadCode}
+              </Code>
+            ) : (
+              <Code language="x86asm" highlight={false}>
+                {payloadDump}
+              </Code>
+            )}
           </CodeView>
         </div>
 
         {/* payload hexdump */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          <h1 className="w-full text-center">Hexdump</h1>
+          <div className="relative flex w-full justify-center">
+            <h1 className="text-center">
+              {hexSwitchEnabled ? "Byte String" : "Hexdump"}
+            </h1>
+            <Switch
+              checked={hexSwitchEnabled}
+              onChange={setHexSwitchEnabled}
+              className={`${
+                hexSwitchEnabled ? "bg-ctp-mauve" : "bg-gray-200"
+              } absolute inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
+            >
+              <span
+                className={`${
+                  hexSwitchEnabled ? "translate-x-6" : "translate-x-1"
+                } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+              />
+            </Switch>
+          </div>
           <CodeView className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
-            <Code language="x86asm" highlight={false}>
-              {payloadHexdump}
-            </Code>
+            {hexSwitchEnabled ? (
+              <code className="block w-full text-left text-slate-100">
+                {byteString}
+              </code>
+            ) : (
+              <Code language="x86asm" highlight={false}>
+                {payloadHexdump}
+              </Code>
+            )}
           </CodeView>
         </div>
       </div>

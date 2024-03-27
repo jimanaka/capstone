@@ -76,6 +76,24 @@ def create_chain():
     return response
 
 
+@app.route("/get-payload-code", methods=["GET"])
+@jwt_required()
+def get_payload_code():
+    user = get_jwt_identity()
+    pg = pg_manager.get_instance_by_user(user)
+    response = pg_util.get_payload_code(pg)
+    return response
+
+
+@app.route("/get-byte-string", methods=["GET"])
+@jwt_required()
+def get_byte_string():
+    user = get_jwt_identity()
+    pg = pg_manager.get_instance_by_user(user)
+    response = jsonify(byteString=pg.get_byte_string()), HTTP.OK.value
+    return response
+
+
 # change this as a socketio function
 @app.route("/use-payload", methods=["POST"])
 @jwt_required()

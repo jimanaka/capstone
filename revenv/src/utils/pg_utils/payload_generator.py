@@ -66,6 +66,10 @@ class PayloadGenerator:
     def chain(self) -> str:
         return self.rop.chain()
 
+    def get_byte_string(self) -> str:
+        raw_bytes = self.chain()
+        return repr(raw_bytes)[2:-1]
+
     def get_simple_gadgets(self) -> Dict:
         return self.rop.gadgets
 
@@ -74,6 +78,27 @@ class PayloadGenerator:
 
     def send_payload(gdbPID: int):
         pass
+
+    def get_payload_code(self) -> str:
+        bits = str(self.elf.bits)
+        endian = self.elf.endian
+        input_string = self.rop.dump()
+# Split the string into lines
+        lines = input_string.split('\n')
+        data_comments = []
+
+        for line in lines:
+            tokens = line.split()
+            data_comments.append((tokens[1], " ".join(tokens[2:])))
+
+        payload = "from pwn import *\nimport sys\nchain = b''\n"
+        for data, comment in data_comments:
+            if comment != "":
+                comment = "\t\t# " + comment
+            payload += f"chain += pack({data}, word_size={bits}, endianness='{endian}'){comment}\n"
+
+        payload += """sys.stdout.buffer.write(chain)"""
+        return payload
 
     def clear(self) -> None:
         self.rop = ROP(self.elf)
