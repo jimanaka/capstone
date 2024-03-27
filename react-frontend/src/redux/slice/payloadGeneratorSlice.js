@@ -1,11 +1,47 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { startPGService, createPayloadService, usePayloadService } from "../service/payloadGeneratorService";
+import {
+  startPGService,
+  createPayloadService,
+  usePayloadService,
+  getPayloadCodeService,
+  getByteStringService,
+} from "../service/payloadGeneratorService";
 
 export const createPayload = createAsyncThunk(
   "revenv/create-payload",
   async ({ input }, { rejectWithValue }) => {
     try {
       const response = await createPayloadService({ input });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const getPayloadCode = createAsyncThunk(
+  "revenv/get-byte-string",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getPayloadCodeService();
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
+export const getByteString = createAsyncThunk(
+  "revenv/get-payload-code",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await getByteStringService();
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -54,7 +90,9 @@ const initialState = {
   availableRegs: [],
   payloadDump: "",
   payloadHexdump: "",
-  currentInputs: [],
+  currentInputs: {},
+  payloadCode: "",
+  byteString: "",
 };
 
 const payloadGeneratorSlice = createSlice({
@@ -68,16 +106,22 @@ const payloadGeneratorSlice = createSlice({
       state.userChain[action.payload.index] = action.payload.chain;
     },
     setUserChainIndexField: (state, action) => {
-      state.userChain[action.payload.index][action.payload.field] = action.payload.value;
+      state.userChain[action.payload.index][action.payload.field] =
+        action.payload.value;
     },
     addUserChain: (state, action) => {
       state.userChain.push(action.payload);
     },
     addArg: (state, action) => {
-      state.userChain[action.payload.index].args.push({arg: "", subtype: "numeric"})
+      state.userChain[action.payload.index].args.push({
+        arg: "",
+        subtype: "numeric",
+      });
     },
     setArgSubtype: (state, action) => {
-      state.userChain[action.payload.index].args[action.payload.argIndex].subtype = action.payload.value;
+      state.userChain[action.payload.index].args[
+        action.payload.argIndex
+      ].subtype = action.payload.value;
     },
     setCurrentInputs: (state, action) => {
       state.currentInputs = action.payload;
@@ -109,7 +153,29 @@ const payloadGeneratorSlice = createSlice({
       state.loading = "failed";
       state.error = action.payload;
     });
-  }
+    builder.addCase(getPayloadCode.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(getPayloadCode.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      state.payloadCode = action.payload.code;
+    });
+    builder.addCase(getPayloadCode.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+    builder.addCase(getByteString.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(getByteString.fulfilled, (state, action) => {
+      state.loading = "succeeded";
+      state.byteString = action.payload.byteString;
+    });
+    builder.addCase(getByteString.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+  },
 });
 
 export const {

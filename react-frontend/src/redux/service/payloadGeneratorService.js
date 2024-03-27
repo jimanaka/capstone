@@ -23,6 +23,46 @@ export const createPayloadService = async ({ input }) => {
   }
 };
 
+export const getPayloadCodeService = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.get(
+      API_URL + "get-payload-code",
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: failed to get payload code");
+    throw error;
+  }
+};
+
+export const getByteStringService = async () => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.get(
+      API_URL + "get-byte-string",
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: failed to get byte string");
+    throw error;
+  }
+};
+
 export const usePayloadService = async ({ pid }) => {
   try {
     const config = {

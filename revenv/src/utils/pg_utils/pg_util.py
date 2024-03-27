@@ -29,6 +29,12 @@ def create_chain(pg: PayloadGenerator, chain: List) -> Tuple[Dict, int]:
     return corsify_response(jsonify(payload_dump=payload_dump, hexdump=hexdump)), HTTP.OK.value
 
 
+def get_payload_code(pg: PayloadGenerator) -> Tuple[Dict, int]:
+    code = pg.get_payload_code()
+    response = corsify_response(jsonify(code=code))
+    return response, HTTP.OK.value
+
+
 def use_payload(pg: PayloadGenerator, iomanager: IoManager) -> Tuple[Dict, int]:
     iomanager.write(f"run < <(python -c \"import sys; sys.stdout.buffer.write("
                     f"{pg.chain()})\")", timeout_sec=0, raise_error_on_timeout=False, read_response=False)
