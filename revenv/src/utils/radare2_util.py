@@ -36,7 +36,8 @@ def disassemble_binary(filename: str, direction: str = None, target: str = "", m
         target = ""
 
     payload = r.cmdj(f"pdJ {sign}64 @ {target}")
-    response = jsonify(msg="r2response", payload=payload, direction=direction, mode=mode)
+    response = jsonify(msg="r2response", payload=payload,
+                       direction=direction, mode=mode)
     response = corsify_response(response)
     r.quit()
     return response, HTTP.OK.value
@@ -44,8 +45,24 @@ def disassemble_binary(filename: str, direction: str = None, target: str = "", m
 
 def decompile_function(filename: str, address: str = "") -> Tuple[Dict, int]:
     r = _setup_rd2(filename)
-    payload: str = r.cmd(f"pdd @ {address}")
-    payload = payload.splitlines(keepends=True)
+    decompiled_code: str = r.cmd(f"pddo @ {address}")
+    lines = decompiled_code.splitlines(keepends=True)
+    payload = []
+    for line in lines:
+        strings = line.split("|")
+        address = strings[0].strip()
+        if address != "":
+            address = int(address, 16)
+        else:
+            address = None
+        if len(strings) > 1:
+            code = "".join(strings[1:])
+            if len(code) > 0:
+                code = code[1:]
+        else:
+            code = ""
+        payload.append({"address": address, "code": code})
+
     response = jsonify(msg="r2response", payload=payload)
     response = corsify_response(response)
     r.quit()

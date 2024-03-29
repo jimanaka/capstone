@@ -114,14 +114,18 @@ const CodeListing = () => {
     });
   };
 
-  const handleAssemblyClick = (e, address) => {
+  const handleAssemblyClick = (address) => {
     setHighlight(address);
     dispatch(
       decompileFunction({
         filename: currentFilePath,
-        address: address,
+        address: "0x" + address.toString(16),
       }),
     );
+  };
+
+  const handleDecompiledCodeClick = (address) => {
+    setHighlight(address);
   };
 
   return (
@@ -197,19 +201,17 @@ const CodeListing = () => {
               <ul ref={assemblyListRef} className="w-fit">
                 {assembly
                   ? assembly.map((line, index) => {
-                      let address = `0x${line.offset.toString(16)}`;
-                      let isHighlighted = address === highlight ? true : false;
+                      let isHighlighted =
+                        line.offset === highlight ? true : false;
                       return (
                         <li
-                          key={`assembly:${address}:${index}`}
-                          onClick={(e) => handleAssemblyClick(e, address)}
+                          key={index}
+                          onClick={() => handleAssemblyClick(line.offset)}
                           className={`${
                             isHighlighted ? "bg-ctp-overlay0" : null
                           } w-full`}
                         >
-                          <Code language="x86asm" highlight={isHighlighted}>
-                            {line.text}
-                          </Code>
+                          <Code language="x86asm">{line.text}</Code>
                         </li>
                       );
                     })
@@ -225,9 +227,18 @@ const CodeListing = () => {
               <ul>
                 {decompiledCode
                   ? decompiledCode.map((line, index) => {
+                    let isHighlighted = line.address === highlight && line.address !== null ? true : false;
                       return (
-                        <li key={`decompiledCode:${index}`}>
-                          <Code language="c">{line}</Code>
+                        <li
+                          key={index}
+                          onClick={() =>
+                            handleDecompiledCodeClick(line.address)
+                          }
+                          className={`${
+                            isHighlighted ? "bg-ctp-overlay0" : null
+                          } w-full`}
+                        >
+                          <Code language="c">{line.code}</Code>
                         </li>
                       );
                     })
