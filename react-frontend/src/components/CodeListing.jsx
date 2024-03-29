@@ -90,7 +90,7 @@ const CodeListing = () => {
     }
   }, [scrollTop, scrollBot]);
 
-  const handleMetadataClick = (e, address) => {
+  const handleMetadataClick = (e, address, type) => {
     setHighlight(address);
     setNoAssemblyScroll(true);
     setOldAssemblyHeight(0);
@@ -102,12 +102,14 @@ const CodeListing = () => {
         mode: "refresh",
       }),
     );
-    dispatch(
-      decompileFunction({
-        filename: currentFilePath,
-        address: address,
-      }),
-    );
+    if (type !== "string") {
+      dispatch(
+        decompileFunction({
+          filename: currentFilePath,
+          address: address,
+        }),
+      );
+    }
     assemblyContainerRef.current.scrollTo({
       top: 0,
       behavior: "instant",
@@ -227,7 +229,10 @@ const CodeListing = () => {
               <ul>
                 {decompiledCode
                   ? decompiledCode.map((line, index) => {
-                    let isHighlighted = line.address === highlight && line.address !== null ? true : false;
+                      let isHighlighted =
+                        line.address === highlight && line.address !== null
+                          ? true
+                          : false;
                       return (
                         <li
                           key={index}

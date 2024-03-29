@@ -21,7 +21,6 @@ export const uploadFileService = async ({
     formData.append("file", fileText);
     formData.append("lesson", lesson);
     formData.append("lessonName", lessonName);
-    console.log(formData);
     const response = await axios.post(
       API_URL + "upload-file",
       formData,

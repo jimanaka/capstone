@@ -129,7 +129,6 @@ const Debugger = () => {
               <ul role="list" className="mb-2 w-full">
                 {breakpoints.length > 0
                   ? breakpoints.map((breakpoint) => {
-                      console.log(breakpoint);
                       return (
                         <li
                           className="my-2"

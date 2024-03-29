@@ -9,12 +9,14 @@ const DropDown = ({ label, items, type, handleClick }) => {
         return (
           <ul>
             {items
-              ? Object.entries(items).map(([key, value], index) => {
-                  return (
-                    <li key={`${key}`} className="whitespace-nowrap">
-                      {key}: {value.toString()}
-                    </li>
-                  );
+              ? Object.keys(items).map((k) => {
+                  return Object.keys(items[k]).map((kk, ii) => {
+                    return (
+                      <li key={`${k}${ii}`} className="whitespace-nowrap">
+                        {kk}: {items[k][kk].toString()}
+                      </li>
+                    );
+                  });
                 })
               : null}
           </ul>
@@ -23,12 +25,12 @@ const DropDown = ({ label, items, type, handleClick }) => {
         return (
           <ul>
             {items.length > 0
-              ? items.map((item) => {
+              ? items.map((item, index) => {
                   return (
                     <li
-                      key={`${type}:${item.string}`}
+                      key={index}
                       onClick={(e) =>
-                        handleClick(e, `0x${item.vaddr.toString(16)}`)
+                        handleClick(e, `0x${item.vaddr.toString(16)}`, "string")
                       }
                     >
                       {item.string}
@@ -42,10 +44,10 @@ const DropDown = ({ label, items, type, handleClick }) => {
         return (
           <ul>
             {items.length > 0
-              ? items.map((item) => {
+              ? items.map((item, index) => {
                   return (
                     <li
-                      key={`${type}:${item.name}`}
+                      key={index}
                       onClick={(e) =>
                         handleClick(e, `0x${item.offset.toString(16)}`)
                       }
@@ -61,10 +63,10 @@ const DropDown = ({ label, items, type, handleClick }) => {
         return (
           <ul>
             {items.length > 0
-              ? items.map((item) => {
+              ? items.map((item, index) => {
                   return (
                     <li
-                      key={`${type}:${item.name}`}
+                      key={index}
                       onClick={
                         "plt" in item
                           ? (e) => handleClick(e, `0x${item.plt.toString(16)}`)
@@ -82,10 +84,10 @@ const DropDown = ({ label, items, type, handleClick }) => {
         return (
           <ul>
             {items.length > 0
-              ? items.map((item) => {
+              ? items.map((item, index) => {
                   return (
                     <li
-                      key={`${type}:${item.name}`}
+                      key={index}
                       onClick={(e) =>
                         handleClick(e, `0x${item.vaddr.toString(16)}`)
                       }
