@@ -1,4 +1,4 @@
-import rzpipe
+import r2pipe
 from flask import jsonify
 from http import HTTPStatus as HTTP
 from typing import Dict, Tuple, IO
@@ -7,9 +7,9 @@ from pprint import pprint
 
 
 def _setup_rd2(filename: str) -> IO:
-    r = rzpipe.open(filename)
-    r.cmd("e log.level=5")
-    r.cmd("aaa")
+    r = r2pipe.open(filename)
+    r.cmd("e log.level=1")
+    r.cmd("aaaa")
     return r
 
 
@@ -33,7 +33,7 @@ def disassemble_binary(filename: str, direction: str = None, target: str = "", m
         sign = ""
 
     if not target:
-        target = "entry0"
+        target = ""
 
     payload = r.cmdj(f"pdJ {sign}64 @ {target}")
     response = jsonify(msg="r2response", payload=payload, direction=direction, mode=mode)
@@ -44,7 +44,7 @@ def disassemble_binary(filename: str, direction: str = None, target: str = "", m
 
 def decompile_function(filename: str, address: str = "") -> Tuple[Dict, int]:
     r = _setup_rd2(filename)
-    payload: str = r.cmd(f"pdg @ {address}")
+    payload: str = r.cmd(f"pdd @ {address}")
     payload = payload.splitlines(keepends=True)
     response = jsonify(msg="r2response", payload=payload)
     response = corsify_response(response)

@@ -54,14 +54,14 @@ export const handleGdbGuiResponse = (store, socket, msg) => {
           store.dispatch(addOutput(msg.payload["msg"]));
       }
       if (msg.payload.hasOwnProperty("asm_insns")) {
-        msg.payload.asm_insns.map((item, index) => {
-          msg.payload.asm_insns[index].address = removeLeadingZeros(
-            item.address,
-          );
-        });
+        // msg.payload.asm_insns.map((item, index) => {
+        //   msg.payload.asm_insns[index].address = removeLeadingZeros(
+        //     item.address,
+        //   );
+        // });
         store.dispatch(setDisassemblyOutput(msg.payload.asm_insns));
       } else if (msg.payload.hasOwnProperty("bkpt")) {
-        msg.payload.bkpt.addr = removeLeadingZeros(msg.payload.bkpt.addr);
+        // msg.payload.bkpt.addr = removeLeadingZeros(msg.payload.bkpt.addr);
         store.dispatch(addGdbBreakpoint(msg.payload.bkpt));
       } else if (msg.payload.hasOwnProperty("register-names")) {
         store.dispatch(setGdbRegisterNames(msg.payload["register-names"]));
