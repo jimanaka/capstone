@@ -17,20 +17,31 @@ def _is_numerical(string: str) -> bool:
     return bool(pattern.match(string))
 
 
+def hex_string_to_bytes(string: str) -> bytes:
+    if string.startswith("0x"):
+        string = string[2:]
+
+    if len(string) % 2 != 0:
+        string = "0" + string
+    return bytes.fromhex(string)
+
+
 class PayloadGenerator:
     def __init__(self, file_path: str):
         self.elf: ELF = ELF(file_path)
         self.rop: ROP = ROP(self.elf)
         self.all_gadgets: dict = {}
+        self.bits = str(self.elf.bits)
+        self.endian = self.elf.endian
 
     def create_rop_chain(self, chain: List) -> None:
         for link in chain:
             match link["subtype"]:
-                case "hex" | "address":
+                case "hex":
                     if not _is_hexidecimal(link["value"]):
                         # need to throw error
                         logging.info("not a hex value")
-                    link["value"] = int(link["value"], 16)
+                    link["value"] = hex_string_to_bytes(link["value"])
                 case "numeric":
                     if not _is_numerical(link["value"]):
                         # need to throw error
@@ -41,7 +52,8 @@ class PayloadGenerator:
                 case "reg":
                     self.rop(**{link["reg"]: link["value"]})
                 case "raw":
-                    self.rop.raw(link["value"])
+                    # self.rop.raw(link["value"])
+                    self.rop._chain += [link["value"]]
                 case "padding":
                     self.rop.raw(link["padding"] * int(link["paddingAmount"]))
                 case "function":
@@ -49,10 +61,9 @@ class PayloadGenerator:
                         if item["subtype"] == "numeric":
                             item["arg"] = int(item["arg"])
                         elif item["subtype"] == "hex":
-                            item["arg"] = int(item["arg"], 16)
+                            item["arg"] = hex_string_to_bytes(item["arg"])
 
                     args = [x["arg"] for x in link["args"]]
-                    print(args)
                     self.rop.call(link["value"], args)
                 case _:
                     continue
@@ -80,8 +91,6 @@ class PayloadGenerator:
         pass
 
     def get_payload_code(self) -> str:
-        bits = str(self.elf.bits)
-        endian = self.elf.endian
         input_string = self.rop.dump()
 # Split the string into lines
         lines = input_string.split('\n')
@@ -95,7 +104,11 @@ class PayloadGenerator:
         for data, comment in data_comments:
             if comment != "":
                 comment = "\t\t# " + comment
-            payload += f"chain += pack({data}, word_size={bits}, endianness='{endian}'){comment}\n"
+            if data[0] == 'b' or data[0] == "'":
+                payload += f"chain += {data}{comment}\n"
+            else:
+                # can adapt word_size to account for 64 bit systems.  for not just following pwntools' 32 bits
+                payload += f"chain += pack({data}, word_size='32', endianness='{self.endian}'){comment}\n"
 
         payload += """sys.stdout.buffer.write(chain)"""
         return payload
