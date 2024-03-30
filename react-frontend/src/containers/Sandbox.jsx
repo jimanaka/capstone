@@ -261,7 +261,7 @@ const Sandbox = () => {
           </Modal>
         </form>
       </FormProvider>
-      <div className="w-full space-x-4 bg-ctp-mantle py-1 pl-8 ">
+      <div className="w-full space-x-4 bg-ctp-mantle py-1 px-2 ">
         <Tab.Group onChange={(index) => handleTabChange(index)} className="h-6">
           <Tab.List className="flex justify-center">
             <Tab className="flex-1">Listing</Tab>

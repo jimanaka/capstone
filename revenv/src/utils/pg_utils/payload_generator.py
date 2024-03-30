@@ -79,7 +79,7 @@ class PayloadGenerator:
 
     def get_byte_string(self) -> str:
         raw_bytes = self.chain()
-        return repr(raw_bytes)[2:-1]
+        return f'printf "{repr(raw_bytes)[2:-1]}"'
 
     def get_simple_gadgets(self) -> Dict:
         return self.rop.gadgets
