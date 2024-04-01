@@ -143,3 +143,24 @@ export const registerCourseService = async ({ courseId }) => {
     throw error;
   }
 };
+
+export const unregisterCourseService = async ({ courseId }) => {
+  try {
+    const config = {
+      headers: {
+        "X-CSRF-TOKEN": cookies.get("csrf_access_token"),
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    };
+    const response = await axios.post(
+      API_URL + "unregister-course",
+      { courseId },
+      config,
+    );
+    return response;
+  } catch (error) {
+    console.error("error: Unable to unregister course");
+    throw error;
+  }
+};

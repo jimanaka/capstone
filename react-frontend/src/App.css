@@ -16,7 +16,7 @@
   }
 
   .btn-deny {
-    @apply bg-ctp-red text-ctp-base w-full rounded-lg py-2 hover:bg-red-200;
+    @apply bg-ctp-red text-ctp-base rounded-lg px-3 py-2 hover:bg-red-200 font-bold;
   }
 
   .container {
