@@ -112,6 +112,9 @@ const payloadGeneratorSlice = createSlice({
     addUserChain: (state, action) => {
       state.userChain.push(action.payload);
     },
+    removeUserChainIndex: (state, action) => {
+      state.userChain.splice(action.payload, 1);
+    },
     addArg: (state, action) => {
       state.userChain[action.payload.index].args.push({
         arg: "",
@@ -125,6 +128,18 @@ const payloadGeneratorSlice = createSlice({
     },
     setCurrentInputs: (state, action) => {
       state.currentInputs = action.payload;
+    },
+    setPayloadDump: (state, action) => {
+      state.payloadDump = action.payload;
+    },
+    setPayloadHexDump: (state, action) => {
+      state.payloadHexdump = action.payload;
+    },
+    setPayloadCode: (state, action) => {
+      state.payloadCode = action.payload;
+    },
+    setByteString: (state, action) => {
+      state.byteString = action.payload;
     },
     resetPayloadGeneratorState: (state) => initialState,
   },
@@ -187,6 +202,11 @@ export const {
   addArg,
   setArgSubtype,
   setCurrentInputs,
+  removeUserChainIndex,
+  setPayloadDump,
+  setPayloadHexDump,
+  setPayloadCode,
+  setByteString,
 } = payloadGeneratorSlice.actions;
 
 export default payloadGeneratorSlice.reducer;

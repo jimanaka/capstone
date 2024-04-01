@@ -1,8 +1,12 @@
 import React, { useEffect, Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { Menu, Transition, Switch } from "@headlessui/react";
-import { PlusCircleIcon, ClipboardIcon } from "@heroicons/react/24/outline";
+import {
+  PlusCircleIcon,
+  ClipboardIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 
 import {
@@ -15,6 +19,12 @@ import {
   setCurrentInputs,
   getPayloadCode,
   getByteString,
+  removeUserChainIndex,
+  setUserChain,
+  setPayloadDump,
+  setPayloadHexDump,
+  setPayloadCode,
+  setByteString,
 } from "../redux/slice/payloadGeneratorSlice";
 
 import CodeView from "./CodeView";
@@ -48,12 +58,18 @@ const PayloadGenerator = () => {
 
   const {
     register,
+    unregister,
     handleSubmit,
     setError,
     formState: { errors },
     reset,
     getValues,
+    control,
   } = useForm();
+  const { fields, append, remove } = useFieldArray({
+    control: control,
+    name: "input", // unique name for your Field Array
+  });
 
   useEffect(() => {
     return () => {
@@ -81,33 +97,33 @@ const PayloadGenerator = () => {
     dispatch(
       event.target.value === "padding"
         ? setUserChainIndex({
-          index: chainNum,
-          chain: {
-            type: event.target.value,
-            subtype: "padding",
-            reg: "",
-            args: [],
-          },
-        })
-        : event.target.value === "function"
-          ? setUserChainIndex({
             index: chainNum,
             chain: {
               type: event.target.value,
-              subtype: "symbol",
+              subtype: "padding",
               reg: "",
               args: [],
             },
           })
+        : event.target.value === "function"
+          ? setUserChainIndex({
+              index: chainNum,
+              chain: {
+                type: event.target.value,
+                subtype: "symbol",
+                reg: "",
+                args: [],
+              },
+            })
           : setUserChainIndex({
-            index: chainNum,
-            chain: {
-              type: event.target.value,
-              subtype: "hex",
-              reg: "",
-              args: [],
-            },
-          }),
+              index: chainNum,
+              chain: {
+                type: event.target.value,
+                subtype: "hex",
+                reg: "",
+                args: [],
+              },
+            }),
     );
   };
   const handleSubTypeChange = (event, chainNum) => {
@@ -169,14 +185,26 @@ const PayloadGenerator = () => {
     });
   };
 
-
   const handleCopyClick = (id) => {
     let reference = document.getElementById(id);
     navigator.clipboard.writeText(reference.textContent).then(() => {
-      alert("text copied")
-    })
-  }
+      alert("text copied");
+    });
+  };
 
+  const handleLinkDelete = (index) => {
+    remove(index);
+    dispatch(removeUserChainIndex(index));
+  };
+
+  const handleClearChainPress = () => {
+    remove();
+    dispatch(setUserChain([]));
+    dispatch(setPayloadCode(""));
+    dispatch(setPayloadHexDump(""));
+    dispatch(setPayloadDump(""));
+    dispatch(setByteString(""));
+  };
 
   const SelectionMenu = ({
     chainNum,
@@ -212,21 +240,21 @@ const PayloadGenerator = () => {
           <Menu.Items className="mt-2 w-fit divide-y divide-ctp-surface1 rounded-md bg-ctp-surface0 p-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
             {items.length > 0
               ? items.map((item, index) => {
-                return (
-                  <Menu.Item
-                    key={index}
-                    className="group flex w-full items-center rounded-md border-none p-2 text-sm font-bold text-ctp-text hover:text-ctp-mauve"
-                  >
-                    <button
-                      type="button"
-                      value={item}
-                      onClick={(event) => handleChange(event, chainNum)}
+                  return (
+                    <Menu.Item
+                      key={index}
+                      className="group flex w-full items-center rounded-md border-none p-2 text-sm font-bold text-ctp-text hover:text-ctp-mauve"
                     >
-                      {item}
-                    </button>
-                  </Menu.Item>
-                );
-              })
+                      <button
+                        type="button"
+                        value={item}
+                        onClick={(event) => handleChange(event, chainNum)}
+                      >
+                        {item}
+                      </button>
+                    </Menu.Item>
+                  );
+                })
               : null}
           </Menu.Items>
         </Transition>
@@ -251,7 +279,7 @@ const PayloadGenerator = () => {
               currentVal={userChain[chainNum].type}
             />
             {userChain[chainNum].type !== "padding" &&
-              userChain[chainNum].type !== "" ? (
+            userChain[chainNum].type !== "" ? (
               <SelectionMenu
                 className="mr-2"
                 chainNum={chainNum}
@@ -290,7 +318,7 @@ const PayloadGenerator = () => {
                 type="number"
                 id={`paddingAmount${chainNum}`}
                 placeholder="Amount"
-                className="input-primary mr-2 w-32 p-2"
+                className="input-primary w-32 p-2"
                 required
                 {...register(`input.${chainNum}.paddingAmount`)}
               />
@@ -302,11 +330,18 @@ const PayloadGenerator = () => {
               }
               id={`input${chainNum}`}
               placeholder="Value"
-              className="input-primary mr-2 w-full min-w-0 resize-x p-2"
+              className="input-primary w-full min-w-0 resize-x p-2"
               required
               {...register(`input.${chainNum}.value`)}
             />
           )}
+          <button
+            type="button"
+            onClick={() => handleLinkDelete(chainNum)}
+            className="ml-1 rounded p-1 text-ctp-red hover:bg-ctp-mantle hover:text-red-300 active:bg-ctp-crust"
+          >
+            <TrashIcon className="h-5 w-5" />
+          </button>
         </div>
         {userChain[chainNum].type === "function" ? (
           <>
@@ -370,15 +405,22 @@ const PayloadGenerator = () => {
               <ul className="flex flex-1 flex-col overflow-scroll font-mono">
                 {userChain.length > 0
                   ? userChain.map((item, index) => {
-                    return (
-                      <li key={index}>
-                        <UserChainItem chainNum={index} />
-                      </li>
-                    );
-                  })
+                      return (
+                        <li key={index}>
+                          <UserChainItem chainNum={index} />
+                        </li>
+                      );
+                    })
                   : null}
               </ul>
               <div className="flex justify-between">
+                <button
+                  type="button"
+                  className="btn-deny mt-2 inline-flex  items-center justify-center rounded"
+                  onClick={handleClearChainPress}
+                >
+                  Clear Chain
+                </button>
                 <button
                   type="button"
                   className="btn-primary mt-2 inline-flex  items-center justify-center"
@@ -387,7 +429,7 @@ const PayloadGenerator = () => {
                   <PlusCircleIcon className="mr-1 h-8 w-8" />
                   <span>Add Link</span>
                 </button>
-                <button type="submit" className="btn-confirm mt-2">
+                <button type="submit" className="btn-confirm mt-2 rounded">
                   Create Chain
                 </button>
               </div>
@@ -402,14 +444,14 @@ const PayloadGenerator = () => {
             <ul>
               {simpleGadgets.length > 0
                 ? simpleGadgets.map((item, index) => {
-                  return (
-                    <li key={index} className="mt-2">
-                      <Code language="x86asm" highlight={false}>
-                        {`${item.address}: ${item.insns}\n${item.regs}`}
-                      </Code>
-                    </li>
-                  );
-                })
+                    return (
+                      <li key={index} className="mt-2">
+                        <Code language="x86asm" highlight={false}>
+                          {`${item.address}: ${item.insns}\n${item.regs}`}
+                        </Code>
+                      </li>
+                    );
+                  })
                 : null}
             </ul>
           </CodeView>
@@ -423,23 +465,31 @@ const PayloadGenerator = () => {
                 {payloadSwitchEnabled ? "Hexdump" : "Payload Chain"}
               </h1>
               <div className="absolute inset-y-0 right-0 flex items-center">
-                <button onClick={() => handleCopyClick("payloadView")} className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve">
+                <button
+                  onClick={() => handleCopyClick("payloadView")}
+                  className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+                >
                   <ClipboardIcon className="h-6 w-6" />
                 </button>
                 <Switch
                   checked={payloadSwitchEnabled}
                   onChange={setPayloadSwitchEnabled}
-                  className={`${payloadSwitchEnabled ? "bg-ctp-mauve" : "bg-gray-200"
-                    } relative inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
+                  className={`${
+                    payloadSwitchEnabled ? "bg-ctp-mauve" : "bg-ctp-overlay0"
+                  } relative inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
                 >
                   <span
-                    className={`${payloadSwitchEnabled ? "translate-x-6" : "translate-x-1"
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+                    className={`${
+                      payloadSwitchEnabled ? "translate-x-6" : "translate-x-1"
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition`}
                   />
                 </Switch>
               </div>
             </div>
-            <CodeView id="payloadView" className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono">
+            <CodeView
+              id="payloadView"
+              className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono"
+            >
               {payloadSwitchEnabled ? (
                 <code className="block w-full text-left text-slate-100">
                   {payloadHexdump}
@@ -456,26 +506,36 @@ const PayloadGenerator = () => {
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="relative flex w-full justify-center">
               <h1 className="text-center">
-                {codeSwitchEnabled ? "Payload Code (Bash)" : "Payload Code (Python)"}
+                {codeSwitchEnabled
+                  ? "Payload Code (Bash)"
+                  : "Payload Code (Python)"}
               </h1>
               <div className="absolute inset-y-0 right-0 flex items-center">
-                <button onClick={() => handleCopyClick("payloadCodeView")} className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve">
+                <button
+                  onClick={() => handleCopyClick("payloadCodeView")}
+                  className="mr-2 rounded-full text-ctp-text active:bg-ctp-crust active:text-ctp-mauve"
+                >
                   <ClipboardIcon className="h-6 w-6" />
                 </button>
                 <Switch
                   checked={codeSwitchEnabled}
                   onChange={setCodeSwitchEnabled}
-                  className={`${codeSwitchEnabled ? "bg-ctp-mauve" : "bg-gray-200"
-                    } relative inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
+                  className={`${
+                    codeSwitchEnabled ? "bg-ctp-mauve" : "bg-ctp-overlay0"
+                  } relative inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
                 >
                   <span
-                    className={`${codeSwitchEnabled ? "translate-x-6" : "translate-x-1"
-                      } inline-block h-4 w-4 transform rounded-full bg-white transition`}
+                    className={`${
+                      codeSwitchEnabled ? "translate-x-6" : "translate-x-1"
+                    } inline-block h-4 w-4 transform rounded-full bg-white transition`}
                   />
                 </Switch>
               </div>
             </div>
-            <CodeView id="payloadCodeView" className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono">
+            <CodeView
+              id="payloadCodeView"
+              className="mt-2 flex flex-1 flex-col overflow-scroll text-left font-mono"
+            >
               {codeSwitchEnabled ? (
                 <Code language="bash" highlight={false}>
                   {byteString}
