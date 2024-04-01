@@ -475,7 +475,7 @@ const PayloadGenerator = () => {
                   checked={payloadSwitchEnabled}
                   onChange={setPayloadSwitchEnabled}
                   className={`${
-                    payloadSwitchEnabled ? "bg-ctp-mauve" : "bg-gray-200"
+                    payloadSwitchEnabled ? "bg-ctp-mauve" : "bg-ctp-overlay0"
                   } relative inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
                 >
                   <span
@@ -521,7 +521,7 @@ const PayloadGenerator = () => {
                   checked={codeSwitchEnabled}
                   onChange={setCodeSwitchEnabled}
                   className={`${
-                    codeSwitchEnabled ? "bg-ctp-mauve" : "bg-gray-200"
+                    codeSwitchEnabled ? "bg-ctp-mauve" : "bg-ctp-overlay0"
                   } relative inset-y-0 right-0 ml-auto inline-flex h-6 w-11 items-center rounded-full`}
                 >
                   <span
