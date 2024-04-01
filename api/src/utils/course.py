@@ -27,7 +27,8 @@ def get_complete_questions(username: str, course_id: str, db_ctx: MongoContext) 
         return response
 
     pprint(doc["registered_courses"][0]["complete_questions"])
-    response = corsify_response(jsonify(complete_questions=doc["registered_courses"][0]["complete_questions"]))
+    response = corsify_response(
+        jsonify(complete_questions=doc["registered_courses"][0]["complete_questions"]))
     return response, HTTP.OK.value
 
 
@@ -158,3 +159,32 @@ def register_course(username: str, course_id: str, db_ctx: MongoContext) -> Tupl
         result = corsify_response(
             jsonify(msg="Failed to register course")), HTTP.SERVICE_UNAVAILABLE.value
     return result
+
+
+def unregister_course(username: str, course_id: str, db_ctx: MongoContext) -> Tuple[Dict, int]:
+    users_col = _get_db(db_ctx)[USERS_COLLECTION]
+    user_doc = users_col.find_one({"username": username})
+    if user_doc is None:
+        result = corsify_response(jsonify(
+            msg="Could not find user account")), HTTP.NETWORK_AUTHENTICATION_REQUIRED.value
+        return result
+
+    registered = False
+    for registered_course in user_doc["registered_courses"]:
+        if registered_course["_id"] == ObjectId(course_id):
+            registered = True
+
+    if not registered:
+        result = corsify_response(
+            jsonify(msg="Not registered for course")), HTTP.OK.value
+        return result
+
+    result = users_col.update_one({"username": username}, {
+        "$pull": {"registered_courses": {"_id": ObjectId(course_id)}}})
+    if result.modified_count == 1:
+        response = corsify_response(
+            jsonify(msg="unregistered course")), HTTP.OK.value
+    else:
+        response = compile(
+            jsonify(msg="failed to unregister for course")), HTTP.SERVICE_UNAVAILABLE.value
+    return response

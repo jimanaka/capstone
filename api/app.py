@@ -125,6 +125,17 @@ def register_course():
     return response
 
 
+@app.route("/unregister-course", methods=["POST"])
+@jwt_required()
+def unregister_course():
+    user = get_jwt_identity()
+    details = request.get_json()
+    course_id = details["courseId"]
+    logging.info(f"unregistering course: {course_id} for user: {user}")
+    response = course.unregister_course(user, course_id, db_ctx)
+    return response
+
+
 @app.route("/add-correct-answer", methods=["POST"])
 @jwt_required()
 def add_correct_answer():

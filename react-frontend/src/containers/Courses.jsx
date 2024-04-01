@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAvailableCourses,
   getRegisteredCourses,
   registerCourse,
+  unregisterCourse,
 } from "../redux/slice/courseSlice";
 import { PlusCircleIcon } from "@heroicons/react/24/outline";
 import CodeView from "../components/CodeView";
@@ -12,27 +13,44 @@ import SearchBox from "../components/SearchBox";
 
 const Courses = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const courses = useSelector((state) => state.course.courses);
   const registeredCourses = useSelector(
     (state) => state.course.registeredCourses,
   );
 
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [selectedRegistered, setSelectedRegistered] = useState(false);
 
   useEffect(() => {
     dispatch(getAvailableCourses());
     dispatch(getRegisteredCourses());
   }, []);
 
-  const handleCourseListItemClick = (item) => {
+  const handleCourseListItemClick = (item, registered) => {
     setSelectedCourse(item);
+    setSelectedRegistered(registered);
   };
 
   const handleRegisterCourseClick = () => {
     dispatch(registerCourse({ courseId: selectedCourse._id.$oid })).then(
       (res) => {
         if (res.meta.requestStatus === "fulfilled") {
+          alert("Course registered");
           dispatch(getRegisteredCourses());
+          setSelectedRegistered(true);
+        }
+      },
+    );
+  };
+
+  const handleUnregisterCourseClick = () => {
+    dispatch(unregisterCourse({ courseId: selectedCourse._id.$oid })).then(
+      (res) => {
+        if (res.meta.requestStatus === "fulfilled") {
+          alert("Course unregistered")
+          dispatch(getRegisteredCourses());
+          setSelectedRegistered(false);
         }
       },
     );
@@ -56,12 +74,13 @@ const Courses = () => {
     <div className="flex flex-1 flex-col px-11 py-4">
       <div className="flex w-full items-center justify-between">
         <h1 className="text-6xl font-extrabold">Courses</h1>
-        <Link to={"/create-course"}>
-          <button className="btn-primary mt-4 inline-flex items-center rounded-full">
-            <PlusCircleIcon className="mr-2 h-8 w-8" />
-            <span>Create Course</span>
-          </button>
-        </Link>
+        <button
+          onClick={() => navigate("/create-course")}
+          className="btn-primary mt-4 inline-flex items-center rounded-full"
+        >
+          <PlusCircleIcon className="mr-2 h-8 w-8" />
+          <span>Create Course</span>
+        </button>
       </div>
       <div className="mt-4 flex max-h-[calc(100vh_-_11rem)] flex-1 space-x-4">
         <div className="flex flex-1 flex-col">
@@ -70,7 +89,9 @@ const Courses = () => {
             <ul>
               {courses.length > 0
                 ? courses.map((item, index) => {
-                    let registered = registeredCourses.some((obj) => obj.name === item.name);
+                    let registered = registeredCourses.some(
+                      (obj) => obj.name === item.name,
+                    );
                     return (
                       <li
                         key={index}
@@ -79,7 +100,9 @@ const Courses = () => {
                             ? "border-ctp-green"
                             : "border-ctp-surface0"
                         }`}
-                        onClick={() => handleCourseListItemClick(item)}
+                        onClick={() =>
+                          handleCourseListItemClick(item, registered)
+                        }
                       >
                         <CourseListItem
                           title={item.name}
@@ -107,12 +130,29 @@ const Courses = () => {
                 <h3 className="mt-4 text-2xl">
                   Author: {selectedCourse.author}
                 </h3>
-                <button
-                  className="btn-primary"
-                  onClick={handleRegisterCourseClick}
-                >
-                  Register
-                </button>
+                {selectedRegistered ? (
+                  <div className="flex">
+                    <button
+                      className="btn-deny rounded"
+                      onClick={handleUnregisterCourseClick}
+                    >
+                      Unregister
+                    </button>
+                    <button
+                      className="btn-primary ml-2"
+                      onClick={() => navigate("/sandbox")}
+                    >
+                      Go To Sandbox
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="btn-confirm rounded"
+                    onClick={handleRegisterCourseClick}
+                  >
+                    Register
+                  </button>
+                )}
               </div>
             </>
           ) : null}

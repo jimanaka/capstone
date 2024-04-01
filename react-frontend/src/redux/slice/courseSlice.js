@@ -7,6 +7,7 @@ import {
   getRegisteredCourseService,
   addCorrectAnswerService,
   getCompleteQuestionsService,
+  unregisterCourseService,
 } from "../service/courseService";
 
 export const submitAnswer = createAsyncThunk(
@@ -110,6 +111,21 @@ export const registerCourse = createAsyncThunk(
   },
 );
 
+export const unregisterCourse = createAsyncThunk(
+  "course/unregisterCourse",
+  async ({ courseId }, { rejectWithValue }) => {
+    try {
+      const response = await unregisterCourseService({ courseId });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      }
+      return rejectWithValue(error.message);
+    }
+  },
+);
+
 export const loadCourse = createAsyncThunk(
   "course/loadCourse",
   async ({ courseId }, { rejectWithValue }) => {
@@ -176,6 +192,16 @@ const courseSlice = createSlice({
       state.loading = "succeeded";
     });
     builder.addCase(registerCourse.rejected, (state, action) => {
+      state.loading = "failed";
+      state.error = action.payload;
+    });
+    builder.addCase(unregisterCourse.pending, (state) => {
+      state.loading = "pending";
+    });
+    builder.addCase(unregisterCourse.fulfilled, (state) => {
+      state.loading = "succeeded";
+    });
+    builder.addCase(unregisterCourse.rejected, (state, action) => {
       state.loading = "failed";
       state.error = action.payload;
     });

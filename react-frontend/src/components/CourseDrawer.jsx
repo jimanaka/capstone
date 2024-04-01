@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Dialog, Transition } from "@headlessui/react";
@@ -23,6 +23,7 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
   const completeQuestions = useSelector(
     (state) => state.course.completeQuestions,
   );
+  const [showHint, setShowHint] = useState([]);
 
   const handleAnswerSubmit = (data) => {
     dispatch(submitAnswer(data)).then((res) => {
@@ -44,11 +45,18 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
     });
   };
 
+  const handleShowHintPress = (index) => {
+    let newHintArray = [...showHint];
+    newHintArray[index] = !newHintArray[index];
+    setShowHint(newHintArray);
+  };
+
   useEffect(() => {
     if (currentCourse) {
       dispatch(getCompleteQuestions({ courseId: currentCourse._id.$oid }));
+      setShowHint(new Array(currentCourse.questions.length).fill(false));
     }
-  }, [currentCourse])
+  }, [currentCourse]);
 
   return (
     <Transition show={isOpen} as={Fragment}>
@@ -90,72 +98,89 @@ const CourseDrawer = ({ isOpen, setIsOpen }) => {
               </div>
               {currentCourse
                 ? currentCourse.questions.map((item, index) => {
-                  let isComplete = completeQuestions.includes(index + 1);
-                  return (
-                    <form
-                      action=""
-                      className="mt-2 w-full"
-                      onSubmit={handleSubmit((data) =>
-                        handleAnswerSubmit({
-                          questionNum: index + 1,
-                          submittedAnswer: data[index],
-                        }),
-                      )}
-                      key={index}
-                    >
-                      <hr className="mx-1 border-ctp-surface0" />
-                      <div className="my-2 flex w-full flex-col pl-2">
-                        <label
-                          htmlFor="username"
-                          className={`mb-2 flex items-center justify-between ${isComplete ? "text-ctp-green" : null
-                            }`}
-                        >
-                          <p className="mr-3">{item.question}</p>
-                          <button
-                            type="button"
-                            className="rounded font-bold text-ctp-text hover:text-ctp-yellow"
-                          >
-                            <LightBulbIcon className="h-5 w-5 pr-1 hover:text-ctp-yellow" />
-                          </button>
-                        </label>
-                        <div className="flex w-full space-x-2">
-                          <input
-                            type="text"
-                            id="test-input"
-                            placeholder={
-                              isComplete
-                                ? currentCourse.questions[index].answer
-                                : "Input answer here..."
-                            }
-                            disabled={isComplete ? true : false}
-                            className={`bg-ctp-surface0 ${errors[index]
-                                ? "border-ctp-red focus:ring-ctp-red"
-                                : isComplete
-                                  ? "border-ctp-green focus:ring-ctp-green"
-                                  : "border-ctp-surface1 focus:ring-ctp-mauve"
-                              } w-full appearance-none rounded-lg border-2 px-1 py-1 text-sm placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2`}
-                            {...register(`${index}`)}
-                          />
-                          <button
-                            className="rounded hover:text-ctp-green"
-                            disabled={isComplete ? true : false}
-                          >
-                            {isComplete ? (
-                              <CheckCircleIcon className="h-6 w-6 text-ctp-green" />
-                            ) : (
-                              <ArrowRightCircleIcon className="h-6 w-6" />
-                            )}
-                          </button>
-                        </div>
-                        {errors[`${index}`] && (
-                          <p className="text-xs text-ctp-red">
-                            {errors[`${index}`].message}
-                          </p>
+                    let isComplete = completeQuestions.includes(index + 1);
+                    return (
+                      <form
+                        action=""
+                        className="mt-2 w-full"
+                        onSubmit={handleSubmit((data) =>
+                          handleAnswerSubmit({
+                            questionNum: index + 1,
+                            submittedAnswer: data[index],
+                          }),
                         )}
-                      </div>
-                    </form>
-                  );
-                })
+                        key={index}
+                      >
+                        <hr className="mx-1 border-ctp-surface0" />
+                        <div className="my-2 flex w-full flex-col pl-2">
+                          <label
+                            htmlFor="username"
+                            className={`mb-2 flex items-center justify-between ${
+                              isComplete ? "text-ctp-green" : null
+                            }`}
+                          >
+                            <p className="mr-3">{item.question}</p>
+                            <button
+                              type="button"
+                              onClick={() => handleShowHintPress(index)}
+                              className="rounded font-bold text-ctp-text hover:text-ctp-yellow"
+                            >
+                              <LightBulbIcon
+                                className={`h-5 w-5 pr-1 hover:text-ctp-yellow ${
+                                  showHint[index] ? "text-ctp-yellow" : null
+                                }`}
+                              />
+                            </button>
+                          </label>
+                          <div className="flex w-full space-x-2">
+                            <input
+                              type="text"
+                              id="test-input"
+                              placeholder={
+                                isComplete
+                                  ? currentCourse.questions[index].answer
+                                  : "Input answer here..."
+                              }
+                              disabled={isComplete ? true : false}
+                              className={`bg-ctp-surface0 ${
+                                errors[index]
+                                  ? "border-ctp-red focus:ring-ctp-red"
+                                  : isComplete
+                                    ? "border-ctp-green focus:ring-ctp-green"
+                                    : "border-ctp-surface1 focus:ring-ctp-mauve"
+                              } w-full appearance-none rounded-lg border-2 px-1 py-1 text-sm placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2`}
+                              {...register(`${index}`)}
+                            />
+                            <button
+                              className="rounded hover:text-ctp-green"
+                              disabled={isComplete ? true : false}
+                            >
+                              {isComplete ? (
+                                <CheckCircleIcon className="h-6 w-6 text-ctp-green" />
+                              ) : (
+                                <ArrowRightCircleIcon className="h-6 w-6" />
+                              )}
+                            </button>
+                          </div>
+                          {errors[`${index}`] && (
+                            <p className="text-xs text-ctp-red">
+                              {errors[`${index}`].message}
+                            </p>
+                          )}
+                          {showHint[index] ? (
+                            currentCourse.questions[index].hint &&
+                            currentCourse.questions[index].hint !== "" ? (
+                              <p className="mt-1">
+                                Hint: {currentCourse.questions[index].hint}
+                              </p>
+                            ) : (
+                              <p className="mt-1">No hint available</p>
+                            )
+                          ) : null}
+                        </div>
+                      </form>
+                    );
+                  })
                 : null}
             </div>
           </Transition.Child>
