@@ -303,45 +303,47 @@ const PayloadGenerator = () => {
               />
             ) : null}
           </div>
-          {userChain[chainNum].type === "padding" ? (
-            <div>
+          <div className="flex w-fit">
+            {userChain[chainNum].type === "padding" ? (
+              <div>
+                <input
+                  type="text"
+                  id={`paddingVal${chainNum}`}
+                  className="input-primary mr-2 w-14 p-2"
+                  placeholder="Char"
+                  required
+                  maxLength={1}
+                  {...register(`input.${chainNum}.padding`)}
+                />
+                <input
+                  type="number"
+                  id={`paddingAmount${chainNum}`}
+                  placeholder="Amount"
+                  className="input-primary w-32 p-2"
+                  required
+                  {...register(`input.${chainNum}.paddingAmount`)}
+                />
+              </div>
+            ) : (
               <input
-                type="text"
-                id={`paddingVal${chainNum}`}
-                className="input-primary mr-2 w-14 p-2"
-                placeholder="Char"
+                type={
+                  userChain[chainNum].subtype === "numeric" ? "number" : "text"
+                }
+                id={`input${chainNum}`}
+                placeholder="Value"
+                className="input-primary w-full min-w-0 resize-x p-2"
                 required
-                maxLength={1}
-                {...register(`input.${chainNum}.padding`)}
+                {...register(`input.${chainNum}.value`)}
               />
-              <input
-                type="number"
-                id={`paddingAmount${chainNum}`}
-                placeholder="Amount"
-                className="input-primary w-32 p-2"
-                required
-                {...register(`input.${chainNum}.paddingAmount`)}
-              />
-            </div>
-          ) : (
-            <input
-              type={
-                userChain[chainNum].subtype === "numeric" ? "number" : "text"
-              }
-              id={`input${chainNum}`}
-              placeholder="Value"
-              className="input-primary w-full min-w-0 resize-x p-2"
-              required
-              {...register(`input.${chainNum}.value`)}
-            />
-          )}
-          <button
-            type="button"
-            onClick={() => handleLinkDelete(chainNum)}
-            className="ml-1 rounded p-1 text-ctp-red hover:bg-ctp-mantle hover:text-red-300 active:bg-ctp-crust"
-          >
-            <TrashIcon className="h-5 w-5" />
-          </button>
+            )}
+            <button
+              type="button"
+              onClick={() => handleLinkDelete(chainNum)}
+              className="ml-1 rounded p-1 text-ctp-red hover:bg-ctp-mantle hover:text-red-300 active:bg-ctp-crust"
+            >
+              <TrashIcon className="h-5 w-5" />
+            </button>
+          </div>
         </div>
         {userChain[chainNum].type === "function" ? (
           <>

@@ -38,9 +38,8 @@ const Register = () => {
               ></path>
             </svg>
           </div>
-          <h1 className="text-5xl font-bold">Client Area</h1>
-          <p className="mx-auto w-5/12 md:mx-0">
-            Control and monitorize your website data from dashboard.
+          <p className="mx-auto w-1/2 text-3xl md:mx-0">
+            Create an account.
           </p>
         </div>
         <div className="mx-auto w-full md:mx-0 md:w-full lg:w-9/12">
@@ -59,7 +58,7 @@ const Register = () => {
                   type="text"
                   id="username"
                   placeholder="Please insert your username"
-                  className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2"
+                  className="appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
                   {...register("username")}
                 />
               </div>
@@ -68,10 +67,10 @@ const Register = () => {
                   Email
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   id="email"
                   placeholder="Please insert your email"
-                  className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2"
+                  className="appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
                   {...register("email")}
                 />
               </div>
@@ -83,14 +82,14 @@ const Register = () => {
                   type="password"
                   id="password"
                   placeholder="Please insert your password"
-                  className="focus:ring-ctp-mauve bg-ctp-surface0 border-ctp-surface1 appearance-none rounded-lg border-2 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2"
+                  className="appearance-none rounded-lg border-2 border-ctp-surface1 bg-ctp-surface0 px-4 py-3 placeholder:text-gray-500 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ctp-mauve"
                   {...register("password")}
                 />
               </div>
               <div id="button" className="my-5 flex w-full flex-col">
                 <button
                   type="submit"
-                  className="bg-ctp-green text-ctp-base w-full rounded-lg py-4 hover:bg-lime-200"
+                  className="w-full rounded-lg bg-ctp-green py-4 text-ctp-base hover:bg-lime-200"
                 >
                   <div className="flex flex-row items-center justify-center">
                     <div className="mr-2">
@@ -115,13 +114,13 @@ const Register = () => {
                 <div className="mt-5 flex justify-evenly">
                   <a
                     href="#"
-                    className="hover:text-ctp-text w-full text-center font-medium text-gray-500"
+                    className="w-full text-center font-medium text-gray-500 hover:text-ctp-text"
                   >
                     Recover password!
                   </a>
                   <Link
                     to={"/login"}
-                    className="hover:text-ctp-text w-full text-center font-medium text-gray-500"
+                    className="w-full text-center font-medium text-gray-500 hover:text-ctp-text"
                   >
                     Signin!
                   </Link>

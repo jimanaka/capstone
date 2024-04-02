@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../redux/slice/authSlice";
@@ -39,9 +39,8 @@ const Login = () => {
               ></path>
             </svg>
           </div>
-          <h1 className="text-5xl font-bold">Client Area</h1>
-          <p className="mx-auto w-5/12 md:mx-0">
-            Control and monitorize your website data from dashboard.
+          <p className="text-3xl mx-auto w-1/2 md:mx-0">
+            Sign in to start reverse engineering!
           </p>
         </div>
         <div className="mx-auto w-full md:mx-0 md:w-full lg:w-9/12">
@@ -108,12 +107,12 @@ const Login = () => {
                   >
                     Recover password!
                   </a>
-                  <a
-                    href="#"
+                  <Link
+                    to="/register"
                     className="hover:text-ctp-text w-full text-center font-medium text-gray-500"
                   >
                     Signup!
-                  </a>
+                  </Link>
                 </div>
               </div>
             </form>
