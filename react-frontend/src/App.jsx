@@ -13,7 +13,7 @@ import CreateCourse from "./containers/CreateCourse";
 
 function App() {
   return (
-    <div className="text-ctp-text min-h-screen flex flex-col">
+    <div className="flex h-fit min-h-screen flex-col text-ctp-text">
       <Navbar />
       <Routes>
         <Route path="*" element={<NotFound />} />
