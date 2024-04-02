@@ -61,7 +61,8 @@ class PayloadGenerator:
                         if item["subtype"] == "numeric":
                             item["arg"] = int(item["arg"])
                         elif item["subtype"] == "hex":
-                            item["arg"] = hex_string_to_bytes(item["arg"])
+                            # item["arg"] = hex_string_to_bytes(item["arg"])
+                            item["arg"] = int(item["arg"], 16)
 
                     args = [x["arg"] for x in link["args"]]
                     self.rop.call(link["value"], args)

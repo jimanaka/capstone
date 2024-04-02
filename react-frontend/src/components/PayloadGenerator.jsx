@@ -493,9 +493,9 @@ const PayloadGenerator = () => {
               className="mt-2 flex flex-1 flex-col  overflow-scroll text-left font-mono"
             >
               {payloadSwitchEnabled ? (
-                <code className="block w-full text-left text-slate-100">
+                <Code language="x86asm" highlight={false}>
                   {payloadHexdump}
-                </code>
+                </Code>
               ) : (
                 <Code language="x86asm" highlight={false}>
                   {payloadDump}
