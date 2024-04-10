@@ -36,6 +36,7 @@ def get_payload_code(pg: PayloadGenerator) -> Tuple[Dict, int]:
 
 
 def use_payload(pg: PayloadGenerator, iomanager: IoManager) -> Tuple[Dict, int]:
+    hex = ''.join([f'\\x{byte:02x}' for byte in pg.chain()])
     iomanager.write(f"run < <(python -c \"import sys; sys.stdout.buffer.write("
-                    f"{pg.chain()})\")", timeout_sec=0, raise_error_on_timeout=False, read_response=False)
+                    f"{hex}\")", timeout_sec=0, raise_error_on_timeout=False, read_response=False)
     return jsonify(msg="done"), HTTP.OK.value

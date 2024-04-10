@@ -79,8 +79,9 @@ class PayloadGenerator:
         return self.rop.chain()
 
     def get_byte_string(self) -> str:
-        raw_bytes = self.chain()
-        return f'printf "{repr(raw_bytes)[2:-1]}"'
+        # raw_bytes = self.chain()
+        raw_bytes = ''.join([f'\\x{byte:02x}' for byte in self.chain()])
+        return f'printf "{raw_bytes}"'
 
     def get_simple_gadgets(self) -> Dict:
         return self.rop.gadgets
